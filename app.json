@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "yusufmobile",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
@@ -20,8 +20,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.bayiwebpanel.YusufMobile",
-      "usesCleartextTraffic": true
+      "package": "com.bayiwebpanel.YusufMobile"
     },
     "web": {
       "output": "static",
@@ -30,29 +29,37 @@
     "plugins": [
       "expo-router",
       [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#2d1b69",
           "dark": {
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "updates": {
       "enabled": false
     },
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "d7dc428a-9ba2-4cc8-a520-e4c75c104f7e"
+        "projectId": "d8c271ed-c11f-4acf-9c75-86a345e8af97"
       }
     }
   }
