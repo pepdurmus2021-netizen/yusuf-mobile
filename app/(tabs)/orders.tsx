@@ -5,7 +5,11 @@ import {
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 
-const API_URL = 'http://192.168.1.106:4000';
+const API_URL = 'http://77.42.38.1:4000';
+
+const PURPLE = '#5B4FCF';
+const PURPLE_LIGHT = '#EEF0FF';
+const PURPLE_MID = '#C4B5FD';
 
 export default function OrdersScreen() {
   const { token } = useAuth();
@@ -71,7 +75,7 @@ export default function OrdersScreen() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1e3a8a" />
+        <ActivityIndicator size="large" color={PURPLE} />
       </View>
     );
   }
@@ -80,14 +84,16 @@ export default function OrdersScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <View style={styles.headerCircle1} />
+        <View style={styles.headerCircle2} />
         <Text style={styles.headerTitle}>Siparişlerim</Text>
         <Text style={styles.headerSub}>Sipariş geçmişinizi takip edin</Text>
       </View>
 
       {/* Stats Row */}
       <View style={styles.statsRow}>
-        <View style={[styles.statCard, { borderTopColor: '#1e3a8a' }]}>
-          <Text style={[styles.statNum, { color: '#1e3a8a' }]}>{stats.total}</Text>
+        <View style={[styles.statCard, { borderTopColor: PURPLE }]}>
+          <Text style={[styles.statNum, { color: PURPLE }]}>{stats.total}</Text>
           <Text style={styles.statLabel}>Toplam</Text>
         </View>
         <View style={[styles.statCard, { borderTopColor: '#16a34a' }]}>
@@ -167,10 +173,12 @@ export default function OrdersScreen() {
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>📋</Text>
+            <View style={styles.emptyIconBox}>
+              <Text style={styles.emptyIcon}>📋</Text>
+            </View>
             <Text style={styles.emptyTitle}>Sipariş Bulunamadı</Text>
             <Text style={styles.emptyText}>
-              {filter === 'all' ? 'Henüz hiç sipariş vermediniz' : `${filter} siparişi yok`}
+              {filter === 'all' ? 'Henüz hiç sipariş vermediniz' : `Bu kategoride sipariş yok`}
             </Text>
           </View>
         }
@@ -180,37 +188,54 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f4ff' },
+  container: { flex: 1, backgroundColor: '#F5F4FF' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { backgroundColor: '#1e3a8a', paddingTop: 60, paddingBottom: 20, paddingHorizontal: 20 },
+  header: {
+    backgroundColor: PURPLE,
+    paddingTop: 60,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    overflow: 'hidden',
+  },
+  headerCircle1: {
+    position: 'absolute', width: 160, height: 160, borderRadius: 80,
+    backgroundColor: 'rgba(255,255,255,0.08)', top: -40, right: -30,
+  },
+  headerCircle2: {
+    position: 'absolute', width: 100, height: 100, borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.06)', top: 20, right: 80,
+  },
   headerTitle: { fontSize: 26, fontWeight: 'bold', color: '#fff' },
-  headerSub: { fontSize: 13, color: '#bfdbfe', marginTop: 2 },
+  headerSub: { fontSize: 13, color: PURPLE_MID, marginTop: 2 },
   statsRow: {
     flexDirection: 'row', backgroundColor: '#fff',
     paddingHorizontal: 12, paddingVertical: 12,
-    borderBottomWidth: 1, borderBottomColor: '#e5e7eb', gap: 8,
+    borderBottomWidth: 1, borderBottomColor: '#EBEBEB', gap: 8,
   },
   statCard: {
-    flex: 1, backgroundColor: '#f9fafb', borderRadius: 12,
+    flex: 1, backgroundColor: '#FAFAFA', borderRadius: 12,
     padding: 10, alignItems: 'center', borderTopWidth: 3,
     shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 3, elevation: 2,
   },
   statNum: { fontSize: 22, fontWeight: 'bold' },
   statLabel: { fontSize: 10, color: '#6b7280', fontWeight: '600', marginTop: 2 },
-  filterScroll: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e5e7eb', maxHeight: 54 },
+  filterScroll: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#EBEBEB', maxHeight: 54 },
   filterContent: { padding: 10, gap: 8, flexDirection: 'row' },
-  filterBtn: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 20, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb' },
-  filterBtnActive: { backgroundColor: '#1e3a8a', borderColor: '#1e3a8a' },
+  filterBtn: {
+    paddingHorizontal: 16, paddingVertical: 7, borderRadius: 20,
+    backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: '#E5E7EB',
+  },
+  filterBtnActive: { backgroundColor: PURPLE, borderColor: PURPLE },
   filterBtnText: { fontSize: 12, color: '#374151', fontWeight: '600' },
   filterBtnTextActive: { color: '#fff' },
   listContent: { padding: 12 },
   card: {
-    backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 10,
-    shadowColor: '#1e3a8a', shadowOpacity: 0.06, shadowRadius: 6, elevation: 3,
+    backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 10,
+    shadowColor: PURPLE, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
   },
   cardTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   cardIconBox: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#eff6ff',
+    width: 44, height: 44, borderRadius: 12, backgroundColor: PURPLE_LIGHT,
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
   cardIconText: { fontSize: 22 },
@@ -218,16 +243,20 @@ const styles = StyleSheet.create({
   packageName: { fontSize: 15, fontWeight: '700', color: '#111827' },
   cardDate: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
   statusIcon: { fontSize: 22 },
-  cardDivider: { height: 1, backgroundColor: '#f3f4f6', marginBottom: 12 },
+  cardDivider: { height: 1, backgroundColor: '#F3F4F6', marginBottom: 12 },
   cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   orderId: { fontSize: 12, color: '#6b7280', marginBottom: 6 },
   statusBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start' },
   statusBadgeText: { fontSize: 12, fontWeight: '700' },
   amountBox: { alignItems: 'flex-end' },
   amountLabel: { fontSize: 11, color: '#9ca3af' },
-  amountValue: { fontSize: 18, fontWeight: 'bold', color: '#1e3a8a' },
-  empty: { alignItems: 'center', paddingVertical: 48 },
-  emptyIcon: { fontSize: 52, marginBottom: 14 },
+  amountValue: { fontSize: 18, fontWeight: 'bold', color: PURPLE },
+  empty: { alignItems: 'center', paddingVertical: 60 },
+  emptyIconBox: {
+    width: 80, height: 80, borderRadius: 40, backgroundColor: PURPLE_LIGHT,
+    justifyContent: 'center', alignItems: 'center', marginBottom: 16,
+  },
+  emptyIcon: { fontSize: 36 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#374151', marginBottom: 6 },
   emptyText: { fontSize: 13, color: '#9ca3af' },
 });

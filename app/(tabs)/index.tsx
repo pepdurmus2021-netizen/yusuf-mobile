@@ -6,7 +6,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
 
-const API_URL = 'http://192.168.1.106:4000';
+const API_URL = 'http://77.42.38.1:4000';
 const { width } = Dimensions.get('window');
 
 const CATEGORIES = [

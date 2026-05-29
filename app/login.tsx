@@ -7,7 +7,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = 'http://192.168.1.106:4000';
+const API_URL = 'http://77.42.38.1:4000';
 const { width } = Dimensions.get('window');
 
 const COUNTRIES = ['Türkiye', 'Almanya', 'Fransa', 'İngiltere', 'ABD', 'Hollanda', 'Belçika', 'Avusturya', 'İsviçre', 'Diğer'];
