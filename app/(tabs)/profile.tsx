@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView,
   TextInput, Modal, KeyboardAvoidingView, Platform, Linking,
@@ -34,6 +34,8 @@ export default function ProfileScreen() {
   const [appModal, setAppModal] = useState<{ type: 'success' | 'pending' | 'error'; title: string; message: string } | null>(null);
   const [photoOptions, setPhotoOptions] = useState(false);
   const [viewPhoto, setViewPhoto] = useState(false);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [announcementsModal, setAnnouncementsModal] = useState(false);
 
   const photoKey = user?.id ? `profilePhoto_${user.id}` : null;
 
@@ -41,6 +43,16 @@ export default function ProfileScreen() {
     setPhoto(null);
     if (photoKey) AsyncStorage.getItem(photoKey).then(v => { if (v) setPhoto(v); });
   }, [user?.id]);
+
+  const fetchAnnouncements = useCallback(async () => {
+    if (!token) return;
+    try {
+      const data = await apiFetch(`${API_URL}:4000/api/me/announcements`, token);
+      setAnnouncements(data.data || []);
+    } catch { setAnnouncements([]); }
+  }, [token]);
+
+  useEffect(() => { fetchAnnouncements(); }, [fetchAnnouncements]);
 
   const pickPhoto = async () => {
     setPhotoOptions(false);
@@ -111,6 +123,42 @@ export default function ProfileScreen() {
         message={appModal?.message || ''}
         onClose={() => setAppModal(null)}
       />
+      {/* DUYURULAR MODALI */}
+      <Modal visible={announcementsModal} transparent animationType="slide" onRequestClose={() => setAnnouncementsModal(false)}>
+        <View style={s.annOverlay}>
+          <View style={s.annSheet}>
+            <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.annHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Ionicons name="megaphone" size={20} color="white" />
+                <Text style={s.annHeaderTitle}>Duyurular</Text>
+              </View>
+              <TouchableOpacity onPress={() => setAnnouncementsModal(false)} style={s.annClose}>
+                <Ionicons name="close" size={20} color="white" />
+              </TouchableOpacity>
+            </LinearGradient>
+            {announcements.length === 0 ? (
+              <View style={s.annEmpty}>
+                <Ionicons name="megaphone-outline" size={40} color="#cbd5e1" />
+                <Text style={s.annEmptyText}>Henüz duyuru yok</Text>
+              </View>
+            ) : (
+              announcements.map(a => (
+                <View key={a.id} style={s.annCard}>
+                  <View style={s.annCardIcon}>
+                    <Ionicons name="megaphone" size={16} color="#4f46e5" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.annCardTitle}>{a.title}</Text>
+                    <Text style={s.annCardMsg}>{a.message}</Text>
+                    <Text style={s.annCardDate}>{new Date(a.created_at).toLocaleDateString('tr-TR')}</Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </View>
+        </View>
+      </Modal>
+
       {/* FOTOĞRAF SEÇENEK MODALI */}
       <Modal visible={photoOptions} transparent animationType="slide" onRequestClose={() => setPhotoOptions(false)}>
         <TouchableOpacity style={s.optOverlay} activeOpacity={1} onPress={() => setPhotoOptions(false)}>
@@ -228,6 +276,22 @@ export default function ProfileScreen() {
             <MenuItem icon="shield-checkmark-outline" color="#f59e0b" label="Güvenlik"               last />
           </View>
 
+          {/* DUYURULAR */}
+          <View style={s.groupHead}>
+            <Ionicons name="megaphone-outline" size={13} color="#94a3b8" />
+            <Text style={s.groupTitle}>DUYURULAR</Text>
+          </View>
+          <View style={s.group}>
+            <MenuItem
+              icon="megaphone-outline"
+              color="#4f46e5"
+              label="Duyurular"
+              badge={announcements.length > 0 ? announcements.length : undefined}
+              onPress={() => { fetchAnnouncements(); setAnnouncementsModal(true); }}
+              last
+            />
+          </View>
+
           {/* DESTEK */}
           <View style={s.groupHead}>
             <Ionicons name="headset-outline" size={13} color="#94a3b8" />
@@ -304,13 +368,16 @@ export default function ProfileScreen() {
   );
 }
 
-function MenuItem({ icon, color, label, onPress, last }: any) {
+function MenuItem({ icon, color, label, onPress, last, badge }: any) {
   return (
     <TouchableOpacity style={[s.menuItem, !last && s.menuBorder]} onPress={onPress} activeOpacity={0.7}>
       <View style={[s.menuIcon, { backgroundColor: color + '18' }]}>
         <Ionicons name={icon} size={18} color={color} />
       </View>
       <Text style={s.menuLabel}>{label}</Text>
+      {badge ? (
+        <View style={s.badge}><Text style={s.badgeTxt}>{badge}</Text></View>
+      ) : null}
       <Ionicons name="chevron-forward" size={15} color="#cbd5e1" />
     </TouchableOpacity>
   );
@@ -392,6 +459,21 @@ const s = StyleSheet.create({
   menuBorder: { borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   menuIcon: { width: 36, height: 36, borderRadius: 11, justifyContent: 'center', alignItems: 'center' },
   menuLabel: { flex: 1, fontSize: 14, fontWeight: '700', color: '#1e293b' },
+  badge: { backgroundColor: '#4f46e5', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, marginRight: 4 },
+  badgeTxt: { color: 'white', fontSize: 11, fontWeight: '800' },
+
+  annOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  annSheet: { backgroundColor: '#f8fafc', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '80%', overflow: 'hidden' },
+  annHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, paddingTop: 24 },
+  annHeaderTitle: { fontSize: 18, fontWeight: '900', color: 'white' },
+  annClose: { width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
+  annEmpty: { alignItems: 'center', justifyContent: 'center', padding: 40, gap: 10 },
+  annEmptyText: { color: '#94a3b8', fontWeight: '600', fontSize: 14 },
+  annCard: { flexDirection: 'row', gap: 12, backgroundColor: 'white', margin: 12, marginBottom: 0, borderRadius: 16, padding: 14, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
+  annCardIcon: { width: 36, height: 36, borderRadius: 11, backgroundColor: '#eef2ff', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  annCardTitle: { fontSize: 14, fontWeight: '800', color: '#1e293b', marginBottom: 4 },
+  annCardMsg: { fontSize: 13, color: '#475569', lineHeight: 18, marginBottom: 4 },
+  annCardDate: { fontSize: 11, color: '#94a3b8' },
 
   logoutBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef2f2', borderRadius: 16, padding: 14, gap: 12, marginBottom: 10 },
   logoutIcon: { width: 36, height: 36, borderRadius: 11, backgroundColor: '#fee2e2', justifyContent: 'center', alignItems: 'center' },

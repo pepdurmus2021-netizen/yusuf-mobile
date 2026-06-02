@@ -1,232 +1,311 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  ActivityIndicator, TextInput, Dimensions,
+  ActivityIndicator, Dimensions, RefreshControl, Image, Linking
 } from 'react-native';
+
+const ALL_OPERATORS = [
+  { dbNames: ['turkcell','türkcell'],                       logo: require('../../assets/images/turkcell.png') },
+  { dbNames: ['vodafone'],                                  logo: require('../../assets/images/vodafone.png') },
+  { dbNames: ['turk telekom','türk telekom','turktelekom'], logo: require('../../assets/images/turktelekom.png') },
+  { dbNames: ['roshan'],                                    logo: require('../../assets/images/roshan.png') },
+  { dbNames: ['mtn'],                                       logo: require('../../assets/images/mtn.png') },
+  { dbNames: ['awcc'],                                      logo: require('../../assets/images/awcc.png') },
+  { dbNames: ['salaam'],                                    logo: require('../../assets/images/salaam.png') },
+  { dbNames: ['etisalat'],                                  logo: require('../../assets/images/etisalat.png') },
+  { dbNames: ['pubg'],                                      logo: require('../../assets/images/pubg.png') },
+  { dbNames: ['valorant'],                                  logo: require('../../assets/images/valorant.png') },
+  { dbNames: ['free fire'],                                 logo: require('../../assets/images/free-fire.png') },
+  { dbNames: ['google play kart','google play'],            logo: require('../../assets/images/google-play.png') },
+  { dbNames: ['clash'],                                     logo: require('../../assets/images/clash-royale.png') },
+  { dbNames: ['ahlan'],                                     logo: require('../../assets/images/ahlan.png') },
+  { dbNames: ['soulchill','souLchill'],                     logo: require('../../assets/images/soulchill.png') },
+  { dbNames: ['hiya','hi̇ya'],                               logo: require('../../assets/images/hiya.png') },
+  { dbNames: ['sugo'],                                      logo: require('../../assets/images/sugo.png') },
+  { dbNames: ['yoho'],                                      logo: require('../../assets/images/yoho.png') },
+  { dbNames: ['ditto'],                                     logo: require('../../assets/images/ditto.png') },
+  { dbNames: ['jawaker'],                                   logo: require('../../assets/images/jawaker.png') },
+  { dbNames: ['haki'],                                      logo: require('../../assets/images/haki.png') },
+  { dbNames: ['haza'],                                      logo: require('../../assets/images/haza.png') },
+  { dbNames: ['bigo'],                                      logo: require('../../assets/images/bigo.png') },
+  { dbNames: ['tiktok','ti̇ktok'],                           logo: require('../../assets/images/tiktok.png') },
+  { dbNames: ['tango'],                                     logo: require('../../assets/images/tango.png') },
+  { dbNames: ['likee','li̇kee'],                             logo: require('../../assets/images/likee.png') },
+  { dbNames: ['itunes kart','i̇tunes kart'],                 logo: require('../../assets/images/itunes.png') },
+  { dbNames: ['paycell'],                                   logo: require('../../assets/images/paycell.png') },
+  { dbNames: ['yalla ludo'],                                logo: require('../../assets/images/yalla-ludo.png') },
+  { dbNames: ['tumile'],                                    logo: require('../../assets/images/tumile.png') },
+  { dbNames: ['falla'],                                     logo: require('../../assets/images/falla.png') },
+];
+
+function getOperatorLogo(operatorName?: string) {
+  if (!operatorName) return null;
+  const lower = operatorName.toLowerCase();
+  return ALL_OPERATORS.find(op => op.dbNames.some(n => lower.includes(n)))?.logo || null;
+}
+import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
-
-const API_URL = 'http://77.42.38.1:4000';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { safeDate, safeDateFull } from '../../lib/config';
+import { useAppStore } from '../../store/useAppStore';
+import { supabase } from '../../lib/supabase';
 const { width } = Dimensions.get('window');
 
-const CATEGORIES = [
-  { key: 'turk', label: '🇹🇷 Türk', operators: ['Turkcell', 'Vodafone', 'Turk Telekom'] },
-  { key: 'afgan', label: '🇦🇫 Afgan', operators: ['MTN', 'AWCC', 'SALAAM', 'ROSHAN', 'ETİSALAT', 'ASAAN', 'İRAN', 'AFGHAN KREDİ'] },
-  { key: 'game', label: '🎮 Oyunlar', operators: [] },
-];
-
-const QUICK_ACTIONS = [
-  { icon: '📦', label: 'Paketler', color: '#7C6FF7' },
-  { icon: '💰', label: 'Bakiye', color: '#FF7F7F' },
-  { icon: '📋', label: 'Siparişler', color: '#4CAF8C' },
-  { icon: '👤', label: 'Profil', color: '#FF9F43' },
-];
-
 export default function HomeScreen() {
-  const { token, user } = useAuth();
+  const { token, user, updateUser } = useAuth();
   const router = useRouter();
-  const [packages, setPackages] = useState<any[]>([]);
+  const { orders: recentOrders, balanceRequests, fetchOrders, fetchBalanceRequests } = useAppStore();
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('turk');
-  const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
 
   useEffect(() => {
-    if (token) fetchPackages();
-  }, [token]);
+    AsyncStorage.getItem('isBalanceVisible').then(val => {
+      if (val !== null) setIsBalanceVisible(val === 'true');
+    });
+  }, []);
 
-  useEffect(() => {
-    setSelectedOperator(null);
-  }, [activeCategory]);
+  useFocusEffect(useCallback(() => {
+    setProfilePhoto(null);
+    if (user?.id) AsyncStorage.getItem(`profilePhoto_${user.id}`).then(val => { if (val) setProfilePhoto(val); });
+  }, []));
 
-  const fetchPackages = async () => {
+  const toggleBalanceVisibility = () => {
+    const newState = !isBalanceVisible;
+    setIsBalanceVisible(newState);
+    AsyncStorage.setItem('isBalanceVisible', newState.toString());
+  };
+
+  const pickPhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+    if (!result.canceled && result.assets[0]) {
+      const uri = result.assets[0].uri;
+      setProfilePhoto(uri);
+      if (user?.id) AsyncStorage.setItem(`profilePhoto_${user.id}`, uri);
+    }
+  };
+
+  const fetchData = useCallback(async () => {
+    if (!user?.id) { setLoading(false); setRefreshing(false); return; }
     try {
-      const response = await fetch(`${API_URL}/api/packages`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      setPackages(data.data || []);
+      const [, , userRes] = await Promise.all([
+        fetchOrders(user.id),
+        fetchBalanceRequests(user.id),
+        supabase.from('users').select('balance').eq('id', user.id).single(),
+      ]);
+      if (userRes.data) updateUser({ balance: userRes.data.balance });
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, [user?.id]);
 
-  const categoryPackages = packages.filter(p => p.type === activeCategory);
-  const gameOperators = [...new Set(categoryPackages.map(p => p.operator))].sort((a, b) =>
-    a.localeCompare(b, 'tr')
-  );
+  useEffect(() => { if (user?.id) fetchData(); }, [user?.id]);
 
-  const displayPackages = categoryPackages
-    .filter(p => !selectedOperator || p.operator === selectedOperator)
-    .filter(p => !searchQuery || p.name_tr?.toLowerCase().includes(searchQuery.toLowerCase()));
+  useFocusEffect(useCallback(() => { if (user?.id) fetchData(); }, [user?.id]));
 
-  const currentCategory = CATEGORIES.find(c => c.key === activeCategory)!;
-  const firstName = (user as any)?.name?.split(' ')[0] || 'Kullanıcı';
+  const onRefresh = () => { setRefreshing(true); fetchData(); };
+
+  const firstName = user?.name?.split(' ')[0] || 'Kullanıcı';
+  const balance = parseFloat(user?.balance?.toString() || '0');
+
+  const completed = recentOrders.filter(o => o.status === 'completed').length;
+  const pending = recentOrders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+  const cancelled = recentOrders.filter(o => o.status === 'cancelled' || o.status === 'failed').length;
+  const totalSpent = recentOrders.filter(o => o.status === 'completed').reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
+
+  const pendingBalance = balanceRequests.filter(r => r.status === 'pending').length;
+  const approvedBalance = balanceRequests.filter(r => r.status === 'approved').length;
+
+  const quickActions = [
+    { label: 'Bakiye Yükle', icon: 'logo-usd', colors: ['#6366f1', '#8b5cf6'] as const, route: '/(tabs)/balance' },
+    { label: 'Sipariş Ver', icon: 'storefront', colors: ['#10b981', '#06b6d4'] as const, route: '/(tabs)/explore' },
+    { label: 'Geçmiş', icon: 'stats-chart', colors: ['#f59e0b', '#f97316'] as const, route: '/(tabs)/orders' },
+    { label: 'Hesabım', icon: 'shield-checkmark', colors: ['#ec4899', '#f43f5e'] as const, route: '/(tabs)/profile' },
+  ];
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.loadingGrad}>
+          <ActivityIndicator color="#fff" size="large" />
+          <Text style={styles.loadingText}>Yükleniyor...</Text>
+        </LinearGradient>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#6366f1']} />}
+      >
+        {/* HEADER */}
+        <LinearGradient colors={['#4f46e5', '#7c3aed', '#a855f7']} style={styles.header} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <View style={styles.decorCircle1} />
+          <View style={styles.decorCircle2} />
+          <View style={styles.decorCircle3} />
 
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerCircle1} />
-          <View style={styles.headerCircle2} />
-
-          <View style={styles.headerTop}>
-            <View>
-              <Text style={styles.greeting}>Merhaba, {firstName}! 👋</Text>
-              <Text style={styles.greetingSub}>Bugün ne satmak istersiniz?</Text>
-            </View>
-            <View style={styles.avatarCircle}>
-              <Text style={styles.avatarText}>{firstName[0]?.toUpperCase()}</Text>
-            </View>
-          </View>
-
-          {/* Bakiye Kartı */}
-          <View style={styles.balanceCard}>
-            <Text style={styles.balanceLabel}>Mevcut Bakiye</Text>
-            <Text style={styles.balanceAmount}>
-              {parseFloat((user as any)?.balance || 0).toFixed(2)} ₺
-            </Text>
-            <View style={styles.balanceRow}>
-              <TouchableOpacity style={styles.balanceBtn} onPress={() => router.push('/(tabs)/balance')}>
-                <Text style={styles.balanceBtnText}>+ Bakiye Yükle</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.balanceBtn, styles.balanceBtnOutline]} onPress={() => router.push('/(tabs)/orders')}>
-                <Text style={styles.balanceBtnOutlineText}>Siparişler</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* Hızlı İşlemler */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hızlı İşlemler</Text>
-          <View style={styles.quickGrid}>
-            {QUICK_ACTIONS.map((action) => (
-              <TouchableOpacity key={action.label} style={styles.quickItem} activeOpacity={0.8}>
-                <View style={[styles.quickIcon, { backgroundColor: action.color + '20' }]}>
-                  <Text style={styles.quickIconText}>{action.icon}</Text>
+          {/* ÜST SATIR: profil + isim sol | ikonlar sağ */}
+          <View style={styles.topBar}>
+            <View style={styles.topBarLeft}>
+              <TouchableOpacity style={styles.photoWrapper} onPress={pickPhoto}>
+                {profilePhoto ? (
+                  <Image key={user?.id} source={{ uri: profilePhoto }} style={styles.topPhoto} />
+                ) : (
+                  <LinearGradient colors={['#818cf8', '#c084fc']} style={styles.topPhotoPlaceholder}>
+                    <Text style={styles.topPhotoInitial}>{firstName[0]?.toUpperCase()}</Text>
+                  </LinearGradient>
+                )}
+                <View style={styles.editIcon}>
+                  <Ionicons name="pencil" size={9} color="#fff" />
                 </View>
-                <Text style={styles.quickLabel}>{action.label}</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Promosyon Banner */}
-        <View style={styles.section}>
-          <View style={styles.promoBanner}>
-            <View style={styles.promoCircle} />
-            <View style={styles.promoContent}>
-              <Text style={styles.promoTitle}>Yeni Paketler Eklendi!</Text>
-              <Text style={styles.promoSub}>Afgan operatör paketlerini inceleyin</Text>
-              <TouchableOpacity style={styles.promoBtn} onPress={() => setActiveCategory('afgan')}>
-                <Text style={styles.promoBtnText}>Şimdi Gör</Text>
+              <Text style={styles.topName} numberOfLines={1}>{user?.name || firstName}</Text>
+            </View>
+            <View style={styles.topBarRight}>
+              <TouchableOpacity style={styles.topIconBtn} onPress={() => Linking.openURL('sms:05069690724')}>
+                <Ionicons name="chatbubble-ellipses-outline" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
-            <Text style={styles.promoEmoji}>🌐</Text>
-          </View>
-        </View>
-
-        {/* Paketler */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Paketler</Text>
-
-          {/* Search */}
-          <View style={styles.searchBox}>
-            <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Paket ara..."
-              placeholderTextColor="#a0aec0"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
           </View>
 
-          {/* Kategori Tablar */}
-          <View style={styles.tabRow}>
-            {CATEGORIES.map(cat => (
-              <TouchableOpacity
-                key={cat.key}
-                style={[styles.tab, activeCategory === cat.key && styles.tabActive]}
-                onPress={() => setActiveCategory(cat.key)}
-              >
-                <Text style={[styles.tabText, activeCategory === cat.key && styles.tabTextActive]}>
-                  {cat.label}
-                </Text>
+          {/* BAKİYE KARTI */}
+          <View style={styles.heroCard}>
+            <View style={styles.heroCardHeader}>
+              <Text style={styles.heroBalLabel}>Toplam Bakiye</Text>
+            </View>
+            <View style={styles.heroAmountRow}>
+              <Text style={styles.heroBalAmount} adjustsFontSizeToFit numberOfLines={1}>
+                {isBalanceVisible
+                  ? balance.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                  : '••••••'}
+              </Text>
+              <Text style={styles.heroBalTL}> ₺</Text>
+              <TouchableOpacity onPress={toggleBalanceVisibility} style={{ marginLeft: 8, marginBottom: 2 }}>
+                <Ionicons name={isBalanceVisible ? 'eye-outline' : 'eye-off-outline'} size={20} color="#6366f1" />
               </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Operatör Filtresi */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.opScroll}>
-            {activeCategory === 'game' ? (
-              <>
-                <TouchableOpacity
-                  style={[styles.opBtn, !selectedOperator && styles.opBtnActive]}
-                  onPress={() => setSelectedOperator(null)}
-                >
-                  <Text style={[styles.opBtnText, !selectedOperator && styles.opBtnTextActive]}>Tümü</Text>
-                </TouchableOpacity>
-                {gameOperators.map(op => (
-                  <TouchableOpacity
-                    key={op}
-                    style={[styles.opBtn, selectedOperator === op && styles.opBtnActive]}
-                    onPress={() => setSelectedOperator(selectedOperator === op ? null : op)}
-                  >
-                    <Text style={[styles.opBtnText, selectedOperator === op && styles.opBtnTextActive]}>{op}</Text>
-                  </TouchableOpacity>
-                ))}
-              </>
-            ) : (
-              currentCategory.operators.map(op => (
-                <TouchableOpacity
-                  key={op}
-                  style={[styles.opBtn, selectedOperator === op && styles.opBtnActive]}
-                  onPress={() => setSelectedOperator(selectedOperator === op ? null : op)}
-                >
-                  <Text style={[styles.opBtnText, selectedOperator === op && styles.opBtnTextActive]}>{op}</Text>
-                </TouchableOpacity>
-              ))
+            </View>
+            {parseFloat((user as any)?.debt || 0) > 0 && (
+              <View style={styles.debtBadge}>
+                <Ionicons name="alert-circle" size={12} color="#ef4444" />
+                <Text style={styles.debtText}>Borç: {parseFloat((user as any).debt).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺</Text>
+              </View>
             )}
-          </ScrollView>
+          </View>
+        </LinearGradient>
 
-          {/* Paket Listesi */}
-          {loading ? (
-            <View style={styles.center}>
-              <ActivityIndicator size="large" color="#5B4FCF" />
+        {/* HIZLI İŞLEM BUTONLARI */}
+        <View style={styles.quickRow}>
+          {quickActions.map((a, i) => (
+            <TouchableOpacity key={i} style={styles.quickBtn} onPress={() => router.push(a.route as any)}>
+              <LinearGradient colors={a.colors} style={styles.quickIcon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+                <Ionicons name={a.icon as any} size={22} color="#fff" />
+              </LinearGradient>
+              <Text style={styles.quickLabel}>{a.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+
+        {/* SİPARİŞ ÖZETİ */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Sipariş Özeti</Text>
+          <View style={styles.summaryRow}>
+            <LinearGradient colors={['#10b981','#059669']} style={styles.summaryCard}>
+              <View style={styles.summaryTopRow}>
+                <Ionicons name="checkmark-circle" size={18} color="rgba(255,255,255,0.9)" />
+                <Text style={styles.summaryVal}>{completed}</Text>
+              </View>
+              <Text style={styles.summaryLbl}>Tamamlandı</Text>
+            </LinearGradient>
+            <LinearGradient colors={['#f59e0b','#d97706']} style={styles.summaryCard}>
+              <View style={styles.summaryTopRow}>
+                <Ionicons name="time" size={18} color="rgba(255,255,255,0.9)" />
+                <Text style={styles.summaryVal}>{pending}</Text>
+              </View>
+              <Text style={styles.summaryLbl}>Bekliyor</Text>
+            </LinearGradient>
+            <LinearGradient colors={['#ef4444','#dc2626']} style={styles.summaryCard}>
+              <View style={styles.summaryTopRow}>
+                <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.9)" />
+                <Text style={styles.summaryVal}>{cancelled}</Text>
+              </View>
+              <Text style={styles.summaryLbl}>İptal</Text>
+            </LinearGradient>
+          </View>
+          <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.totalSpentCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+            <View>
+              <Text style={styles.totalSpentLbl}>Toplam Harcama</Text>
+              <Text style={styles.totalSpentVal}>
+                {isBalanceVisible ? `${totalSpent.toFixed(2)} ₺` : '**** ₺'}
+              </Text>
             </View>
-          ) : displayPackages.length === 0 ? (
-            <View style={styles.emptyBox}>
-              <Text style={styles.emptyIcon}>📦</Text>
-              <Text style={styles.emptyText}>Paket bulunamadı</Text>
-            </View>
-          ) : (
-            displayPackages.map(item => (
-              <View key={item.id} style={styles.packageCard}>
-                <View style={styles.packageLeft}>
-                  <View style={styles.packageIconBox}>
-                    <Text style={styles.packageIconText}>
-                      {activeCategory === 'game' ? '🎮' : activeCategory === 'afgan' ? '🌐' : '📶'}
-                    </Text>
+            <Ionicons name="trending-up" size={32} color="rgba(255,255,255,0.4)" />
+          </LinearGradient>
+        </View>
+
+        {/* SON SİPARİŞLER */}
+        <View style={styles.section}>
+          <View style={styles.rowBetween}>
+            <Text style={styles.sectionTitle}>Son Siparişler</Text>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/orders')}>
+              <Text style={styles.seeAll}>Tümü →</Text>
+            </TouchableOpacity>
+          </View>
+
+          {recentOrders.slice(0, 5).map((order, i) => {
+            const logo = getOperatorLogo(order.package?.operator);
+            const statusColor = order.status === 'completed' ? '#10b981' : order.status === 'pending' || order.status === 'processing' ? '#f59e0b' : '#ef4444';
+            const statusIcon = order.status === 'completed' ? 'checkmark-circle' : order.status === 'pending' || order.status === 'processing' ? 'time' : 'close-circle';
+            return (
+              <View key={i} style={styles.orderCard}>
+                {logo ? (
+                  <View style={styles.orderLogoWrap}>
+                    <Image source={logo} style={styles.orderLogo} resizeMode="contain" />
                   </View>
-                  <View>
-                    <Text style={styles.packageName}>{item.name_tr}</Text>
-                    <Text style={styles.packageOperator}>{item.operator} · {item.amount}</Text>
-                  </View>
+                ) : (
+                  <LinearGradient
+                    colors={order.status === 'completed' ? ['#10b981', '#06b6d4'] : order.status === 'pending' ? ['#f59e0b', '#f97316'] : ['#ef4444', '#dc2626']}
+                    style={styles.orderIcon}
+                  >
+                    <Ionicons name={statusIcon as any} size={16} color="#fff" />
+                  </LinearGradient>
+                )}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.orderPhone}>{order.phone_number || '—'}</Text>
+                  <Text style={styles.orderTime}>{safeDateFull(order.created_at)}</Text>
                 </View>
-                <View style={styles.packageRight}>
-                  <Text style={styles.packagePrice}>{parseFloat(item.price_try || 0).toFixed(2)} ₺</Text>
-                  <TouchableOpacity style={styles.buyBtn} activeOpacity={0.85}>
-                    <Text style={styles.buyBtnText}>Al</Text>
-                  </TouchableOpacity>
+                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                  <Text style={styles.orderPrice}>
+                    {isBalanceVisible ? `-${parseFloat(order.amount || 0).toFixed(2)} ₺` : '**** ₺'}
+                  </Text>
+                  <Ionicons name={statusIcon as any} size={16} color={statusColor} />
                 </View>
               </View>
-            ))
+            );
+          })}
+
+          {recentOrders.length === 0 && (
+            <View style={styles.emptyBox}>
+              <Ionicons name="receipt-outline" size={32} color="#cbd5e1" />
+              <Text style={styles.emptyText}>Henüz sipariş yok</Text>
+            </View>
           )}
         </View>
 
@@ -237,134 +316,75 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F3FF' },
-  center: { paddingVertical: 40, alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#f8fafc' },
+  loadingContainer: { flex: 1 },
+  loadingGrad: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
+  loadingText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
-  // Header
-  header: {
-    backgroundColor: '#5B4FCF', paddingTop: 56, paddingBottom: 24,
-    paddingHorizontal: 20, overflow: 'hidden',
-  },
-  headerCircle1: {
-    position: 'absolute', width: 220, height: 220, borderRadius: 110,
-    backgroundColor: 'rgba(255,255,255,0.07)', top: -60, right: -60,
-  },
-  headerCircle2: {
-    position: 'absolute', width: 140, height: 140, borderRadius: 70,
-    backgroundColor: 'rgba(255,255,255,0.07)', top: 40, right: 60,
-  },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  greeting: { fontSize: 22, fontWeight: '800', color: '#fff' },
-  greetingSub: { fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
-  avatarCircle: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center',
-  },
-  avatarText: { fontSize: 18, fontWeight: '800', color: '#fff' },
+  header: { paddingTop: 58, paddingBottom: 28, paddingHorizontal: 20, overflow: 'hidden' },
+  decorCircle1: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(255,255,255,0.06)', top: -70, right: -70 },
+  decorCircle2: { position: 'absolute', width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.06)', bottom: -40, left: -40 },
+  decorCircle3: { position: 'absolute', width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.08)', top: 40, left: width / 2 },
 
-  // Balance Card
-  balanceCard: {
-    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20,
-    padding: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
-  },
-  balanceLabel: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginBottom: 6 },
-  balanceAmount: { fontSize: 34, fontWeight: '800', color: '#fff', marginBottom: 16 },
-  balanceRow: { flexDirection: 'row', gap: 10 },
-  balanceBtn: {
-    flex: 1, backgroundColor: '#fff', borderRadius: 12,
-    paddingVertical: 10, alignItems: 'center',
-  },
-  balanceBtnText: { fontSize: 13, fontWeight: '700', color: '#5B4FCF' },
-  balanceBtnOutline: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)' },
-  balanceBtnOutlineText: { fontSize: 13, fontWeight: '700', color: '#fff' },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 },
+  topBarLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  photoWrapper: { position: 'relative' },
+  topPhoto: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' },
+  topPhotoPlaceholder: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
+  topPhotoInitial: { color: '#fff', fontSize: 18, fontWeight: '900' },
+  editIcon: { position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: 9, backgroundColor: '#6366f1', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#fff' },
+  topName: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  topBarRight: { flexDirection: 'row', gap: 10 },
+  topIconBtn: { width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
 
-  // Section
-  section: { paddingHorizontal: 20, paddingTop: 24 },
-  sectionTitle: { fontSize: 18, fontWeight: '800', color: '#1a1a2e', marginBottom: 16 },
+  heroCard: { backgroundColor: '#fff', borderRadius: 28, padding: 22, elevation: 14, shadowColor: '#4f46e5', shadowOpacity: 0.22, shadowRadius: 24, shadowOffset: { width: 0, height: 8 } },
+  heroCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  heroBalLabel: { color: '#94a3b8', fontSize: 13, fontWeight: '600', letterSpacing: 0.3 },
+  heroAmountRow: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 14 },
+  heroBalAmount: { color: '#1e293b', fontSize: 36, fontWeight: '900', letterSpacing: -1, flexShrink: 1 },
+  heroBalTL: { color: '#1e293b', fontSize: 28, fontWeight: '900', marginBottom: 2 },
+  debtBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fef2f2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, marginTop: 8, alignSelf: 'flex-start' },
+  debtText: { color: '#ef4444', fontSize: 12, fontWeight: '700' },
 
-  // Quick Actions
-  quickGrid: { flexDirection: 'row', justifyContent: 'space-between' },
-  quickItem: { alignItems: 'center', width: (width - 80) / 4 },
-  quickIcon: {
-    width: 56, height: 56, borderRadius: 18,
-    justifyContent: 'center', alignItems: 'center', marginBottom: 8,
-  },
-  quickIconText: { fontSize: 26 },
-  quickLabel: { fontSize: 12, fontWeight: '600', color: '#374151', textAlign: 'center' },
+  quickRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 24, gap: 8 },
+  quickBtn: { flex: 1, alignItems: 'center', gap: 8 },
+  quickIcon: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
+  quickLabel: { fontSize: 10, fontWeight: '700', color: '#334155', textAlign: 'center', letterSpacing: 0.1, flexShrink: 1 },
 
-  // Promo Banner
-  promoBanner: {
-    backgroundColor: '#5B4FCF', borderRadius: 20, padding: 20,
-    flexDirection: 'row', alignItems: 'center', overflow: 'hidden',
-  },
-  promoCircle: {
-    position: 'absolute', width: 150, height: 150, borderRadius: 75,
-    backgroundColor: 'rgba(255,255,255,0.08)', right: -30, top: -40,
-  },
-  promoContent: { flex: 1 },
-  promoTitle: { fontSize: 16, fontWeight: '800', color: '#fff', marginBottom: 4 },
-  promoSub: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 12 },
-  promoBtn: {
-    backgroundColor: '#fff', borderRadius: 10,
-    paddingVertical: 8, paddingHorizontal: 16, alignSelf: 'flex-start',
-  },
-  promoBtnText: { fontSize: 13, fontWeight: '700', color: '#5B4FCF' },
-  promoEmoji: { fontSize: 48, marginLeft: 10 },
+  section: { paddingHorizontal: 20, marginTop: 28 },
+  sectionTitle: { fontSize: 18, fontWeight: '800', color: '#1e293b', marginBottom: 14 },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  seeAll: { color: '#6366f1', fontWeight: '700', fontSize: 13 },
 
-  // Search
-  searchBox: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 14,
-    height: 48, marginBottom: 16,
-    shadowColor: '#5B4FCF', shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
-  },
-  searchIcon: { fontSize: 16, marginRight: 10 },
-  searchInput: { flex: 1, fontSize: 14, color: '#1a1a2e' },
+  summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+  summaryCard: { flex: 1, borderRadius: 14, paddingVertical: 10, paddingHorizontal: 8, alignItems: 'center', gap: 4, elevation: 6, shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } },
+  summaryTopRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  summaryVal: { color: '#fff', fontSize: 18, fontWeight: '900' },
+  summaryLbl: { color: 'rgba(255,255,255,0.85)', fontSize: 10, fontWeight: '700' },
+  totalSpentCard: { borderRadius: 20, padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', elevation: 6, shadowColor: '#6366f1', shadowOpacity: 0.25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } },
+  totalSpentLbl: { color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '700' },
+  totalSpentVal: { color: '#fff', fontSize: 28, fontWeight: '900', marginTop: 4 },
 
-  // Tabs
-  tabRow: {
-    flexDirection: 'row', backgroundColor: '#ede9ff',
-    borderRadius: 14, padding: 4, marginBottom: 14,
-  },
-  tab: { flex: 1, paddingVertical: 9, borderRadius: 10, alignItems: 'center' },
-  tabActive: { backgroundColor: '#5B4FCF' },
-  tabText: { fontSize: 12, fontWeight: '600', color: '#9b8ecf' },
-  tabTextActive: { color: '#fff' },
+  balSummaryRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
+  balSummaryBox: { flex: 1, borderRadius: 16, padding: 14, alignItems: 'center', gap: 4 },
+  balSummaryVal: { fontSize: 22, fontWeight: '900' },
+  balSummaryLbl: { fontSize: 10, fontWeight: '700', color: '#64748b' },
 
-  // Operator buttons
-  opScroll: { marginBottom: 14 },
-  opBtn: {
-    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
-    backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#e8e4ff', marginRight: 8,
-  },
-  opBtnActive: { backgroundColor: '#5B4FCF', borderColor: '#5B4FCF' },
-  opBtnText: { fontSize: 12, color: '#374151', fontWeight: '600' },
-  opBtnTextActive: { color: '#fff' },
+  balReqCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 10, elevation: 2, shadowOpacity: 0.04, shadowRadius: 6 },
+  balReqDot: { width: 10, height: 10, borderRadius: 5, marginRight: 14 },
+  balReqAmount: { fontSize: 15, fontWeight: '800', color: '#1e293b' },
+  balReqDate: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  balReqBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  balReqStatus: { fontSize: 11, fontWeight: '700' },
 
-  // Package Card
-  packageCard: {
-    backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 10,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    shadowColor: '#5B4FCF', shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
-  },
-  packageLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  packageIconBox: {
-    width: 46, height: 46, borderRadius: 14, backgroundColor: '#f0eeff',
-    justifyContent: 'center', alignItems: 'center', marginRight: 12,
-  },
-  packageIconText: { fontSize: 22 },
-  packageName: { fontSize: 14, fontWeight: '700', color: '#1a1a2e' },
-  packageOperator: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
-  packageRight: { alignItems: 'flex-end' },
-  packagePrice: { fontSize: 16, fontWeight: '800', color: '#5B4FCF', marginBottom: 6 },
-  buyBtn: {
-    backgroundColor: '#5B4FCF', borderRadius: 10,
-    paddingHorizontal: 16, paddingVertical: 8,
-  },
-  buyBtnText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  orderCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 18, padding: 14, marginBottom: 10, elevation: 3, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
+  orderIcon: { width: 38, height: 38, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  orderLogoWrap: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center', marginRight: 14, overflow: 'hidden' },
+  orderLogo: { width: 30, height: 30 },
+  orderPhone: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
+  orderTime: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  orderPrice: { fontSize: 15, fontWeight: '800', color: '#ef4444' },
 
-  // Empty
-  emptyBox: { alignItems: 'center', paddingVertical: 48 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { fontSize: 16, color: '#9ca3af', fontWeight: '500' },
+  emptyBox: { alignItems: 'center', paddingVertical: 24, gap: 8 },
+  emptyText: { color: '#cbd5e1', fontSize: 13, fontWeight: '600' },
 });

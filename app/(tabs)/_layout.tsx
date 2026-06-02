@@ -1,74 +1,67 @@
 import { Tabs } from 'expo-router';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../../context/AuthContext';
 
-function HomeIcon({ focused }: { focused: boolean }) {
+function TabIcon({ name, focused }: { name: any; focused: boolean }) {
   return (
     <View style={styles.iconWrap}>
-      <Text style={[styles.icon, focused && styles.iconActive]}>🏠</Text>
-      {focused && <View style={styles.dot} />}
-    </View>
-  );
-}
-
-function OrdersIcon({ focused }: { focused: boolean }) {
-  return (
-    <View style={styles.iconWrap}>
-      <Text style={[styles.icon, focused && styles.iconActive]}>📋</Text>
-      {focused && <View style={styles.dot} />}
+      <Ionicons
+        name={focused ? name : `${name}-outline` as any}
+        size={23}
+        color={focused ? '#6366f1' : '#b0b8cc'}
+      />
+      {focused && <View style={styles.activeDot} />}
     </View>
   );
 }
 
 function CenterIcon() {
   return (
-    <View style={styles.centerBtn}>
-      <Text style={styles.centerIcon}>📦</Text>
-    </View>
-  );
-}
-
-function BalanceIcon({ focused }: { focused: boolean }) {
-  return (
-    <View style={styles.iconWrap}>
-      <Text style={[styles.icon, focused && styles.iconActive]}>💳</Text>
-      {focused && <View style={styles.dot} />}
-    </View>
-  );
-}
-
-function ProfileIcon({ focused }: { focused: boolean }) {
-  return (
-    <View style={styles.iconWrap}>
-      <Text style={[styles.icon, focused && styles.iconActive]}>👤</Text>
-      {focused && <View style={styles.dot} />}
+    <View style={styles.centerOuter}>
+      <LinearGradient
+        colors={['#4f46e5', '#7c3aed', '#a855f7']}
+        style={styles.centerBtn}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <Ionicons name="flash" size={28} color="#fff" />
+      </LinearGradient>
     </View>
   );
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const isAnaBayi = user?.role === 'ana_bayi';
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#5B4FCF',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: '#6366f1',
+        tabBarInactiveTintColor: '#b0b8cc',
         tabBarStyle: {
           backgroundColor: '#fff',
           borderTopWidth: 0,
-          height: 75,
-          paddingBottom: 12,
-          paddingTop: 8,
-          shadowColor: '#5B4FCF',
-          shadowOpacity: 0.12,
-          shadowRadius: 16,
-          elevation: 16,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          height: 68 + insets.bottom,
+          paddingBottom: insets.bottom + 6,
+          paddingTop: 10,
+          shadowColor: '#6366f1',
+          shadowOpacity: 0.1,
+          shadowRadius: 24,
+          shadowOffset: { width: 0, height: -4 },
+          elevation: 20,
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '700',
-          marginTop: 2,
+          letterSpacing: 0.3,
         },
       }}
     >
@@ -76,14 +69,23 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Ana Sayfa',
-          tabBarIcon: ({ focused }) => <HomeIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="orders"
         options={{
           title: 'Siparişler',
-          tabBarIcon: ({ focused }) => <OrdersIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="stats-chart" focused={focused} />,
+          tabBarItemStyle: isAnaBayi ? { display: 'none' } : {},
+        }}
+      />
+      <Tabs.Screen
+        name="dealers"
+        options={{
+          title: 'Bayilerim',
+          tabBarIcon: ({ focused }) => <TabIcon name="people" focused={focused} />,
+          tabBarItemStyle: isAnaBayi ? {} : { display: 'none' },
         }}
       />
       <Tabs.Screen
@@ -98,14 +100,20 @@ export default function TabsLayout() {
         name="balance"
         options={{
           title: 'Bakiye',
-          tabBarIcon: ({ focused }) => <BalanceIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="card" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="announcements"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profil',
-          tabBarIcon: ({ focused }) => <ProfileIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="shield-checkmark" focused={focused} />,
         }}
       />
     </Tabs>
@@ -113,22 +121,47 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  iconWrap: { alignItems: 'center', justifyContent: 'center' },
-  icon: { fontSize: 22, opacity: 0.4 },
-  iconActive: { opacity: 1 },
-  dot: {
-    width: 4, height: 4, borderRadius: 2,
-    backgroundColor: '#5B4FCF', marginTop: 3,
+  iconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  activeDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#6366f1',
+  },
+  centerOuter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 22,
   },
   centerBtn: {
-    width: 58, height: 58, borderRadius: 29,
-    backgroundColor: '#5B4FCF',
-    justifyContent: 'center', alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#5B4FCF',
+    width: 62,
+    height: 62,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#6366f1',
     shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 10,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 14,
   },
-  centerIcon: { fontSize: 26 },
+  bwpRing: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bwpLetter: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
 });

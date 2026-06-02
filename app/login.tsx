@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { API_URL } from '../lib/config';
+import { useFonts, Orbitron_900Black } from '@expo-google-fonts/orbitron';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -20,6 +21,7 @@ export default function LoginScreen() {
   const { login, token: currentToken } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<'login' | 'register'>('login');
+  const [fontsLoaded] = useFonts({ Orbitron_900Black });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -168,11 +170,9 @@ export default function LoginScreen() {
 
           {/* LOGO */}
           <View style={styles.logoArea}>
-            <LinearGradient colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']} style={styles.logoCircle}>
-              <Text style={styles.logoText}>YT</Text>
-            </LinearGradient>
-            <Text style={styles.appName}>Yusuf Telecom</Text>
-            <Text style={styles.welcomeText}>Hoş geldiniz</Text>
+            <View style={styles.bwpLogoWrap}>
+              <Text style={[styles.bwpLetters, !fontsLoaded && { fontFamily: undefined }]}>BWP</Text>
+            </View>
           </View>
 
           {/* KART */}
@@ -263,12 +263,28 @@ const styles = StyleSheet.create({
   decor2: { position: 'absolute', width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.06)', bottom: 100, left: -60 },
   decor3: { position: 'absolute', width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(255,255,255,0.04)', top: 200, left: 30 },
 
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 60 },
+  scroll: { flexGrow: 1, justifyContent: 'flex-start', paddingHorizontal: 24, paddingTop: 80, paddingBottom: 30 },
 
-  logoArea: { alignItems: 'center', marginBottom: 36 },
-  logoCircle: { width: 80, height: 80, borderRadius: 26, justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
-  logoText: { fontSize: 28, fontWeight: '900', color: '#fff' },
-  appName: { fontSize: 28, fontWeight: '900', color: '#fff', letterSpacing: -0.5 },
+  logoArea: { alignItems: 'center', marginBottom: 20 },
+  bwpLogoWrap: { alignItems: 'center', marginBottom: 14 },
+  bwpGlowOuter: {
+    width: 160, height: 160, borderRadius: 80,
+    backgroundColor: 'rgba(139,92,246,0.25)',
+    justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#7c3aed', shadowOpacity: 0.9, shadowRadius: 40, shadowOffset: { width: 0, height: 0 },
+    elevation: 20,
+  },
+  bwpGlowInner: {
+    width: 130, height: 130, borderRadius: 65,
+    backgroundColor: 'rgba(99,102,241,0.35)',
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.25)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  bwpGradientWrap: { borderRadius: 20, overflow: 'hidden' },
+  bwpGradientBg: { paddingHorizontal: 20, paddingVertical: 8 },
+  bwpLetters: { fontSize: 64, fontFamily: 'Orbitron_900Black', color: '#fff', letterSpacing: 4, textShadowColor: 'rgba(167,139,250,0.9)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 20 },
+  bwpLine: { width: 160, height: 1.5, backgroundColor: 'rgba(255,255,255,0.35)', marginVertical: 8 },
+  bwpSub: { fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.75)', letterSpacing: 1 },
   welcomeText: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '600', marginTop: 4 },
 
   card: { backgroundColor: '#fff', borderRadius: 28, padding: 24, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 30, elevation: 20 },
