@@ -11,6 +11,7 @@ import { safeDate, safeDateFull } from '../../lib/config';
 import { useAppStore } from '../../store/useAppStore';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { WebView } from 'react-native-webview';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                          logo: require('../../assets/images/turkcell.png') },
@@ -84,8 +85,8 @@ function generateReceiptHtml(order: any): string {
 <style>
   @page { size: 80mm auto; margin: 0; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: -apple-system, Arial, sans-serif; background:#fff; width:80mm; }
-  .page { width: 80mm; background: #fff; }
+  body { font-family: -apple-system, Arial, sans-serif; background:#fff; width:80mm; margin:0 auto; }
+  .page { width: 80mm; background: #fff; margin: 0 auto; text-align:center; }
   .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); padding: 22px 28px 18px; text-align: center; position: relative; overflow: hidden; }
   .header::before { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.07); top:-60px; right:-60px; }
   .header::after  { content:''; position:absolute; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.07); bottom:-30px; left:-30px; }
@@ -94,7 +95,7 @@ function generateReceiptHtml(order: any): string {
   .brand-sub { color:rgba(255,255,255,0.65); font-size:11px; font-weight:600; }
   .status-badge { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.35); border-radius:30px; padding:6px 18px; color:#fff; font-size:13px; font-weight:800; }
   .check { display:inline-block; width:18px; height:18px; background:#10b981; border-radius:50%; color:#fff; font-size:11px; line-height:18px; text-align:center; font-weight:900; }
-  .body { padding: 28px; }
+  .body { padding: 16px; }
   .amount-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #86efac; border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 24px; }
   .amount-label { color:#16a34a; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
   .amount-value { color:#15803d; font-size:36px; font-weight:900; }
@@ -185,6 +186,7 @@ export default function OrdersScreen() {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<any>(null);
+  const [receiptOrder, setReceiptOrder] = useState<any>(null);
 
   useEffect(() => { fetchOrdersData(); }, [user?.id]);
 
@@ -309,6 +311,31 @@ export default function OrdersScreen() {
         }}
       />
 
+      {/* DEKONT ÖNİZLEME MODAL */}
+      <Modal visible={!!receiptOrder} transparent animationType="slide">
+        <View style={s.receiptModalWrap}>
+          <View style={s.receiptModalHeader}>
+            <Text style={s.receiptModalTitle}>Dekont Önizleme</Text>
+            <View style={s.receiptModalActions}>
+              <TouchableOpacity onPress={() => { if(receiptOrder) downloadReceipt(receiptOrder); }} style={s.receiptModalBtn}>
+                <Ionicons name="share-outline" size={20} color="#6366f1" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { if(receiptOrder) printReceipt(receiptOrder); }} style={s.receiptModalBtn}>
+                <Ionicons name="print-outline" size={20} color="#6366f1" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setReceiptOrder(null)} style={s.receiptModalClose}>
+                <Ionicons name="close" size={20} color="#64748b" />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <WebView
+            source={{ html: receiptOrder ? generateReceiptHtml(receiptOrder) : '' }}
+            style={s.receiptWebView}
+            scrollEnabled={true}
+          />
+        </View>
+      </Modal>
+
       {/* DETAY MODAL — BOTTOM SHEET */}
       <Modal visible={!!selected} transparent animationType="slide">
         <KeyboardAvoidingView style={s.overlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -355,8 +382,12 @@ export default function OrdersScreen() {
                       <TouchableOpacity style={s.receiptBtn} onPress={() => downloadReceipt(selected)}>
                         <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.receiptBtnInner} start={{x:0,y:0}} end={{x:1,y:0}}>
                           <Ionicons name="share-outline" size={17} color="#fff" />
-                          <Text style={s.receiptBtnTxt}>İndir / Paylaş</Text>
+                          <Text style={s.receiptBtnTxt}>Paylaş</Text>
                         </LinearGradient>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={s.receiptBtnOutline} onPress={() => { setSelected(null); setReceiptOrder(selected); }}>
+                        <Ionicons name="eye-outline" size={17} color="#6366f1" />
+                        <Text style={s.receiptBtnOutlineTxt}>Görüntüle</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={s.receiptBtnOutline} onPress={() => printReceipt(selected)}>
                         <Ionicons name="print-outline" size={17} color="#6366f1" />
@@ -444,12 +475,20 @@ const s = StyleSheet.create({
   sheetBadgeOp: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600', marginTop: 2 },
   sheetBadgeAmt: { color: '#fff', fontSize: 18, fontWeight: '900' },
 
-  receiptRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
+  receiptRow: { flexDirection: 'row', gap: 8, marginTop: 18 },
   receiptBtn: { flex: 2, borderRadius: 14, overflow: 'hidden' },
   receiptBtnInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, paddingVertical: 13 },
-  receiptBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '800' },
-  receiptBtnOutline: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderRadius: 14, borderWidth: 2, borderColor: '#6366f1', paddingVertical: 13 },
-  receiptBtnOutlineTxt: { color: '#6366f1', fontSize: 13, fontWeight: '800' },
+  receiptBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  receiptBtnOutline: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, borderRadius: 14, borderWidth: 2, borderColor: '#6366f1', paddingVertical: 13 },
+  receiptBtnOutlineTxt: { color: '#6366f1', fontSize: 12, fontWeight: '800' },
+
+  receiptModalWrap: { flex: 1, backgroundColor: '#fff' },
+  receiptModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  receiptModalTitle: { fontSize: 17, fontWeight: '900', color: '#1e293b' },
+  receiptModalActions: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  receiptModalBtn: { width: 38, height: 38, borderRadius: 12, backgroundColor: '#ede9fe', justifyContent: 'center', alignItems: 'center' },
+  receiptModalClose: { width: 38, height: 38, borderRadius: 12, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' },
+  receiptWebView: { flex: 1, backgroundColor: '#f1f5f9' },
 
   detailList: { gap: 4 },
   detailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
