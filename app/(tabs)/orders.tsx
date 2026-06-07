@@ -69,7 +69,7 @@ const FILTERS = [
   { key: 'failed',    label: 'İptal'      },
 ];
 
-function generateReceiptHtml(order: any): string {
+function generateReceiptHtml(order: any, forPrint = false): string {
   const orderId = (order.id || '').toString().toUpperCase().slice(-10);
   const date = safeDateFull(order.created_at);
   const phone = order.phone_number || '—';
@@ -83,10 +83,10 @@ function generateReceiptHtml(order: any): string {
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
-  @page { size: 80mm auto; margin: 0; }
+  @page { size: ${forPrint ? 'A4' : '80mm auto'}; margin: ${forPrint ? '20mm' : '0'}; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: -apple-system, Arial, sans-serif; background:#fff; width:80mm; margin:0 auto; }
-  .page { width: 80mm; background: #fff; margin: 0 auto; text-align:center; }
+  body { font-family: -apple-system, Arial, sans-serif; background:#fff; width:${forPrint ? '100%' : '80mm'}; margin:0 auto; }
+  .page { width: ${forPrint ? '100%' : '80mm'}; max-width: ${forPrint ? '500px' : '80mm'}; background: #fff; margin: 0 auto; text-align:center; }
   .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); padding: 22px 28px 18px; text-align: center; position: relative; overflow: hidden; }
   .header::before { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.07); top:-60px; right:-60px; }
   .header::after  { content:''; position:absolute; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.07); bottom:-30px; left:-30px; }
@@ -161,7 +161,7 @@ function generateReceiptHtml(order: any): string {
 
 async function downloadReceipt(order: any) {
   try {
-    const html = generateReceiptHtml(order);
+    const html = generateReceiptHtml(order, true);
     const { uri } = await Print.printToFileAsync({ html, base64: false });
     await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Dekontu Paylaş' });
   } catch (e: any) {
@@ -171,7 +171,7 @@ async function downloadReceipt(order: any) {
 
 async function printReceipt(order: any) {
   try {
-    const html = generateReceiptHtml(order);
+    const html = generateReceiptHtml(order, true);
     await Print.printAsync({ html });
   } catch (e: any) {
     Alert.alert('Hata', e.message || 'Yazdırma başarısız');
