@@ -2,13 +2,15 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   View, Text, FlatList, StyleSheet, ActivityIndicator,
   TouchableOpacity, TextInput, RefreshControl, Modal,
-  KeyboardAvoidingView, Platform, ScrollView, Image,
+  KeyboardAvoidingView, Platform, ScrollView, Image, Alert,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { safeDate, safeDateFull } from '../../lib/config';
 import { useAppStore } from '../../store/useAppStore';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                          logo: require('../../assets/images/turkcell.png') },
@@ -65,6 +67,113 @@ const FILTERS = [
   { key: 'pending',   label: 'Bekliyor'   },
   { key: 'failed',    label: 'İptal'      },
 ];
+
+function generateReceiptHtml(order: any): string {
+  const orderId = (order.id || '').toString().toUpperCase().slice(-10);
+  const date = safeDateFull(order.created_at);
+  const phone = order.phone_number || '—';
+  const pkg = order.package?.name_tr || 'Paket';
+  const operator = order.package?.operator || '—';
+  const amount = parseFloat(order.amount || 0).toFixed(2);
+
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, Arial, sans-serif; background:#f8fafc; }
+  .page { max-width: 420px; margin: 0 auto; background: #fff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); padding: 40px 28px 32px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.07); top:-60px; right:-60px; }
+  .header::after  { content:''; position:absolute; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.07); bottom:-30px; left:-30px; }
+  .brand { color:rgba(255,255,255,0.85); font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:6px; }
+  .brand-name { color:#fff; font-size:26px; font-weight:900; letter-spacing:1px; margin-bottom:4px; }
+  .brand-sub { color:rgba(255,255,255,0.65); font-size:12px; font-weight:600; margin-bottom:24px; }
+  .status-badge { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.35); border-radius:30px; padding:8px 20px; color:#fff; font-size:14px; font-weight:800; }
+  .check { display:inline-block; width:20px; height:20px; background:#10b981; border-radius:50%; color:#fff; font-size:12px; line-height:20px; text-align:center; font-weight:900; }
+  .body { padding: 28px; }
+  .amount-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #86efac; border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 24px; }
+  .amount-label { color:#16a34a; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+  .amount-value { color:#15803d; font-size:36px; font-weight:900; }
+  .section-title { color:#94a3b8; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+  .detail-list { border: 1.5px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .detail-row { display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border-bottom:1px solid #f1f5f9; }
+  .detail-row:last-child { border-bottom:none; }
+  .detail-key { color:#94a3b8; font-size:12px; font-weight:700; }
+  .detail-val { color:#1e293b; font-size:13px; font-weight:800; text-align:right; max-width:60%; }
+  .detail-val.mono { font-family: monospace; font-size:12px; color:#6366f1; }
+  .footer { margin-top:8px; background:#f8fafc; border-radius:16px; padding:18px; text-align:center; }
+  .footer-line1 { color:#64748b; font-size:12px; font-weight:600; margin-bottom:6px; }
+  .footer-line2 { color:#a855f7; font-size:13px; font-weight:800; }
+  .divider { height:1px; background:linear-gradient(90deg,transparent,#e2e8f0,transparent); margin:8px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="brand">TECH TELEKOMUNIKASYON YAZILIM</div>
+    <div class="brand-name">BWP</div>
+    <div class="brand-sub">Yükleme Dekontu</div>
+    <div class="status-badge"><span class="check">✓</span> Tamamlandı</div>
+  </div>
+  <div class="body">
+    <div class="amount-card">
+      <div class="amount-label">Ödenen Tutar</div>
+      <div class="amount-value">${amount} ₺</div>
+    </div>
+    <div class="section-title">İşlem Bilgileri</div>
+    <div class="detail-list">
+      <div class="detail-row">
+        <span class="detail-key">Sipariş No</span>
+        <span class="detail-val mono">${orderId}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Tarih & Saat</span>
+        <span class="detail-val">${date}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Telefon</span>
+        <span class="detail-val">${phone}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Operatör</span>
+        <span class="detail-val">${operator}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Paket</span>
+        <span class="detail-val">${pkg}</span>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="footer-line1">Bu belge geçerli bir ödeme kanıtıdır.</div>
+      <div class="divider"></div>
+      <div class="footer-line2">bayiwebpanel.com</div>
+    </div>
+  </div>
+</div>
+</body></html>`;
+}
+
+async function downloadReceipt(order: any) {
+  try {
+    const html = generateReceiptHtml(order);
+    const { uri } = await Print.printToFileAsync({ html, base64: false });
+    await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Dekontu Paylaş' });
+  } catch (e: any) {
+    Alert.alert('Hata', e.message || 'Dekont oluşturulamadı');
+  }
+}
+
+async function printReceipt(order: any) {
+  try {
+    const html = generateReceiptHtml(order);
+    await Print.printAsync({ html });
+  } catch (e: any) {
+    Alert.alert('Hata', e.message || 'Yazdırma başarısız');
+  }
+}
 
 export default function OrdersScreen() {
   const { user } = useAuth();
@@ -238,6 +347,21 @@ export default function OrdersScreen() {
                       return kar > 0 ? <DetailRow icon="trending-up-outline" label="Kar" value={`+${kar.toFixed(2)} ₺`} valueColor="#10b981" /> : null;
                     })()}
                   </View>
+
+                  {selected.status === 'completed' && (
+                    <View style={s.receiptRow}>
+                      <TouchableOpacity style={s.receiptBtn} onPress={() => downloadReceipt(selected)}>
+                        <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.receiptBtnInner} start={{x:0,y:0}} end={{x:1,y:0}}>
+                          <Ionicons name="share-outline" size={17} color="#fff" />
+                          <Text style={s.receiptBtnTxt}>İndir / Paylaş</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={s.receiptBtnOutline} onPress={() => printReceipt(selected)}>
+                        <Ionicons name="print-outline" size={17} color="#6366f1" />
+                        <Text style={s.receiptBtnOutlineTxt}>Yazdır</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </>
               );
             })()}
@@ -317,6 +441,13 @@ const s = StyleSheet.create({
   sheetBadgePkg: { color: '#fff', fontSize: 14, fontWeight: '800' },
   sheetBadgeOp: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600', marginTop: 2 },
   sheetBadgeAmt: { color: '#fff', fontSize: 18, fontWeight: '900' },
+
+  receiptRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
+  receiptBtn: { flex: 2, borderRadius: 14, overflow: 'hidden' },
+  receiptBtnInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, paddingVertical: 13 },
+  receiptBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  receiptBtnOutline: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderRadius: 14, borderWidth: 2, borderColor: '#6366f1', paddingVertical: 13 },
+  receiptBtnOutlineTxt: { color: '#6366f1', fontSize: 13, fontWeight: '800' },
 
   detailList: { gap: 4 },
   detailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
