@@ -1,4 +1,4 @@
-export const API_URL = 'http://77.42.38.1';
+export const API_URL = 'https://api.bayiwebpanel.online';
 
 export function safeDate(iso: string | null | undefined): string {
   if (!iso) return '—';
