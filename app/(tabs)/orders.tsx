@@ -74,7 +74,7 @@ function generateReceiptHtml(order: any): string {
   const phone = order.phone_number || '—';
   const pkg = order.package?.name_tr || 'Paket';
   const operator = order.package?.operator || '—';
-  const amount = parseFloat(order.amount || 0).toFixed(2);
+  const amount = parseFloat(order.satis_fiyati || order.amount || 0).toFixed(2);
 
   return `<!DOCTYPE html>
 <html lang="tr">
@@ -85,14 +85,14 @@ function generateReceiptHtml(order: any): string {
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: -apple-system, Arial, sans-serif; background:#f8fafc; }
   .page { max-width: 420px; margin: 0 auto; background: #fff; min-height: 100vh; }
-  .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); padding: 40px 28px 32px; text-align: center; position: relative; overflow: hidden; }
+  .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); padding: 22px 28px 18px; text-align: center; position: relative; overflow: hidden; }
   .header::before { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.07); top:-60px; right:-60px; }
   .header::after  { content:''; position:absolute; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.07); bottom:-30px; left:-30px; }
-  .brand { color:rgba(255,255,255,0.85); font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:6px; }
-  .brand-name { color:#fff; font-size:26px; font-weight:900; letter-spacing:1px; margin-bottom:4px; }
-  .brand-sub { color:rgba(255,255,255,0.65); font-size:12px; font-weight:600; margin-bottom:24px; }
-  .status-badge { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.35); border-radius:30px; padding:8px 20px; color:#fff; font-size:14px; font-weight:800; }
-  .check { display:inline-block; width:20px; height:20px; background:#10b981; border-radius:50%; color:#fff; font-size:12px; line-height:20px; text-align:center; font-weight:900; }
+  .brand { color:rgba(255,255,255,0.85); font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:3px; }
+  .brand-name { color:#fff; font-size:22px; font-weight:900; letter-spacing:1px; margin-bottom:2px; }
+  .brand-sub { color:rgba(255,255,255,0.65); font-size:11px; font-weight:600; }
+  .status-badge { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.35); border-radius:30px; padding:6px 18px; color:#fff; font-size:13px; font-weight:800; }
+  .check { display:inline-block; width:18px; height:18px; background:#10b981; border-radius:50%; color:#fff; font-size:11px; line-height:18px; text-align:center; font-weight:900; }
   .body { padding: 28px; }
   .amount-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #86efac; border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 24px; }
   .amount-label { color:#16a34a; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
@@ -105,8 +105,7 @@ function generateReceiptHtml(order: any): string {
   .detail-val { color:#1e293b; font-size:13px; font-weight:800; text-align:right; max-width:60%; }
   .detail-val.mono { font-family: monospace; font-size:12px; color:#6366f1; }
   .footer { margin-top:8px; background:#f8fafc; border-radius:16px; padding:18px; text-align:center; }
-  .footer-line1 { color:#64748b; font-size:12px; font-weight:600; margin-bottom:6px; }
-  .footer-line2 { color:#a855f7; font-size:13px; font-weight:800; }
+  .footer-line1 { color:#64748b; font-size:12px; font-weight:600; }
   .divider { height:1px; background:linear-gradient(90deg,transparent,#e2e8f0,transparent); margin:8px 0; }
 </style>
 </head>
@@ -116,7 +115,6 @@ function generateReceiptHtml(order: any): string {
     <div class="brand">TECH TELEKOMUNIKASYON YAZILIM</div>
     <div class="brand-name">BWP</div>
     <div class="brand-sub">Yükleme Dekontu</div>
-    <div class="status-badge"><span class="check">✓</span> Tamamlandı</div>
   </div>
   <div class="body">
     <div class="amount-card">
@@ -147,9 +145,9 @@ function generateReceiptHtml(order: any): string {
       </div>
     </div>
     <div class="footer">
-      <div class="footer-line1">Bu belge geçerli bir ödeme kanıtıdır.</div>
-      <div class="divider"></div>
-      <div class="footer-line2">bayiwebpanel.com</div>
+      <div class="status-badge"><span class="check">✓</span> Tamamlandı</div>
+      <div class="divider" style="margin-top:14px;"></div>
+      <div class="footer-line1" style="margin-top:10px;">Bu belge geçerli bir ödeme kanıtıdır.</div>
     </div>
   </div>
 </div>
