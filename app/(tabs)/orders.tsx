@@ -82,9 +82,10 @@ function generateReceiptHtml(order: any): string {
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
+  @page { size: 80mm auto; margin: 0; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: -apple-system, Arial, sans-serif; background:#fff; }
-  .page { max-width: 420px; margin: 0 auto; background: #fff; }
+  body { font-family: -apple-system, Arial, sans-serif; background:#fff; width:80mm; }
+  .page { width: 80mm; background: #fff; }
   .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); padding: 22px 28px 18px; text-align: center; position: relative; overflow: hidden; }
   .header::before { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.07); top:-60px; right:-60px; }
   .header::after  { content:''; position:absolute; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.07); bottom:-30px; left:-30px; }
@@ -145,9 +146,9 @@ function generateReceiptHtml(order: any): string {
       </div>
     </div>
     <div class="footer">
-      <div style="display:inline-flex;align-items:center;gap:7px;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:30px;padding:7px 18px;">
-        <span style="display:inline-block;width:18px;height:18px;background:#10b981;border-radius:50%;color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:900;">✓</span>
-        <span style="color:#6d28d9;font-size:13px;font-weight:800;">Tamamlandı</span>
+      <div style="display:inline-flex;align-items:center;gap:9px;background:#ede9fe;border:2px solid #c4b5fd;border-radius:30px;padding:10px 24px;">
+        <span style="display:inline-block;width:24px;height:24px;background:#10b981;border-radius:50%;color:#fff;font-size:14px;line-height:24px;text-align:center;font-weight:900;">✓</span>
+        <span style="color:#6d28d9;font-size:16px;font-weight:800;">Tamamlandı</span>
       </div>
       <div class="divider" style="margin-top:14px;"></div>
       <div class="footer-line1" style="margin-top:10px;">Bu belge geçerli bir ödeme kanıtıdır.</div>
