@@ -83,8 +83,8 @@ function generateReceiptHtml(order: any): string {
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: -apple-system, Arial, sans-serif; background:#f8fafc; }
-  .page { max-width: 420px; margin: 0 auto; background: #fff; min-height: 100vh; }
+  body { font-family: -apple-system, Arial, sans-serif; background:#fff; }
+  .page { max-width: 420px; margin: 0 auto; background: #fff; }
   .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); padding: 22px 28px 18px; text-align: center; position: relative; overflow: hidden; }
   .header::before { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.07); top:-60px; right:-60px; }
   .header::after  { content:''; position:absolute; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.07); bottom:-30px; left:-30px; }
@@ -145,7 +145,10 @@ function generateReceiptHtml(order: any): string {
       </div>
     </div>
     <div class="footer">
-      <div class="status-badge"><span class="check">✓</span> Tamamlandı</div>
+      <div style="display:inline-flex;align-items:center;gap:7px;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:30px;padding:7px 18px;">
+        <span style="display:inline-block;width:18px;height:18px;background:#10b981;border-radius:50%;color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:900;">✓</span>
+        <span style="color:#6d28d9;font-size:13px;font-weight:800;">Tamamlandı</span>
+      </div>
       <div class="divider" style="margin-top:14px;"></div>
       <div class="footer-line1" style="margin-top:10px;">Bu belge geçerli bir ödeme kanıtıdır.</div>
     </div>
