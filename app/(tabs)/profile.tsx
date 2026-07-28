@@ -18,9 +18,9 @@ import { applyRTLIfNeeded, reloadApp } from '../../lib/rtl';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../i18n';
 
 const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
-  tr: 'Türkçe',
-  fa: 'فارسی',
-  ar: 'العربية',
+  tr: '🇹🇷 Türkçe',
+  fa: '🇦🇫 فارسی',
+  ar: '🇸🇾 العربية',
 };
 
 export default function ProfileScreen() {
