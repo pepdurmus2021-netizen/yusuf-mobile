@@ -12,6 +12,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { useOrderFlow, OrderError } from '../../hooks/useOrderFlow';
 import AppModal from '../../components/AppModal';
 import { groupPackagesBySubCategory, getSubCategoryOrder, getSubCategoryLabel } from '../../lib/categories';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -114,12 +116,12 @@ function detectAfghan(phone: string): string | null {
 // Hata kodunu kullanıcı dostu Türkçe mesaja çevir
 function orderErrorMessage(err: OrderError): string {
   switch (err.code) {
-    case 'INSUFFICIENT_BALANCE': return 'Bakiyeniz yetersiz. Bakiye yükleyip tekrar deneyin.';
-    case 'INVALID_PHONE':        return 'Geçerli bir telefon numarası girin.';
-    case 'INVALID_GAME_ID':      return 'Oyun ID en az 3 karakter olmalı.';
-    case 'PACKAGE_NOT_FOUND':    return 'Bu paket artık mevcut değil.';
-    case 'AUTH_REQUIRED':        return 'Oturumunuz sona erdi. Tekrar giriş yapın.';
-    default:                     return err.message || 'Bir hata oluştu, tekrar deneyin.';
+    case 'INSUFFICIENT_BALANCE': return i18n.t('explore.insufficientBalance');
+    case 'INVALID_PHONE':        return i18n.t('explore.invalidPhone');
+    case 'INVALID_GAME_ID':      return i18n.t('explore.invalidGameId');
+    case 'PACKAGE_NOT_FOUND':    return i18n.t('explore.packageNotFound');
+    case 'AUTH_REQUIRED':        return i18n.t('explore.authRequired');
+    default:                     return err.message || i18n.t('explore.genericError');
   }
 }
 
@@ -128,6 +130,7 @@ type CountryKey = 'turk' | 'afgan' | 'game' | null;
 // ─── Ana ekran ────────────────────────────────────────────────────────────────
 
 export default function ExploreScreen() {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const { packages, fetchPackages } = useAppStore();
 
@@ -176,14 +179,14 @@ export default function ExploreScreen() {
               )}
               {sellPrice > 0 && (
                 <View style={s.pkgSellRow}>
-                  <Text style={s.pkgSellLabel}>Satış: </Text>
+                  <Text style={s.pkgSellLabel}>{t('explore.sale')}: </Text>
                   <Text style={[s.pkgSellPrice, { color: op.colors[0] }]}>{sellPrice.toFixed(0)} ₺</Text>
                 </View>
               )}
             </View>
           </View>
           <View style={[s.pkgBadge, { backgroundColor: op.colors[0] }]}>
-            <Text style={s.pkgBadgeLabelSmall}>Alış</Text>
+            <Text style={s.pkgBadgeLabelSmall}>{t('explore.purchase')}</Text>
             <Text style={s.pkgBadgePrice}>{price.toFixed(0)}</Text>
             <Text style={s.pkgBadgeCur}>₺</Text>
           </View>
@@ -244,7 +247,7 @@ export default function ExploreScreen() {
     const price = getPkgPrice(selPkg);
 
     if (!price || isNaN(price)) {
-      setAppModal({ type: 'error', title: 'Hata', message: 'Paket fiyatı bulunamadı.' }); return;
+      setAppModal({ type: 'error', title: t('common.error'), message: t('explore.priceNotFound') }); return;
     }
 
     try {
@@ -259,13 +262,13 @@ export default function ExploreScreen() {
 
       setSelPkg(null);
       setOrderPhone('');
-      setAppModal({ type: 'pending', title: 'Sipariş Alındı', message: 'Siparişler sekmesinden takip edebilirsiniz.' });
+      setAppModal({ type: 'pending', title: t('explore.orderReceived'), message: t('explore.trackFromOrdersTab') });
 
     } catch (err) {
       if (err instanceof OrderError) {
-        setAppModal({ type: 'error', title: 'Sipariş Hatası', message: orderErrorMessage(err) });
+        setAppModal({ type: 'error', title: t('explore.orderError'), message: orderErrorMessage(err) });
       } else {
-        setAppModal({ type: 'error', title: 'Hata', message: 'Beklenmeyen bir sorun oluştu.' });
+        setAppModal({ type: 'error', title: t('common.error'), message: t('explore.unexpectedError') });
       }
       clearError();
     }
@@ -291,7 +294,7 @@ export default function ExploreScreen() {
         <View style={s.hDecor1} /><View style={s.hDecor2} />
         <View style={s.hRow}>
           <View style={{ flex: 1 }}>
-            <Text style={s.hTitle}>Yükle & Satın Al</Text>
+            <Text style={s.hTitle}>{t('explore.loadAndBuy')}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -311,7 +314,7 @@ export default function ExploreScreen() {
         {!country ? (
           <View style={s.hCenter}>
             <View style={s.hTitleRow}>
-              <Text style={s.hTitleBig}>Dijital Market</Text>
+              <Text style={s.hTitleBig}>{t('explore.digitalMarket')}</Text>
               <Ionicons name="flash" size={28} color="#fff" />
             </View>
           </View>
@@ -328,9 +331,9 @@ export default function ExploreScreen() {
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text style={s.hTitle}>
-                {!activeOpId ? (country === 'turk' ? '🇹🇷 Türkiye' : country === 'afgan' ? '🇦🇫 Afganistan' : '🎮 Oyun') : activeOp?.name}
+                {!activeOpId ? (country === 'turk' ? `🇹🇷 ${t('explore.turkey')}` : country === 'afgan' ? `🇦🇫 ${t('explore.afghanistan')}` : `🎮 ${t('explore.game')}`) : activeOp?.name}
               </Text>
-              {activeOp && <Text style={s.hSub}>{pkgs.length} paket mevcut</Text>}
+              {activeOp && <Text style={s.hSub}>{t('explore.packagesAvailable', { count: pkgs.length })}</Text>}
             </View>
             {activeOp && <Image source={activeOp.logo} style={s.hLogo} resizeMode="contain" />}
           </View>
@@ -348,9 +351,9 @@ export default function ExploreScreen() {
         {!country && (
           <View style={s.countryGrid}>
             {[
-              { key: 'turk',  flag: '🇹🇷', name: 'Türkiye',        sub: `${TURKEY_OPERATORS.length} operatör`, colors: ['#ef4444','#f97316'] as [string,string] },
-              { key: 'afgan', flag: '🇦🇫', name: 'Afganistan',     sub: `${AFGHAN_OPERATORS.length} operatör`, colors: ['#10b981','#06b6d4'] as [string,string] },
-              { key: 'game',  flag: '🎮',  name: 'Oyun & Dijital',  sub: `${GAME_OPERATORS.length} platform`,  colors: ['#8b5cf6','#ec4899'] as [string,string] },
+              { key: 'turk',  flag: '🇹🇷', name: t('explore.turkey'),        sub: t('explore.operatorCount', { count: TURKEY_OPERATORS.length }), colors: ['#ef4444','#f97316'] as [string,string] },
+              { key: 'afgan', flag: '🇦🇫', name: t('explore.afghanistan'),     sub: t('explore.operatorCount', { count: AFGHAN_OPERATORS.length }), colors: ['#10b981','#06b6d4'] as [string,string] },
+              { key: 'game',  flag: '🎮',  name: t('explore.gameAndDigital'),  sub: t('explore.platformCount', { count: GAME_OPERATORS.length }),  colors: ['#8b5cf6','#ec4899'] as [string,string] },
             ].map(c => (
               <TouchableOpacity key={c.key} onPress={() => setCountry(c.key as CountryKey)} activeOpacity={0.85} style={s.countryCard}>
                 <LinearGradient colors={c.colors} style={s.countryGrad}>
@@ -375,7 +378,7 @@ export default function ExploreScreen() {
             </View>
             <View style={s.opInfo}>
               <Text style={s.opName}>{op.name}</Text>
-              <Text style={s.opSub}>{pkgCount(op)} paket</Text>
+              <Text style={s.opSub}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
             </View>
             <LinearGradient colors={op.colors} style={s.opChevron}>
               <Ionicons name="chevron-forward" size={14} color="#fff" />
@@ -390,7 +393,7 @@ export default function ExploreScreen() {
               <Ionicons name="call-outline" size={18} color="#94a3b8" />
               <TextInput
                 style={s.phoneInput}
-                placeholder="07x xxx xxxx"
+                placeholder={t('explore.phoneExamplePlaceholder')}
                 placeholderTextColor="#94a3b8"
                 value={phone}
                 onChangeText={v => { setPhone(v); setDetectedOp(detectAfghan(v)); }}
@@ -410,15 +413,15 @@ export default function ExploreScreen() {
                   <LinearGradient colors={op.colors} style={s.detectedInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                     <Image source={op.logo} style={s.detectedLogo} resizeMode="contain" />
                     <View style={{ flex: 1 }}>
-                      <Text style={s.detectedName}>{op.name} tespit edildi</Text>
-                      <Text style={s.detectedSub}>{pkgCount(op)} paket mevcut</Text>
+                      <Text style={s.detectedName}>{t('explore.operatorDetected', { name: op.name })}</Text>
+                      <Text style={s.detectedSub}>{t('explore.packagesAvailable', { count: pkgCount(op) })}</Text>
                     </View>
                     <Ionicons name="arrow-forward" size={18} color="#fff" />
                   </LinearGradient>
                 </TouchableOpacity>
               );
             })()}
-            <Text style={s.orLabel}>veya operatör seç</Text>
+            <Text style={s.orLabel}>{t('explore.orSelectOperator')}</Text>
             <View style={s.afgGrid}>
               {AFGHAN_OPERATORS.map(op => (
                 <TouchableOpacity key={op.id} onPress={() => setOpId(op.id)} style={s.afgItem} activeOpacity={0.8}>
@@ -444,7 +447,7 @@ export default function ExploreScreen() {
                   <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
                   <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
                     <View style={[s.gameOpDot, { backgroundColor: op.colors[0] }]} />
-                    <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{pkgCount(op)} paket</Text>
+                    <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
                   </View>
                   <LinearGradient colors={op.colors} style={s.gameArrow} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                     <Ionicons name="chevron-forward" size={10} color="#fff" />
@@ -460,7 +463,7 @@ export default function ExploreScreen() {
           pkgs.length === 0 ? (
             <View style={s.empty}>
               <Ionicons name="cube-outline" size={30} color="#cbd5e1" />
-              <Text style={s.emptyTxt}>Paket bulunamadı</Text>
+              <Text style={s.emptyTxt}>{t('explore.packageNotFoundList')}</Text>
             </View>
           ) : (() => {
             const isTurkish = TURKEY_OPERATORS.some(o => o.id === activeOp.id);
@@ -500,7 +503,7 @@ export default function ExploreScreen() {
 
             {/* Başlık */}
             <View style={s.sheetTop}>
-              <Text style={s.sheetTitle}>Sipariş Özeti</Text>
+              <Text style={s.sheetTitle}>{t('explore.orderSummary')}</Text>
               <TouchableOpacity onPress={() => { setSelPkg(null); clearError(); }} style={s.closeBtn}>
                 <Ionicons name="close" size={18} color="#64748b" />
               </TouchableOpacity>
@@ -526,7 +529,7 @@ export default function ExploreScreen() {
                 {/* Telefon / Oyun ID girişi */}
                 <View style={s.inputSection}>
                   <Text style={s.inputLabel}>
-                    {country === 'game' ? 'Oyun ID / Kullanıcı ID' : 'Telefon Numarası'}
+                    {country === 'game' ? t('explore.gameIdLabel') : t('explore.phoneNumberLabel')}
                   </Text>
                   <View style={[s.inputRow, phoneFocused && { borderColor: activeOp?.colors[0] || '#6366f1', backgroundColor: '#fff' }]}>
                     <View style={[s.inputIconWrap, phoneFocused && { backgroundColor: (activeOp?.colors[0] || '#6366f1') + '15' }]}>
@@ -541,14 +544,14 @@ export default function ExploreScreen() {
                       value={orderPhone}
                       onChangeText={setOrderPhone}
                       keyboardType={country === 'game' ? 'default' : 'phone-pad'}
-                      placeholder={country === 'game' ? 'Oyun ID\'nizi girin' : '05xx xxx xx xx'}
+                      placeholder={country === 'game' ? t('explore.enterGameId') : '05xx xxx xx xx'}
                       placeholderTextColor="#b0bec5"
                       autoFocus
                       onFocus={() => setPhoneFocused(true)}
                       onBlur={() => setPhoneFocused(false)}
                     />
                     {orderPhone.length > 0 && (
-                      <TouchableOpacity onPress={() => setOrderPhone('')} style={{ paddingRight: 14 }}>
+                      <TouchableOpacity onPress={() => setOrderPhone('')} style={{ paddingEnd: 14 }}>
                         <Ionicons name="close-circle" size={18} color="#cbd5e1" />
                       </TouchableOpacity>
                     )}
@@ -558,15 +561,14 @@ export default function ExploreScreen() {
                 {/* İşlem özeti */}
                 <View style={s.summaryBox}>
                   <View style={s.summaryRow}>
-                    <Text style={s.summaryLabel}>Paket Tutarı</Text>
+                    <Text style={s.summaryLabel}>{t('explore.packageAmount')}</Text>
                     <Text style={s.summaryValue}>{getPkgPrice(selPkg).toFixed(2)} ₺</Text>
                   </View>
                   <View style={s.summaryDivider} />
                   <View style={s.summaryRow}>
-                    <Text style={s.summaryLabel}>İşlem Sonrası Bakiye</Text>
+                    <Text style={s.summaryLabel}>{t('explore.balanceAfterTransaction')}</Text>
                     <Text style={[s.summaryValue, { color: '#10b981', fontWeight: '800' }]}>
-                      {/* user balance gösterilmek istenirse buraya eklenebilir */}
-                      Anında güncellenir
+                      {t('explore.updatedInstantly')}
                     </Text>
                   </View>
                 </View>
@@ -586,14 +588,14 @@ export default function ExploreScreen() {
               <LinearGradient colors={activeOp?.colors || ['#6366f1', '#8b5cf6']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                 {orderLoading
                   ? <ActivityIndicator color="#fff" size="small" />
-                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={s.confirmTxt}>Siparişi Onayla</Text></>
+                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={s.confirmTxt}>{t('explore.confirmOrder')}</Text></>
                 }
               </LinearGradient>
             </TouchableOpacity>
 
             {/* İptal linki */}
             <TouchableOpacity onPress={() => { setSelPkg(null); clearError(); }} style={s.cancelLink} activeOpacity={0.7}>
-              <Text style={s.cancelTxt}>İptal Et</Text>
+              <Text style={s.cancelTxt}>{t('explore.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>

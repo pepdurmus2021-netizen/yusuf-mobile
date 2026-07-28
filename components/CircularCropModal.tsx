@@ -6,6 +6,7 @@ import {
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 const SCREEN = Dimensions.get('window');
 const CROP_SIZE = Math.min(SCREEN.width, SCREEN.height) * 0.78;
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default function CircularCropModal({ visible, imageUri, onConfirm, onCancel }: Props) {
+  const { t } = useTranslation();
   const [saving, setSaving] = useState(false);
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -147,13 +149,13 @@ export default function CircularCropModal({ visible, imageUri, onConfirm, onCanc
         <View style={s.topBar}>
           <TouchableOpacity onPress={onCancel} style={s.topBtn} activeOpacity={0.7}>
             <Ionicons name="close" size={20} color="#fff" />
-            <Text style={s.topBtnTxt}>İptal</Text>
+            <Text style={s.topBtnTxt}>{t('common.cancel')}</Text>
           </TouchableOpacity>
-          <Text style={s.topTitle}>Fotoğrafı Düzenle</Text>
+          <Text style={s.topTitle}>{t('crop.title')}</Text>
           <TouchableOpacity onPress={handleConfirm} disabled={saving} style={s.topBtn} activeOpacity={0.7}>
             {saving
               ? <ActivityIndicator color="#fff" size="small" />
-              : <><Text style={[s.topBtnTxt, { color: '#a5f3fc' }]}>Kaydet</Text><Ionicons name="checkmark" size={20} color="#a5f3fc" /></>
+              : <><Text style={[s.topBtnTxt, { color: '#a5f3fc' }]}>{t('common.save')}</Text><Ionicons name="checkmark" size={20} color="#a5f3fc" /></>
             }
           </TouchableOpacity>
         </View>
@@ -162,12 +164,12 @@ export default function CircularCropModal({ visible, imageUri, onConfirm, onCanc
         <View style={s.bottomBar}>
           <View style={s.hintRow}>
             <Ionicons name="move-outline" size={14} color="rgba(255,255,255,0.5)" />
-            <Text style={s.hint}>Kaydır</Text>
+            <Text style={s.hint}>{t('crop.drag')}</Text>
           </View>
           <View style={s.hintDot} />
           <View style={s.hintRow}>
             <Ionicons name="expand-outline" size={14} color="rgba(255,255,255,0.5)" />
-            <Text style={s.hint}>Sıkıştır / Aç</Text>
+            <Text style={s.hint}>{t('crop.pinch')}</Text>
           </View>
         </View>
 

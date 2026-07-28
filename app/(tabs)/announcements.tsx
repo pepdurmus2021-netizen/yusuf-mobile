@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { API_URL, apiFetch } from '../../lib/config';
+import { useTranslation } from 'react-i18next';
 
 interface Announcement {
   id: string;
@@ -15,6 +16,7 @@ interface Announcement {
 }
 
 export default function AnnouncementsScreen() {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export default function AnnouncementsScreen() {
       <LinearGradient colors={['#4f46e5', '#7c3aed']} style={styles.header}>
         <View style={styles.headerContent}>
           <Ionicons name="megaphone" size={24} color="white" />
-          <Text style={styles.headerTitle}>Duyurular</Text>
+          <Text style={styles.headerTitle}>{t('profile.announcementsTitle')}</Text>
         </View>
       </LinearGradient>
 
@@ -52,7 +54,7 @@ export default function AnnouncementsScreen() {
       ) : announcements.length === 0 ? (
         <View style={styles.empty}>
           <Ionicons name="megaphone-outline" size={48} color="#cbd5e1" />
-          <Text style={styles.emptyText}>Henüz duyuru yok</Text>
+          <Text style={styles.emptyText}>{t('profile.noAnnouncements')}</Text>
         </View>
       ) : (
         <FlatList

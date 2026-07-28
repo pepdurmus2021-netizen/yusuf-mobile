@@ -1,6 +1,7 @@
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 type ModalType = 'success' | 'pending' | 'error';
 
@@ -31,8 +32,10 @@ const CONFIG = {
   },
 };
 
-export default function AppModal({ visible, type, title, message, buttonText = 'Tamam', onClose }: AppModalProps) {
+export default function AppModal({ visible, type, title, message, buttonText, onClose }: AppModalProps) {
+  const { t } = useTranslation();
   const cfg = CONFIG[type];
+  const resolvedButtonText = buttonText ?? t('common.ok');
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
@@ -52,7 +55,7 @@ export default function AppModal({ visible, type, title, message, buttonText = '
 
           <TouchableOpacity onPress={onClose} style={{ borderRadius: 16, overflow: 'hidden', width: '100%' }} activeOpacity={0.85}>
             <LinearGradient colors={cfg.colors} style={s.btn}>
-              <Text style={s.btnTxt}>{buttonText}</Text>
+              <Text style={s.btnTxt}>{resolvedButtonText}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

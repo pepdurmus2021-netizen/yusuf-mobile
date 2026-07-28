@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { safeDate, safeDateFull } from '../../lib/config';
 import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                       logo: require('../../assets/images/turkcell.png') },
@@ -55,6 +56,7 @@ function getOperatorLogo(operatorName?: string) {
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const { token, user, updateUser } = useAuth();
   const router = useRouter();
   const { orders: recentOrders, balanceRequests, fetchOrders, fetchBalanceRequests } = useAppStore();
@@ -119,7 +121,7 @@ export default function HomeScreen() {
 
   const onRefresh = () => { setRefreshing(true); fetchData(); };
 
-  const firstName = user?.name?.split(' ')[0] || 'Kullanıcı';
+  const firstName = user?.name?.split(' ')[0] || t('profile.defaultUser');
   const balance = parseFloat(user?.balance?.toString() || '0');
 
   const completed = recentOrders.filter(o => o.status === 'completed').length;
@@ -131,10 +133,10 @@ export default function HomeScreen() {
   const approvedBalance = balanceRequests.filter(r => r.status === 'approved').length;
 
   const quickActions = [
-    { label: 'Bakiye Yükle', icon: 'logo-usd', colors: ['#6366f1', '#8b5cf6'] as const, route: '/(tabs)/balance' },
-    { label: 'Sipariş Ver', icon: 'storefront', colors: ['#10b981', '#06b6d4'] as const, route: '/(tabs)/explore' },
-    { label: 'Geçmiş', icon: 'stats-chart', colors: ['#f59e0b', '#f97316'] as const, route: '/(tabs)/orders' },
-    { label: 'Hesabım', icon: 'shield-checkmark', colors: ['#ec4899', '#f43f5e'] as const, route: '/(tabs)/profile' },
+    { label: t('home.topUpBalance'), icon: 'logo-usd', colors: ['#6366f1', '#8b5cf6'] as const, route: '/(tabs)/balance' },
+    { label: t('home.placeOrder'), icon: 'storefront', colors: ['#10b981', '#06b6d4'] as const, route: '/(tabs)/explore' },
+    { label: t('home.history'), icon: 'stats-chart', colors: ['#f59e0b', '#f97316'] as const, route: '/(tabs)/orders' },
+    { label: t('home.myAccount'), icon: 'shield-checkmark', colors: ['#ec4899', '#f43f5e'] as const, route: '/(tabs)/profile' },
   ];
 
   if (loading) {
@@ -142,7 +144,7 @@ export default function HomeScreen() {
       <View style={styles.loadingContainer}>
         <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.loadingGrad}>
           <ActivityIndicator color="#fff" size="large" />
-          <Text style={styles.loadingText}>Yükleniyor...</Text>
+          <Text style={styles.loadingText}>{t('common.loading')}</Text>
         </LinearGradient>
       </View>
     );
@@ -187,7 +189,7 @@ export default function HomeScreen() {
           {/* BAKİYE KARTI */}
           <View style={styles.heroCard}>
             <View style={styles.heroCardHeader}>
-              <Text style={styles.heroBalLabel}>Toplam Bakiye</Text>
+              <Text style={styles.heroBalLabel}>{t('home.totalBalance')}</Text>
             </View>
             <View style={styles.heroAmountRow}>
               <Text style={styles.heroBalAmount} adjustsFontSizeToFit numberOfLines={1}>
@@ -196,14 +198,14 @@ export default function HomeScreen() {
                   : '••••••'}
               </Text>
               <Text style={styles.heroBalTL}> ₺</Text>
-              <TouchableOpacity onPress={toggleBalanceVisibility} style={{ marginLeft: 8, marginBottom: 2 }}>
+              <TouchableOpacity onPress={toggleBalanceVisibility} style={{ marginStart: 8, marginBottom: 2 }}>
                 <Ionicons name={isBalanceVisible ? 'eye-outline' : 'eye-off-outline'} size={20} color="#6366f1" />
               </TouchableOpacity>
             </View>
             {parseFloat((user as any)?.debt || 0) > 0 && (
               <View style={styles.debtBadge}>
                 <Ionicons name="alert-circle" size={12} color="#ef4444" />
-                <Text style={styles.debtText}>Borç: {parseFloat((user as any).debt).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺</Text>
+                <Text style={styles.debtText}>{t('home.debt')}: {parseFloat((user as any).debt).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺</Text>
               </View>
             )}
           </View>
@@ -224,33 +226,33 @@ export default function HomeScreen() {
 
         {/* SİPARİŞ ÖZETİ */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sipariş Özeti</Text>
+          <Text style={styles.sectionTitle}>{t('home.orderSummary')}</Text>
           <View style={styles.summaryRow}>
             <LinearGradient colors={['#10b981','#059669']} style={styles.summaryCard}>
               <View style={styles.summaryTopRow}>
                 <Ionicons name="checkmark-circle" size={18} color="rgba(255,255,255,0.9)" />
                 <Text style={styles.summaryVal}>{completed}</Text>
               </View>
-              <Text style={styles.summaryLbl}>Tamamlandı</Text>
+              <Text style={styles.summaryLbl}>{t('home.completed')}</Text>
             </LinearGradient>
             <LinearGradient colors={['#f59e0b','#d97706']} style={styles.summaryCard}>
               <View style={styles.summaryTopRow}>
                 <Ionicons name="time" size={18} color="rgba(255,255,255,0.9)" />
                 <Text style={styles.summaryVal}>{pending}</Text>
               </View>
-              <Text style={styles.summaryLbl}>Bekliyor</Text>
+              <Text style={styles.summaryLbl}>{t('home.pending')}</Text>
             </LinearGradient>
             <LinearGradient colors={['#ef4444','#dc2626']} style={styles.summaryCard}>
               <View style={styles.summaryTopRow}>
                 <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.9)" />
                 <Text style={styles.summaryVal}>{cancelled}</Text>
               </View>
-              <Text style={styles.summaryLbl}>İptal</Text>
+              <Text style={styles.summaryLbl}>{t('home.cancelled')}</Text>
             </LinearGradient>
           </View>
           <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.totalSpentCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
             <View>
-              <Text style={styles.totalSpentLbl}>Toplam Harcama</Text>
+              <Text style={styles.totalSpentLbl}>{t('home.totalSpent')}</Text>
               <Text style={styles.totalSpentVal}>
                 {isBalanceVisible ? `${totalSpent.toFixed(2)} ₺` : '**** ₺'}
               </Text>
@@ -262,9 +264,9 @@ export default function HomeScreen() {
         {/* SON SİPARİŞLER */}
         <View style={styles.section}>
           <View style={styles.rowBetween}>
-            <Text style={styles.sectionTitle}>Son Siparişler</Text>
+            <Text style={styles.sectionTitle}>{t('home.recentOrders')}</Text>
             <TouchableOpacity onPress={() => router.push('/(tabs)/orders')}>
-              <Text style={styles.seeAll}>Tümü →</Text>
+              <Text style={styles.seeAll}>{t('home.seeAll')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -303,7 +305,7 @@ export default function HomeScreen() {
           {recentOrders.length === 0 && (
             <View style={styles.emptyBox}>
               <Ionicons name="receipt-outline" size={32} color="#cbd5e1" />
-              <Text style={styles.emptyText}>Henüz sipariş yok</Text>
+              <Text style={styles.emptyText}>{t('home.noOrders')}</Text>
             </View>
           )}
         </View>
@@ -331,7 +333,7 @@ const styles = StyleSheet.create({
   topPhoto: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' },
   topPhotoPlaceholder: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   topPhotoInitial: { color: '#fff', fontSize: 18, fontWeight: '900' },
-  editIcon: { position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: 9, backgroundColor: '#6366f1', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#fff' },
+  editIcon: { position: 'absolute', bottom: -2, end: -2, width: 18, height: 18, borderRadius: 9, backgroundColor: '#6366f1', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#fff' },
   topName: { color: '#fff', fontSize: 15, fontWeight: '800' },
   topBarRight: { flexDirection: 'row', gap: 10 },
   topIconBtn: { width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
@@ -370,15 +372,15 @@ const styles = StyleSheet.create({
   balSummaryLbl: { fontSize: 10, fontWeight: '700', color: '#64748b' },
 
   balReqCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, padding: 14, marginBottom: 10, elevation: 2, shadowOpacity: 0.04, shadowRadius: 6 },
-  balReqDot: { width: 10, height: 10, borderRadius: 5, marginRight: 14 },
+  balReqDot: { width: 10, height: 10, borderRadius: 5, marginEnd: 14 },
   balReqAmount: { fontSize: 15, fontWeight: '800', color: '#1e293b' },
   balReqDate: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
   balReqBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
   balReqStatus: { fontSize: 11, fontWeight: '700' },
 
   orderCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 18, padding: 14, marginBottom: 10, elevation: 3, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
-  orderIcon: { width: 38, height: 38, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
-  orderLogoWrap: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center', marginRight: 14, overflow: 'hidden' },
+  orderIcon: { width: 38, height: 38, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginEnd: 14 },
+  orderLogoWrap: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center', marginEnd: 14, overflow: 'hidden' },
   orderLogo: { width: 30, height: 30 },
   orderPhone: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
   orderTime: { fontSize: 11, color: '#94a3b8', marginTop: 2 },

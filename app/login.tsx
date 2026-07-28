@@ -13,11 +13,13 @@ import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { API_URL } from '../lib/config';
 import { useFonts, Orbitron_900Black } from '@expo-google-fonts/orbitron';
+import { useTranslation } from 'react-i18next';
 
 WebBrowser.maybeCompleteAuthSession();
 
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const { login, token: currentToken } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<'login' | 'register'>('login');
@@ -129,13 +131,13 @@ export default function LoginScreen() {
       }
     } catch (err) {
       console.error(err);
-      Alert.alert('Hata', 'Google girişi başlatılamadı.');
+      Alert.alert(t('common.error'), t('login.googleFailed'));
       setGoogleLoading(false);
     }
   };
 
   const handleSubmit = async () => {
-    if (!email || !password) return Alert.alert('Hata', 'E-posta ve şifre zorunlu');
+    if (!email || !password) return Alert.alert(t('common.error'), t('login.emailPasswordRequired'));
     setLoading(true);
     try {
       if (tab === 'login') {
@@ -146,15 +148,15 @@ export default function LoginScreen() {
         await login(session.access_token, userData || { id: session.user.id, name: email.split('@')[0], email, phone: '', balance: 0, currency: 'TRY', role: 'user' });
         router.replace('/(tabs)');
       } else {
-        if (!name) return Alert.alert('Hata', 'Ad soyad zorunlu');
+        if (!name) return Alert.alert(t('common.error'), t('login.nameRequired'));
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         const uid = data.user!.id;
         await supabase.from('users').insert([{ id: uid, name, email, phone: phone || '', country: 'TR', role: 'user', balance: 0, currency: 'TRY' }]);
-        Alert.alert('Başarılı', 'Kayıt olundu. Giriş yapabilirsiniz.');
+        Alert.alert(t('login.registerSuccessTitle'), t('login.registerSuccessMessage'));
         setTab('login');
       }
-    } catch (e: any) { Alert.alert('Hata', e?.message || 'İşlem başarısız'); }
+    } catch (e: any) { Alert.alert(t('common.error'), e?.message || t('login.actionFailed')); }
     finally { setLoading(false); }
   };
 
@@ -181,24 +183,24 @@ export default function LoginScreen() {
             {/* TAB */}
             <View style={styles.tabRow}>
               <TouchableOpacity onPress={() => setTab('login')} style={[styles.tabBtn, tab === 'login' && styles.tabBtnActive]}>
-                <Text style={[styles.tabTxt, tab === 'login' && styles.tabTxtActive]}>Giriş Yap</Text>
+                <Text style={[styles.tabTxt, tab === 'login' && styles.tabTxtActive]}>{t('login.loginTab')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setTab('register')} style={[styles.tabBtn, tab === 'register' && styles.tabBtnActive]}>
-                <Text style={[styles.tabTxt, tab === 'register' && styles.tabTxtActive]}>Kayıt Ol</Text>
+                <Text style={[styles.tabTxt, tab === 'register' && styles.tabTxtActive]}>{t('login.registerTab')}</Text>
               </TouchableOpacity>
             </View>
 
             {tab === 'register' && (
               <>
-                <Field icon="person-outline" placeholder="Ad Soyad" value={name} onChangeText={setName} />
-                <Field icon="call-outline" placeholder="Telefon" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+                <Field icon="person-outline" placeholder={t('login.namePlaceholder')} value={name} onChangeText={setName} />
+                <Field icon="call-outline" placeholder={t('login.phonePlaceholder')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
               </>
             )}
 
-            <Field icon="mail-outline" placeholder="E-posta adresi" value={email} onChangeText={setEmail} autoCapitalize="none" />
+            <Field icon="mail-outline" placeholder={t('login.emailPlaceholder')} value={email} onChangeText={setEmail} autoCapitalize="none" />
 
             <View style={{ position: 'relative' }}>
-              <Field icon="lock-closed-outline" placeholder="Şifre" value={password} onChangeText={setPassword} secure={!showPassword} />
+              <Field icon="lock-closed-outline" placeholder={t('login.passwordPlaceholder')} value={password} onChangeText={setPassword} secure={!showPassword} />
               <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
                 <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={18} color="#94a3b8" />
               </TouchableOpacity>
@@ -208,14 +210,14 @@ export default function LoginScreen() {
               <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.submitBtn}>
                 {loading
                   ? <ActivityIndicator color="#fff" />
-                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={styles.submitTxt}>{tab === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}</Text></>
+                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={styles.submitTxt}>{tab === 'login' ? t('login.loginTab') : t('login.registerTab')}</Text></>
                 }
               </LinearGradient>
             </TouchableOpacity>
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerTxt}>veya</Text>
+              <Text style={styles.dividerTxt}>{t('login.or')}</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -224,7 +226,7 @@ export default function LoginScreen() {
                 ? <ActivityIndicator color="#6366f1" />
                 : <>
                     <View style={styles.googleIconWrap}><Ionicons name="logo-google" size={16} color="#6366f1" /></View>
-                    <Text style={styles.googleTxt}>Google ile devam et</Text>
+                    <Text style={styles.googleTxt}>{t('login.continueWithGoogle')}</Text>
                   </>
               }
             </TouchableOpacity>
@@ -298,7 +300,7 @@ const styles = StyleSheet.create({
   fieldWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 13, borderWidth: 1.5, borderColor: '#e2e8f0', marginBottom: 12, gap: 10 },
   fieldIcon: {},
   fieldInput: { flex: 1, fontSize: 15, color: '#1e293b', fontWeight: '600' },
-  eyeBtn: { position: 'absolute', right: 14, top: 14 },
+  eyeBtn: { position: 'absolute', end: 14, top: 14 },
 
   submitBtn: { padding: 16, borderRadius: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 },
   submitTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },

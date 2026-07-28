@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 import { useAppStore } from '../store/useAppStore';
 import { API_URL } from '../lib/config';
 import { registerPushToken } from '../lib/notifications';
+import { applyRTLIfNeeded } from '../lib/rtl';
+import type { SupportedLanguage } from '../i18n';
 
 export interface User {
   id: string;
@@ -16,6 +18,7 @@ export interface User {
   parent_id?: string | null;
   is_active?: boolean;
   debt?: number;
+  language?: SupportedLanguage;
 }
 
 interface AuthContextType {
@@ -60,12 +63,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setUser(data.user);
               await AsyncStorage.setItem('token', data.token);
               await AsyncStorage.setItem('user', JSON.stringify(data.user));
+              if (data.user?.language) await applyRTLIfNeeded(data.user.language);
               return;
             }
           } catch (_) {}
           // Refresh başarısız olursa mevcut token ile devam et
+          const parsedUser = JSON.parse(savedUser);
           setToken(savedToken);
-          setUser(JSON.parse(savedUser));
+          setUser(parsedUser);
+          if (parsedUser?.language) await applyRTLIfNeeded(parsedUser.language);
         }
       } catch (e) {
         console.error('Auth yüklenemedi:', e);

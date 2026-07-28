@@ -12,6 +12,8 @@ import { useAppStore } from '../../store/useAppStore';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { WebView } from 'react-native-webview';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                          logo: require('../../assets/images/turkcell.png') },
@@ -54,20 +56,24 @@ function getOperatorLogo(operatorName?: string) {
   return match?.logo || null;
 }
 
-const STATUS: Record<string, { label: string; icon: string; colors: [string,string]; bg: string; text: string }> = {
-  completed:  { label: 'Tamamlandı', icon: 'checkmark-circle', colors: ['#10b981','#059669'], bg: '#f0fdf4', text: '#10b981' },
-  pending:    { label: 'Bekliyor',   icon: 'time',             colors: ['#f59e0b','#d97706'], bg: '#fffbeb', text: '#f59e0b' },
-  processing: { label: 'Bekliyor',   icon: 'time',             colors: ['#f59e0b','#d97706'], bg: '#fffbeb', text: '#f59e0b' },
-  failed:     { label: 'İptal',      icon: 'close-circle',     colors: ['#ef4444','#dc2626'], bg: '#fef2f2', text: '#ef4444' },
-  cancelled:  { label: 'İptal',      icon: 'close-circle',     colors: ['#ef4444','#dc2626'], bg: '#fef2f2', text: '#ef4444' },
-};
+function getStatusMap(): Record<string, { label: string; icon: string; colors: [string,string]; bg: string; text: string }> {
+  return {
+    completed:  { label: i18n.t('home.completed'), icon: 'checkmark-circle', colors: ['#10b981','#059669'], bg: '#f0fdf4', text: '#10b981' },
+    pending:    { label: i18n.t('home.pending'),   icon: 'time',             colors: ['#f59e0b','#d97706'], bg: '#fffbeb', text: '#f59e0b' },
+    processing: { label: i18n.t('home.pending'),   icon: 'time',             colors: ['#f59e0b','#d97706'], bg: '#fffbeb', text: '#f59e0b' },
+    failed:     { label: i18n.t('home.cancelled'),      icon: 'close-circle',     colors: ['#ef4444','#dc2626'], bg: '#fef2f2', text: '#ef4444' },
+    cancelled:  { label: i18n.t('home.cancelled'),      icon: 'close-circle',     colors: ['#ef4444','#dc2626'], bg: '#fef2f2', text: '#ef4444' },
+  };
+}
 
-const FILTERS = [
-  { key: 'all',       label: 'Tümü'       },
-  { key: 'completed', label: 'Tamamlandı' },
-  { key: 'pending',   label: 'Bekliyor'   },
-  { key: 'failed',    label: 'İptal'      },
-];
+function getFilters() {
+  return [
+    { key: 'all',       label: i18n.t('orders.filterAll')       },
+    { key: 'completed', label: i18n.t('home.completed') },
+    { key: 'pending',   label: i18n.t('home.pending')   },
+    { key: 'failed',    label: i18n.t('home.cancelled')      },
+  ];
+}
 
 function generateReceiptHtml(order: any, forPrint = false): string {
   const orderId = (order.id || '').toString().toUpperCase().slice(-10);
@@ -163,9 +169,9 @@ async function downloadReceipt(order: any) {
   try {
     const html = generateReceiptHtml(order, true);
     const { uri } = await Print.printToFileAsync({ html, base64: false });
-    await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Dekontu Paylaş' });
+    await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: i18n.t('orders.shareReceipt') });
   } catch (e: any) {
-    Alert.alert('Hata', e.message || 'Dekont oluşturulamadı');
+    Alert.alert(i18n.t('common.error'), e.message || i18n.t('orders.receiptGenerationFailed'));
   }
 }
 
@@ -174,11 +180,14 @@ async function printReceipt(order: any) {
     const html = generateReceiptHtml(order, true);
     await Print.printAsync({ html });
   } catch (e: any) {
-    Alert.alert('Hata', e.message || 'Yazdırma başarısız');
+    Alert.alert(i18n.t('common.error'), e.message || i18n.t('orders.printFailed'));
   }
 }
 
 export default function OrdersScreen() {
+  const { t } = useTranslation();
+  const STATUS = getStatusMap();
+  const FILTERS = getFilters();
   const { user } = useAuth();
   const { orders, fetchOrders } = useAppStore();
   const [loading, setLoading] = useState(true);
@@ -220,7 +229,7 @@ export default function OrdersScreen() {
   if (loading) return (
     <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.loadWrap}>
       <ActivityIndicator size="large" color="#fff" />
-      <Text style={s.loadTxt}>Yükleniyor...</Text>
+      <Text style={s.loadTxt}>{t('common.loading')}</Text>
     </LinearGradient>
   );
 
@@ -229,12 +238,12 @@ export default function OrdersScreen() {
       {/* HEADER */}
       <LinearGradient colors={['#4f46e5','#7c3aed','#a855f7']} style={s.header} start={{ x:0, y:0 }} end={{ x:1, y:1 }}>
         <View style={s.dec1} /><View style={s.dec2} />
-        <Text style={s.hTitle}>İşlem Geçmişi</Text>
+        <Text style={s.hTitle}>{t('orders.title')}</Text>
         <View style={s.searchBox}>
           <Ionicons name="search-outline" size={17} color="rgba(255,255,255,0.7)" />
           <TextInput
             style={s.searchInput}
-            placeholder="Numara veya paket ara..."
+            placeholder={t('orders.searchPlaceholder')}
             placeholderTextColor="rgba(255,255,255,0.5)"
             value={search}
             onChangeText={setSearch}
@@ -275,8 +284,8 @@ export default function OrdersScreen() {
             <LinearGradient colors={['#ede9fe','#e0e7ff']} style={s.emptyIcon}>
               <Ionicons name="receipt-outline" size={32} color="#6366f1" />
             </LinearGradient>
-            <Text style={s.emptyTitle}>Sipariş bulunamadı</Text>
-            <Text style={s.emptySub}>Henüz bu kategoride işlem yok</Text>
+            <Text style={s.emptyTitle}>{t('orders.notFound')}</Text>
+            <Text style={s.emptySub}>{t('orders.noTransactionsInCategory')}</Text>
           </View>
         }
         renderItem={({ item }) => {
@@ -294,7 +303,7 @@ export default function OrdersScreen() {
                 </LinearGradient>
               )}
               <View style={s.cardBody}>
-                <Text style={s.cardPkg} numberOfLines={1}>{item.package?.name_tr || 'Paket'}</Text>
+                <Text style={s.cardPkg} numberOfLines={1}>{item.package?.name_tr || t('orders.defaultPackage')}</Text>
                 <Text style={s.cardPhone}>{item.phone_number || '—'}</Text>
                 <Text style={s.cardDate}>{safeDate(item.created_at)}</Text>
               </View>
@@ -315,7 +324,7 @@ export default function OrdersScreen() {
       <Modal visible={!!receiptOrder} transparent animationType="slide">
         <View style={s.receiptModalWrap}>
           <View style={s.receiptModalHeader}>
-            <Text style={s.receiptModalTitle}>Dekont Önizleme</Text>
+            <Text style={s.receiptModalTitle}>{t('orders.receiptPreview')}</Text>
             <View style={s.receiptModalActions}>
               <TouchableOpacity onPress={() => { if(receiptOrder) downloadReceipt(receiptOrder); }} style={s.receiptModalBtn}>
                 <Ionicons name="share-outline" size={20} color="#6366f1" />
@@ -343,7 +352,7 @@ export default function OrdersScreen() {
           <View style={s.sheet}>
             <View style={s.handle} />
             <View style={s.sheetHead}>
-              <Text style={s.sheetTitle}>Sipariş Detayı</Text>
+              <Text style={s.sheetTitle}>{t('orders.orderDetail')}</Text>
               <TouchableOpacity onPress={() => setSelected(null)} style={s.closeBtn}>
                 <Ionicons name="close" size={18} color="#64748b" />
               </TouchableOpacity>
@@ -358,22 +367,22 @@ export default function OrdersScreen() {
                       <Ionicons name={cfg.icon as any} size={22} color="#fff" />
                     </LinearGradient>
                     <View style={{ flex: 1 }}>
-                      <Text style={s.sheetBadgePkg} numberOfLines={1}>{selected.package?.name_tr || 'Paket'}</Text>
+                      <Text style={s.sheetBadgePkg} numberOfLines={1}>{selected.package?.name_tr || t('orders.defaultPackage')}</Text>
                       <Text style={s.sheetBadgeOp}>{selected.package?.operator || '—'}</Text>
                     </View>
                     <Text style={s.sheetBadgeAmt}>{parseFloat(selected.amount || 0).toFixed(2)} ₺</Text>
                   </LinearGradient>
 
                   <View style={s.detailList}>
-                    <DetailRow icon="call-outline"    label="Numara"  value={selected.phone_number || '—'} />
-                    <DetailRow icon="layers-outline"  label="Durum"   value={cfg.label} valueColor={cfg.text} />
-                    <DetailRow icon="calendar-outline" label="Tarih"  value={safeDateFull(selected.created_at)} />
-                    <DetailRow icon="pricetag-outline" label="Satış Fiyatı" value={`${parseFloat(selected.satis_fiyati || selected.amount || 0).toFixed(2)} ₺`} />
+                    <DetailRow icon="call-outline"    label={t('orders.number')}  value={selected.phone_number || '—'} />
+                    <DetailRow icon="layers-outline"  label={t('orders.status')}   value={cfg.label} valueColor={cfg.text} />
+                    <DetailRow icon="calendar-outline" label={t('orders.date')}  value={safeDateFull(selected.created_at)} />
+                    <DetailRow icon="pricetag-outline" label={t('orders.salePrice')} value={`${parseFloat(selected.satis_fiyati || selected.amount || 0).toFixed(2)} ₺`} />
                     {(() => {
                       const satisFiyati = parseFloat(selected.satis_fiyati || 0);
                       const bayiMaaliyet = parseFloat(selected.bayi_maaliyet || selected.amount || 0);
                       const kar = satisFiyati > 0 ? Math.max(0, satisFiyati - bayiMaaliyet) : 0;
-                      return kar > 0 ? <DetailRow icon="trending-up-outline" label="Kar" value={`+${kar.toFixed(2)} ₺`} valueColor="#10b981" /> : null;
+                      return kar > 0 ? <DetailRow icon="trending-up-outline" label={t('orders.profit')} value={`+${kar.toFixed(2)} ₺`} valueColor="#10b981" /> : null;
                     })()}
                   </View>
 
@@ -382,16 +391,16 @@ export default function OrdersScreen() {
                       <TouchableOpacity style={s.receiptBtn} onPress={() => downloadReceipt(selected)}>
                         <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.receiptBtnInner} start={{x:0,y:0}} end={{x:1,y:0}}>
                           <Ionicons name="share-outline" size={17} color="#fff" />
-                          <Text style={s.receiptBtnTxt}>Paylaş</Text>
+                          <Text style={s.receiptBtnTxt}>{t('orders.share')}</Text>
                         </LinearGradient>
                       </TouchableOpacity>
                       <TouchableOpacity style={s.receiptBtnOutline} onPress={() => { setSelected(null); setReceiptOrder(selected); }}>
                         <Ionicons name="eye-outline" size={17} color="#6366f1" />
-                        <Text style={s.receiptBtnOutlineTxt}>Görüntüle</Text>
+                        <Text style={s.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={s.receiptBtnOutline} onPress={() => printReceipt(selected)}>
                         <Ionicons name="print-outline" size={17} color="#6366f1" />
-                        <Text style={s.receiptBtnOutlineTxt}>Yazdır</Text>
+                        <Text style={s.receiptBtnOutlineTxt}>{t('orders.print')}</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -492,7 +501,7 @@ const s = StyleSheet.create({
 
   detailList: { gap: 4 },
   detailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  detailIconWrap: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#ede9fe', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  detailIconWrap: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#ede9fe', justifyContent: 'center', alignItems: 'center', marginEnd: 12 },
   detailLabel: { color: '#94a3b8', fontSize: 13, fontWeight: '700', width: 70 },
   detailValue: { flex: 1, color: '#1e293b', fontSize: 13, fontWeight: '700', textAlign: 'right' },
 });

@@ -13,6 +13,8 @@ import { supabase } from '../../lib/supabase';
 import AppModal from '../../components/AppModal';
 import { useFocusEffect } from 'expo-router';
 import { safeDate, safeDateFull } from '../../lib/config';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const BANKS = [
   { id: 'vakif',   name: 'VAKIFBANK',      holder: 'Tech Telekomünikasyon Yazılım Danışmanlık Hiz.Tic.San.Ltd.Şti.', iban: 'TR07 0001 5001 5800 7314 5932 76', logo: require('../../assets/images/vakifbank.jpg'),  colors: ['#00a651','#007a3d'] as [string,string] },
@@ -33,12 +35,13 @@ const BANK_LOGOS: Record<string, any> = {
 };
 
 function statusInfo(status: string) {
-  if (status === 'approved') return { label: 'Onaylandı', color: '#10b981', bg: '#d1fae5', icon: 'checkmark-circle' };
-  if (status === 'pending')  return { label: 'Bekliyor',  color: '#f59e0b', bg: '#fef3c7', icon: 'time' };
-  return                            { label: 'Reddedildi',color: '#ef4444', bg: '#fee2e2', icon: 'close-circle' };
+  if (status === 'approved') return { label: i18n.t('balance.approved'), color: '#10b981', bg: '#d1fae5', icon: 'checkmark-circle' };
+  if (status === 'pending')  return { label: i18n.t('home.pending'),  color: '#f59e0b', bg: '#fef3c7', icon: 'time' };
+  return                            { label: i18n.t('balance.rejected'),color: '#ef4444', bg: '#fee2e2', icon: 'close-circle' };
 }
 
 export default function BalanceScreen() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { sendBalanceRequest, balanceRequests, fetchBalanceRequests } = useAppStore();
   const [tab, setTab] = useState<'yukle' | 'gecmis'>('yukle');
@@ -54,20 +57,20 @@ export default function BalanceScreen() {
 
   const copy = async (text: string, label: string) => {
     await Clipboard.setStringAsync(text.replace(/\s/g, ''));
-    setAppModal({ type: 'success', title: 'Kopyalandı', message: `${label} panoya kopyalandı.` });
+    setAppModal({ type: 'success', title: t('balance.copiedTitle'), message: t('balance.copiedMessage', { label: label }) });
   };
 
   const handleSubmit = async () => {
-    if (!amount || !bank) { setAppModal({ type: 'error', title: 'Eksik Bilgi', message: 'Lütfen tutar girin ve bir banka seçin.' }); return; }
+    if (!amount || !bank) { setAppModal({ type: 'error', title: t('balance.missingInfoTitle'), message: t('balance.missingInfoMessage') }); return; }
     const { data: { user: authUser } } = await supabase.auth.getUser();
-    if (!authUser?.id) { setAppModal({ type: 'error', title: 'Hata', message: 'Giriş yapmanız gerekiyor.' }); return; }
+    if (!authUser?.id) { setAppModal({ type: 'error', title: t('common.error'), message: t('balance.loginRequired') }); return; }
     setLoading(true);
     try {
       await sendBalanceRequest(authUser.id, parseFloat(amount), bank, user?.currency || 'TRY');
-      setAppModal({ type: 'pending', title: 'Talep Alındı', message: 'Ödeme bildiriminiz alındı. En kısa sürede onaylanacak.' });
+      setAppModal({ type: 'pending', title: t('balance.requestReceivedTitle'), message: t('balance.requestReceivedMessage') });
       setAmount(''); setBank(null);
       if (user?.id) fetchBalanceRequests(user.id);
-    } catch (e: any) { setAppModal({ type: 'error', title: 'Hata', message: e?.message || 'İşlem başarısız.' }); }
+    } catch (e: any) { setAppModal({ type: 'error', title: t('common.error'), message: e?.message || t('login.actionFailed') }); }
     finally { setLoading(false); }
   };
 
@@ -87,7 +90,7 @@ export default function BalanceScreen() {
       {/* HEADER */}
       <LinearGradient colors={['#4f46e5','#7c3aed','#a855f7']} style={s.header} start={{ x:0, y:0 }} end={{ x:1, y:1 }}>
         <View style={s.dec1} /><View style={s.dec2} />
-        <Text style={s.hTitle}>Bakiye</Text>
+        <Text style={s.hTitle}>{t('balance.title')}</Text>
 
         {/* Bakiye + Sekme butonları yan yana */}
         <View style={s.headerRow}>
@@ -99,11 +102,11 @@ export default function BalanceScreen() {
           <View style={s.tabRow}>
             <TouchableOpacity onPress={() => setTab('yukle')} style={[s.tabBtn, tab === 'yukle' && s.tabBtnActive]}>
               <Ionicons name="arrow-up-circle-outline" size={13} color={tab === 'yukle' ? '#6366f1' : 'rgba(255,255,255,0.7)'} />
-              <Text style={[s.tabTxt, tab === 'yukle' && s.tabTxtActive]}>Yükle</Text>
+              <Text style={[s.tabTxt, tab === 'yukle' && s.tabTxtActive]}>{t('balance.load')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setTab('gecmis')} style={[s.tabBtn, tab === 'gecmis' && s.tabBtnActive]}>
               <Ionicons name="time-outline" size={13} color={tab === 'gecmis' ? '#6366f1' : 'rgba(255,255,255,0.7)'} />
-              <Text style={[s.tabTxt, tab === 'gecmis' && s.tabTxtActive]}>Geçmiş</Text>
+              <Text style={[s.tabTxt, tab === 'gecmis' && s.tabTxtActive]}>{t('home.history')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -120,7 +123,7 @@ export default function BalanceScreen() {
                   <View style={s.submitIconWrap}>
                     <Ionicons name="paper-plane" size={16} color={ready ? '#6366f1' : '#94a3b8'} />
                   </View>
-                  <Text style={s.submitTxt}>Ödeme Bildirimi Gönder</Text>
+                  <Text style={s.submitTxt}>{t('balance.sendPaymentNotification')}</Text>
                   <Ionicons name="arrow-forward" size={15} color="rgba(255,255,255,0.7)" />
                 </>
               )}
@@ -132,7 +135,7 @@ export default function BalanceScreen() {
               <LinearGradient colors={['#6366f1','#8b5cf6']} style={s.sectionIcon}>
                 <Ionicons name="cash-outline" size={12} color="#fff" />
               </LinearGradient>
-              <Text style={s.sectionTitle}>Tutar Seç</Text>
+              <Text style={s.sectionTitle}>{t('balance.selectAmount')}</Text>
             </View>
             <View style={s.quickRow}>
               {QUICK.map(q => (
@@ -151,7 +154,7 @@ export default function BalanceScreen() {
             </View>
             <View style={s.inputWrap}>
               <Ionicons name="calculator-outline" size={17} color="#6366f1" />
-              <TextInput style={s.input} placeholder="Farklı tutar..." placeholderTextColor="#94a3b8"
+              <TextInput style={s.input} placeholder={t('balance.otherAmount')} placeholderTextColor="#94a3b8"
                 value={amount} onChangeText={setAmount} keyboardType="numeric" />
               {amount.length > 0 && <Text style={s.inputSuffix}>₺</Text>}
             </View>
@@ -162,7 +165,7 @@ export default function BalanceScreen() {
               <LinearGradient colors={['#10b981','#059669']} style={s.sectionIcon}>
                 <Ionicons name="business-outline" size={12} color="#fff" />
               </LinearGradient>
-              <Text style={s.sectionTitle}>Banka Seç</Text>
+              <Text style={s.sectionTitle}>{t('balance.selectBank')}</Text>
             </View>
             {BANKS.map(b => {
               const sel = bank?.id === b.id;
@@ -183,9 +186,9 @@ export default function BalanceScreen() {
                       )}
                     </View>
                     <View style={[s.infoRow, sel && { backgroundColor: '#ede9fe' }]}>
-                      <Text style={s.infoLabel}>ALICI</Text>
+                      <Text style={s.infoLabel}>{t('balance.recipient')}</Text>
                       <Text style={s.infoVal} numberOfLines={1}>{b.holder}</Text>
-                      <TouchableOpacity onPress={() => copy(b.holder, 'Alıcı Adı')} style={s.copyBtn}>
+                      <TouchableOpacity onPress={() => copy(b.holder, t('balance.recipientName'))} style={s.copyBtn}>
                         <Ionicons name="copy-outline" size={13} color="#6366f1" />
                       </TouchableOpacity>
                     </View>
@@ -204,7 +207,7 @@ export default function BalanceScreen() {
 
           <View style={s.noteCard}>
             <Ionicons name="shield-checkmark-outline" size={16} color="#6366f1" />
-            <Text style={s.noteTxt}>Havale/EFT yaptıktan sonra üstteki butona basın. Bakiyeniz en geç 30 dakika içinde yüklenir.</Text>
+            <Text style={s.noteTxt}>{t('balance.transferNote')}</Text>
           </View>
           <View style={{ height: 100 }} />
         </ScrollView>
@@ -216,7 +219,7 @@ export default function BalanceScreen() {
           {balanceRequests.length === 0 ? (
             <View style={s.emptyBox}>
               <Ionicons name="receipt-outline" size={40} color="#cbd5e1" />
-              <Text style={s.emptyTxt}>Henüz ödeme talebi yok</Text>
+              <Text style={s.emptyTxt}>{t('balance.noPaymentRequests')}</Text>
             </View>
           ) : balanceRequests.map((req, i) => {
             const st = statusInfo(req.status);
@@ -261,7 +264,7 @@ export default function BalanceScreen() {
               <View style={s.sheet}>
                 <View style={s.handle} />
                 <View style={s.sheetHead}>
-                  <Text style={s.sheetTitle}>Ödeme Detayı</Text>
+                  <Text style={s.sheetTitle}>{t('balance.paymentDetail')}</Text>
                   <TouchableOpacity onPress={() => setSelected(null)} style={s.closeBtn}>
                     <Ionicons name="close" size={18} color="#64748b" />
                   </TouchableOpacity>
@@ -286,11 +289,11 @@ export default function BalanceScreen() {
 
                 {/* Detay satırları */}
                 <View style={s.detailList}>
-                  <DetailRow icon="cash-outline"     label="Tutar"   value={`${parseFloat(selected.amount || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺`} />
-                  <DetailRow icon="calendar-outline" label="Tarih"   value={safeDate(selected.created_at)} />
-                  <DetailRow icon="time-outline"     label="Saat"    value={safeDateFull(selected.created_at).split(' ')[1] || ''} />
-                  <DetailRow icon="layers-outline"   label="Durum"   value={st.label} valueColor={st.color} />
-                  {selected.admin_note && <DetailRow icon="chatbubble-outline" label="Not" value={selected.admin_note} />}
+                  <DetailRow icon="cash-outline"     label={t('balance.amount')}   value={`${parseFloat(selected.amount || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺`} />
+                  <DetailRow icon="calendar-outline" label={t('orders.date')}   value={safeDate(selected.created_at)} />
+                  <DetailRow icon="time-outline"     label={t('balance.time')}    value={safeDateFull(selected.created_at).split(' ')[1] || ''} />
+                  <DetailRow icon="layers-outline"   label={t('orders.status')}   value={st.label} valueColor={st.color} />
+                  {selected.admin_note && <DetailRow icon="chatbubble-outline" label={t('balance.note')} value={selected.admin_note} />}
                 </View>
               </View>
             );
@@ -398,7 +401,7 @@ const s = StyleSheet.create({
 
   detailList: { gap: 4 },
   detailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  detailIconWrap: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#ede9fe', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  detailIconWrap: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#ede9fe', justifyContent: 'center', alignItems: 'center', marginEnd: 12 },
   detailLabel: { color: '#94a3b8', fontSize: 13, fontWeight: '700', width: 60 },
   detailValue: { flex: 1, color: '#1e293b', fontSize: 13, fontWeight: '700', textAlign: 'right' },
 });

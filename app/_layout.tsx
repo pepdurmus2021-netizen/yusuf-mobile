@@ -1,8 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { Animated, View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { I18nextProvider } from 'react-i18next';
+import i18n, { initI18n } from '../i18n';
 
 function AuthGuard() {
   const { token, loading } = useAuth();
@@ -99,9 +101,21 @@ const splash = StyleSheet.create({
 });
 
 export default function RootLayout() {
+  const [i18nReady, setI18nReady] = useState(false);
+
+  useEffect(() => {
+    initI18n().then(() => setI18nReady(true));
+  }, []);
+
+  if (!i18nReady) {
+    return <SplashScreen />;
+  }
+
   return (
-    <AuthProvider>
-      <AuthGuard />
-    </AuthProvider>
+    <I18nextProvider i18n={i18n}>
+      <AuthProvider>
+        <AuthGuard />
+      </AuthProvider>
+    </I18nextProvider>
   );
 }

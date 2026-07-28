@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 function TabIcon({ name, focused }: { name: any; focused: boolean }) {
   return (
@@ -34,6 +35,7 @@ function CenterIcon() {
 }
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const isAnaBayi = user?.role === 'ana_bayi';
@@ -68,14 +70,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Ana Sayfa',
+          title: t('tabs.home'),
           tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="orders"
         options={{
-          title: 'Siparişler',
+          title: t('tabs.orders'),
           tabBarIcon: ({ focused }) => <TabIcon name="stats-chart" focused={focused} />,
           tabBarItemStyle: isAnaBayi ? { display: 'none' } : {},
         }}
@@ -83,7 +85,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dealers"
         options={{
-          title: 'Bayilerim',
+          title: t('dealers.title'),
           tabBarIcon: ({ focused }) => <TabIcon name="people" focused={focused} />,
           tabBarItemStyle: isAnaBayi ? {} : { display: 'none' },
         }}
@@ -99,7 +101,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="balance"
         options={{
-          title: 'Bakiye',
+          title: t('balance.title'),
           tabBarIcon: ({ focused }) => <TabIcon name="card" focused={focused} />,
         }}
       />
@@ -112,7 +114,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
+          title: t('profile.title'),
           tabBarIcon: ({ focused }) => <TabIcon name="shield-checkmark" focused={focused} />,
         }}
       />

@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Ana Sayfa</Text>
-      <Text style={styles.subtitle}>Hoş geldiniz!</Text>
+      <Text style={styles.title}>{t('legacyHome.title')}</Text>
+      <Text style={styles.subtitle}>{t('legacyHome.welcome')}</Text>
     </View>
   );
 }

@@ -13,10 +13,21 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../lib/supabase';
 import AppModal from '../../components/AppModal';
+import { useTranslation } from 'react-i18next';
+import { applyRTLIfNeeded, reloadApp } from '../../lib/rtl';
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../i18n';
+
+const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
+  tr: 'Türkçe',
+  fa: 'فارسی',
+  ar: 'العربية',
+};
 
 export default function ProfileScreen() {
+  const { t, i18n } = useTranslation();
   const { user, token, logout, updateUser } = useAuth();
   const [photo, setPhoto] = useState<string | null>(null);
+  const [languageLoading, setLanguageLoading] = useState(false);
 
   const [editModal, setEditModal]     = useState(false);
   const [editName, setEditName]       = useState('');
@@ -57,7 +68,7 @@ export default function ProfileScreen() {
   const pickPhoto = async () => {
     setPhotoOptions(false);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') { setAppModal({ type: 'error', title: 'İzin Gerekli', message: 'Fotoğraf erişimi için izin verin.' }); return; }
+    if (status !== 'granted') { setAppModal({ type: 'error', title: t('profile.permissionRequiredTitle'), message: t('profile.photoPermissionMessage') }); return; }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -74,7 +85,7 @@ export default function ProfileScreen() {
   const openEdit = () => { setEditName(user?.name || ''); setEditPhone(user?.phone || ''); setEditFirma((user as any)?.firma_adi || ''); setEditModal(true); };
 
   const handleSave = async () => {
-    if (!editName.trim()) { setAppModal({ type: 'error', title: 'Hata', message: 'Ad soyad boş olamaz.' }); return; }
+    if (!editName.trim()) { setAppModal({ type: 'error', title: t('common.error'), message: t('profile.nameEmptyError') }); return; }
     if (!user?.id) return;
     setEditLoading(true);
     try {
@@ -82,15 +93,15 @@ export default function ProfileScreen() {
       if (error) throw error;
       updateUser({ name: editName.trim(), phone: editPhone.trim(), firma_adi: editFirma.trim() || null });
       setEditModal(false);
-      setAppModal({ type: 'success', title: 'Başarılı', message: 'Bilgileriniz güncellendi.' });
-    } catch (e: any) { setAppModal({ type: 'error', title: 'Hata', message: e?.message || 'Güncelleme başarısız.' }); }
+      setAppModal({ type: 'success', title: t('profile.successTitle'), message: t('profile.updateSuccessMessage') });
+    } catch (e: any) { setAppModal({ type: 'error', title: t('common.error'), message: e?.message || t('profile.updateFailedMessage') }); }
     finally { setEditLoading(false); }
   };
 
   const handleChangePass = async () => {
-    if (!currentPass || !newPass || !confirmPass) { setAppModal({ type: 'error', title: 'Hata', message: 'Tüm alanları doldurun.' }); return; }
-    if (newPass !== confirmPass) { setAppModal({ type: 'error', title: 'Hata', message: 'Yeni şifreler eşleşmiyor.' }); return; }
-    if (newPass.length < 6) { setAppModal({ type: 'error', title: 'Hata', message: 'Şifre en az 6 karakter olmalı.' }); return; }
+    if (!currentPass || !newPass || !confirmPass) { setAppModal({ type: 'error', title: t('common.error'), message: t('profile.fillAllFields') }); return; }
+    if (newPass !== confirmPass) { setAppModal({ type: 'error', title: t('common.error'), message: t('profile.passwordsMismatch') }); return; }
+    if (newPass.length < 6) { setAppModal({ type: 'error', title: t('common.error'), message: t('profile.passwordTooShort') }); return; }
     if (!user?.id) return;
     setPassLoading(true);
     try {
@@ -99,16 +110,39 @@ export default function ProfileScreen() {
         body: JSON.stringify({ current_password: currentPass, new_password: newPass }),
       });
       setPassModal(false); setCurrentPass(''); setNewPass(''); setConfirmPass('');
-      setAppModal({ type: 'success', title: 'Başarılı', message: 'Şifreniz değiştirildi.' });
-    } catch (e: any) { setAppModal({ type: 'error', title: 'Hata', message: e?.message || 'Şifre değiştirme başarısız.' }); }
+      setAppModal({ type: 'success', title: t('profile.successTitle'), message: t('profile.passwordChangedMessage') });
+    } catch (e: any) { setAppModal({ type: 'error', title: t('common.error'), message: e?.message || t('profile.passwordChangeFailed') }); }
     finally { setPassLoading(false); }
   };
 
   const handleLogout = () => {
-    Alert.alert('Çıkış', 'Oturumu kapatmak istediğinize emin misiniz?', [
-      { text: 'İptal', style: 'cancel' },
-      { text: 'Çıkış Yap', style: 'destructive', onPress: () => { logout(); router.replace('/login'); } },
+    Alert.alert(t('profile.logoutTitle'), t('profile.logoutConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('profile.logoutAction'), style: 'destructive', onPress: () => { logout(); router.replace('/login'); } },
     ]);
+  };
+
+  const handleLanguageChange = async (lang: SupportedLanguage) => {
+    if (lang === i18n.language || languageLoading) return;
+    setLanguageLoading(true);
+    try {
+      await AsyncStorage.setItem('language', lang);
+      const needsReload = await applyRTLIfNeeded(lang);
+      updateUser({ language: lang });
+      if (token) {
+        apiFetch(`${API_URL}/api/me/update`, token, {
+          method: 'PUT',
+          body: JSON.stringify({ language: lang }),
+        }).catch(() => {});
+      }
+      if (needsReload) {
+        Alert.alert(t('profile.restartRequiredTitle'), t('profile.restartRequiredMessage'), [
+          { text: t('common.ok'), onPress: () => reloadApp().catch(() => {}) },
+        ]);
+      }
+    } finally {
+      setLanguageLoading(false);
+    }
   };
 
   const initials = (name?: string) => name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
@@ -130,7 +164,7 @@ export default function ProfileScreen() {
             <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.annHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <Ionicons name="megaphone" size={20} color="white" />
-                <Text style={s.annHeaderTitle}>Duyurular</Text>
+                <Text style={s.annHeaderTitle}>{t('profile.announcementsTitle')}</Text>
               </View>
               <TouchableOpacity onPress={() => setAnnouncementsModal(false)} style={s.annClose}>
                 <Ionicons name="close" size={20} color="white" />
@@ -139,7 +173,7 @@ export default function ProfileScreen() {
             {announcements.length === 0 ? (
               <View style={s.annEmpty}>
                 <Ionicons name="megaphone-outline" size={40} color="#cbd5e1" />
-                <Text style={s.annEmptyText}>Henüz duyuru yok</Text>
+                <Text style={s.annEmptyText}>{t('profile.noAnnouncements')}</Text>
               </View>
             ) : (
               announcements.map(a => (
@@ -164,13 +198,13 @@ export default function ProfileScreen() {
         <TouchableOpacity style={s.optOverlay} activeOpacity={1} onPress={() => setPhotoOptions(false)}>
           <View style={s.optSheet}>
             <View style={s.optHandle} />
-            <Text style={s.optTitle}>Profil Fotoğrafı</Text>
+            <Text style={s.optTitle}>{t('profile.photoTitle')}</Text>
             {photo && (
               <TouchableOpacity style={s.optBtn} onPress={() => { setPhotoOptions(false); setViewPhoto(true); }} activeOpacity={0.8}>
                 <View style={[s.optIcon, { backgroundColor: '#ede9fe' }]}>
                   <Ionicons name="eye-outline" size={20} color="#6366f1" />
                 </View>
-                <Text style={s.optBtnTxt}>Fotoğrafı Gör</Text>
+                <Text style={s.optBtnTxt}>{t('profile.viewPhoto')}</Text>
                 <Ionicons name="chevron-forward" size={16} color="#cbd5e1" />
               </TouchableOpacity>
             )}
@@ -178,14 +212,14 @@ export default function ProfileScreen() {
               <View style={[s.optIcon, { backgroundColor: '#f0fdf4' }]}>
                 <Ionicons name="image-outline" size={20} color="#10b981" />
               </View>
-              <Text style={s.optBtnTxt}>Fotoğraf Seç & Düzenle</Text>
+              <Text style={s.optBtnTxt}>{t('profile.pickAndEditPhoto')}</Text>
               <Ionicons name="chevron-forward" size={16} color="#cbd5e1" />
             </TouchableOpacity>
             <TouchableOpacity style={[s.optBtn, { marginTop: 4 }]} onPress={() => setPhotoOptions(false)} activeOpacity={0.8}>
               <View style={[s.optIcon, { backgroundColor: '#f8fafc' }]}>
                 <Ionicons name="close" size={20} color="#94a3b8" />
               </View>
-              <Text style={[s.optBtnTxt, { color: '#94a3b8' }]}>İptal</Text>
+              <Text style={[s.optBtnTxt, { color: '#94a3b8' }]}>{t('common.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -205,7 +239,7 @@ export default function ProfileScreen() {
         {/* HEADER GRADİENT ARKA PLAN */}
         <LinearGradient colors={['#4f46e5','#7c3aed','#a855f7']} style={s.headerBg} start={{ x:0, y:0 }} end={{ x:1, y:1 }}>
           <View style={s.dec1} /><View style={s.dec2} />
-          <Text style={s.hTitle}>Profilim</Text>
+          <Text style={s.hTitle}>{t('profile.title')}</Text>
 
           {/* YATAY PROFİL KARTI */}
           <View style={s.profileCard}>
@@ -226,7 +260,7 @@ export default function ProfileScreen() {
             {/* BİLGİLER — sağ taraf */}
             <View style={s.profileInfo}>
               <View style={s.nameRow}>
-                <Text style={s.profileName} numberOfLines={1}>{user?.name || 'Kullanıcı'}</Text>
+                <Text style={s.profileName} numberOfLines={1}>{user?.name || t('profile.defaultUser')}</Text>
                 <TouchableOpacity onPress={openEdit} style={s.editBtn}>
                   <Ionicons name="pencil" size={12} color="#6366f1" />
                 </TouchableOpacity>
@@ -238,7 +272,7 @@ export default function ProfileScreen() {
               <View style={s.badgeRow}>
                 <View style={s.roleBadge}>
                   <Ionicons name={user?.role === 'dealer' ? 'storefront' : 'person'} size={10} color="#6366f1" />
-                  <Text style={s.roleText}>{user?.role === 'dealer' ? 'Bayi' : 'Kullanıcı'}</Text>
+                  <Text style={s.roleText}>{user?.role === 'dealer' ? t('profile.roleDealer') : t('profile.roleUser')}</Text>
                 </View>
               </View>
             </View>
@@ -248,17 +282,17 @@ export default function ProfileScreen() {
           <View style={s.statsRow}>
             <View style={s.statItem}>
               <Text style={s.statVal}>{balance.toFixed(2)} ₺</Text>
-              <Text style={s.statLbl}>Bakiye</Text>
+              <Text style={s.statLbl}>{t('profile.balance')}</Text>
             </View>
             <View style={s.statDivider} />
             <View style={s.statItem}>
               <Text style={s.statVal}>{user?.role?.toUpperCase() || 'USER'}</Text>
-              <Text style={s.statLbl}>Hesap Tipi</Text>
+              <Text style={s.statLbl}>{t('profile.accountType')}</Text>
             </View>
             <View style={s.statDivider} />
             <View style={s.statItem}>
               <Text style={s.statVal}>TR</Text>
-              <Text style={s.statLbl}>Bölge</Text>
+              <Text style={s.statLbl}>{t('profile.region')}</Text>
             </View>
           </View>
         </LinearGradient>
@@ -268,24 +302,47 @@ export default function ProfileScreen() {
           {/* HESAP */}
           <View style={s.groupHead}>
             <Ionicons name="settings-outline" size={13} color="#94a3b8" />
-            <Text style={s.groupTitle}>HESAP AYARLARI</Text>
+            <Text style={s.groupTitle}>{t('profile.accountSettings')}</Text>
           </View>
           <View style={s.group}>
-            <MenuItem icon="person-outline"           color="#6366f1" label="Bilgilerimi Düzenle"   onPress={openEdit} />
-            <MenuItem icon="lock-closed-outline"      color="#10b981" label="Şifre Değiştir"         onPress={() => setPassModal(true)} />
-            <MenuItem icon="shield-checkmark-outline" color="#f59e0b" label="Güvenlik"               last />
+            <MenuItem icon="person-outline"           color="#6366f1" label={t('profile.editInfo')}   onPress={openEdit} />
+            <MenuItem icon="lock-closed-outline"      color="#10b981" label={t('profile.changePassword')}         onPress={() => setPassModal(true)} />
+            <MenuItem icon="shield-checkmark-outline" color="#f59e0b" label={t('profile.security')}               last />
+          </View>
+
+          {/* DİL */}
+          <View style={s.groupHead}>
+            <Ionicons name="language-outline" size={13} color="#94a3b8" />
+            <Text style={s.groupTitle}>{t('profile.languageTitle')}</Text>
+          </View>
+          <View style={[s.group, { paddingVertical: 12, paddingHorizontal: 10, flexDirection: 'row', gap: 8 }]}>
+            {SUPPORTED_LANGUAGES.map((lang) => (
+              <TouchableOpacity
+                key={lang}
+                onPress={() => handleLanguageChange(lang)}
+                disabled={languageLoading}
+                style={[
+                  s.langBtn,
+                  (user?.language || i18n.language) === lang && s.langBtnActive,
+                ]}
+              >
+                <Text style={[s.langBtnTxt, (user?.language || i18n.language) === lang && s.langBtnTxtActive]}>
+                  {LANGUAGE_LABELS[lang]}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           {/* DUYURULAR */}
           <View style={s.groupHead}>
             <Ionicons name="megaphone-outline" size={13} color="#94a3b8" />
-            <Text style={s.groupTitle}>DUYURULAR</Text>
+            <Text style={s.groupTitle}>{t('profile.announcementsGroupTitle')}</Text>
           </View>
           <View style={s.group}>
             <MenuItem
               icon="megaphone-outline"
               color="#4f46e5"
-              label="Duyurular"
+              label={t('profile.announcementsTitle')}
               badge={announcements.length > 0 ? announcements.length : undefined}
               onPress={() => { fetchAnnouncements(); setAnnouncementsModal(true); }}
               last
@@ -295,12 +352,12 @@ export default function ProfileScreen() {
           {/* DESTEK */}
           <View style={s.groupHead}>
             <Ionicons name="headset-outline" size={13} color="#94a3b8" />
-            <Text style={s.groupTitle}>DESTEK & İLETİŞİM</Text>
+            <Text style={s.groupTitle}>{t('profile.supportGroupTitle')}</Text>
           </View>
           <View style={s.group}>
-            <MenuItem icon="logo-whatsapp"       color="#25D366" label="WhatsApp Destek"       onPress={() => Linking.openURL('https://wa.me/905069690724')} />
-            <MenuItem icon="mail-outline"        color="#0ea5e9" label="E-posta Gönder"        onPress={() => Linking.openURL('mailto:destek@yusufmobile.com')} />
-            <MenuItem icon="help-circle-outline" color="#8b5cf6" label="Sık Sorulan Sorular"  last />
+            <MenuItem icon="logo-whatsapp"       color="#25D366" label={t('profile.whatsappSupport')}       onPress={() => Linking.openURL('https://wa.me/905069690724')} />
+            <MenuItem icon="mail-outline"        color="#0ea5e9" label={t('profile.sendEmail')}        onPress={() => Linking.openURL('mailto:destek@yusufmobile.com')} />
+            <MenuItem icon="help-circle-outline" color="#8b5cf6" label={t('profile.faq')}  last />
           </View>
 
           {/* ÇIKIŞ */}
@@ -308,7 +365,7 @@ export default function ProfileScreen() {
             <View style={s.logoutIcon}>
               <Ionicons name="log-out-outline" size={19} color="#ef4444" />
             </View>
-            <Text style={s.logoutTxt}>Oturumu Kapat</Text>
+            <Text style={s.logoutTxt}>{t('profile.logoutAction')}</Text>
             <Ionicons name="chevron-forward" size={15} color="#ef4444" />
           </TouchableOpacity>
 
@@ -324,17 +381,17 @@ export default function ProfileScreen() {
           <View style={s.sheet}>
             <View style={s.handle} />
             <View style={s.sheetHead}>
-              <Text style={s.sheetTitle}>Bilgilerimi Düzenle</Text>
+              <Text style={s.sheetTitle}>{t('profile.editInfo')}</Text>
               <TouchableOpacity onPress={() => setEditModal(false)} style={s.closeBtn}>
                 <Ionicons name="close" size={18} color="#64748b" />
               </TouchableOpacity>
             </View>
-            <FieldRow icon="person-outline"   label="Ad Soyad"   value={editName}  onChange={setEditName}  placeholder="Adınızı girin" />
-            <FieldRow icon="business-outline" label="Firma Adı" value={editFirma} onChange={setEditFirma} placeholder="Firma adınız (opsiyonel)" />
-            <FieldRow icon="call-outline"     label="Telefon"   value={editPhone} onChange={setEditPhone} placeholder="Telefon numarası" keyboard="phone-pad" />
+            <FieldRow icon="person-outline"   label={t('login.namePlaceholder')}   value={editName}  onChange={setEditName}  placeholder={t('profile.namePlaceholderHint')} />
+            <FieldRow icon="business-outline" label={t('profile.companyName')} value={editFirma} onChange={setEditFirma} placeholder={t('profile.companyNameHint')} />
+            <FieldRow icon="call-outline"     label={t('login.phonePlaceholder')}   value={editPhone} onChange={setEditPhone} placeholder={t('profile.phoneHint')} keyboard="phone-pad" />
             <TouchableOpacity onPress={handleSave} disabled={editLoading} style={{ borderRadius: 14, overflow: 'hidden', marginTop: 6 }}>
               <LinearGradient colors={['#6366f1','#8b5cf6']} style={s.sheetBtn}>
-                {editLoading ? <ActivityIndicator color="#fff" /> : <><Ionicons name="checkmark-circle" size={17} color="#fff" /><Text style={s.sheetBtnTxt}>Kaydet</Text></>}
+                {editLoading ? <ActivityIndicator color="#fff" /> : <><Ionicons name="checkmark-circle" size={17} color="#fff" /><Text style={s.sheetBtnTxt}>{t('common.save')}</Text></>}
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -348,17 +405,17 @@ export default function ProfileScreen() {
           <View style={s.sheet}>
             <View style={s.handle} />
             <View style={s.sheetHead}>
-              <Text style={s.sheetTitle}>Şifre Değiştir</Text>
+              <Text style={s.sheetTitle}>{t('profile.changePassword')}</Text>
               <TouchableOpacity onPress={() => { setPassModal(false); setCurrentPass(''); setNewPass(''); setConfirmPass(''); }} style={s.closeBtn}>
                 <Ionicons name="close" size={18} color="#64748b" />
               </TouchableOpacity>
             </View>
-            <FieldRow icon="lock-closed-outline" label="Mevcut Şifre"       value={currentPass} onChange={setCurrentPass} placeholder="Mevcut şifreniz"  secure={!showCur} eye onEye={() => setShowCur(!showCur)} showEye={showCur} />
-            <FieldRow icon="lock-open-outline"   label="Yeni Şifre"         value={newPass}     onChange={setNewPass}     placeholder="En az 6 karakter" secure={!showNew} eye onEye={() => setShowNew(!showNew)} showEye={showNew} />
-            <FieldRow icon="lock-open-outline"   label="Yeni Şifre (Tekrar)" value={confirmPass} onChange={setConfirmPass} placeholder="Tekrar girin"     secure={!showNew} />
+            <FieldRow icon="lock-closed-outline" label={t('profile.currentPassword')}       value={currentPass} onChange={setCurrentPass} placeholder={t('profile.currentPasswordHint')}  secure={!showCur} eye onEye={() => setShowCur(!showCur)} showEye={showCur} />
+            <FieldRow icon="lock-open-outline"   label={t('profile.newPassword')}         value={newPass}     onChange={setNewPass}     placeholder={t('profile.newPasswordHint')} secure={!showNew} eye onEye={() => setShowNew(!showNew)} showEye={showNew} />
+            <FieldRow icon="lock-open-outline"   label={t('profile.newPasswordConfirm')} value={confirmPass} onChange={setConfirmPass} placeholder={t('profile.newPasswordConfirmHint')}     secure={!showNew} />
             <TouchableOpacity onPress={handleChangePass} disabled={passLoading} style={{ borderRadius: 14, overflow: 'hidden', marginTop: 6 }}>
               <LinearGradient colors={['#10b981','#059669']} style={s.sheetBtn}>
-                {passLoading ? <ActivityIndicator color="#fff" /> : <><Ionicons name="key" size={17} color="#fff" /><Text style={s.sheetBtnTxt}>Şifreyi Güncelle</Text></>}
+                {passLoading ? <ActivityIndicator color="#fff" /> : <><Ionicons name="key" size={17} color="#fff" /><Text style={s.sheetBtnTxt}>{t('profile.updatePassword')}</Text></>}
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -424,7 +481,7 @@ const s = StyleSheet.create({
   photoImg: { width: 76, height: 76, borderRadius: 22, borderWidth: 2.5, borderColor: '#6366f1' },
   photoPlaceholder: { width: 76, height: 76, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   photoInitial: { color: '#fff', fontSize: 28, fontWeight: '900' },
-  cameraBadge: { position: 'absolute', bottom: -4, right: -4, width: 24, height: 24, borderRadius: 12, backgroundColor: '#6366f1', justifyContent: 'center', alignItems: 'center', borderWidth: 2.5, borderColor: '#fff' },
+  cameraBadge: { position: 'absolute', bottom: -4, end: -4, width: 24, height: 24, borderRadius: 12, backgroundColor: '#6366f1', justifyContent: 'center', alignItems: 'center', borderWidth: 2.5, borderColor: '#fff' },
 
   profileInfo: { flex: 1, gap: 3 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -452,15 +509,20 @@ const s = StyleSheet.create({
 
   content: { paddingHorizontal: 18, paddingTop: 20 },
 
-  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 9, marginLeft: 2 },
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 9, marginStart: 2 },
   groupTitle: { fontSize: 10, fontWeight: '800', color: '#94a3b8', letterSpacing: 1.2 },
   group: { backgroundColor: '#fff', borderRadius: 20, paddingVertical: 4, paddingHorizontal: 4, marginBottom: 20, elevation: 3, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10 },
   menuItem: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 12 },
   menuBorder: { borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   menuIcon: { width: 36, height: 36, borderRadius: 11, justifyContent: 'center', alignItems: 'center' },
   menuLabel: { flex: 1, fontSize: 14, fontWeight: '700', color: '#1e293b' },
-  badge: { backgroundColor: '#4f46e5', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, marginRight: 4 },
+  badge: { backgroundColor: '#4f46e5', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, marginEnd: 4 },
   badgeTxt: { color: 'white', fontSize: 11, fontWeight: '800' },
+
+  langBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1.5, borderColor: '#e2e8f0' },
+  langBtnActive: { backgroundColor: '#ede9fe', borderColor: '#6366f1' },
+  langBtnTxt: { fontSize: 13, fontWeight: '700', color: '#64748b' },
+  langBtnTxtActive: { color: '#6366f1' },
 
   annOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   annSheet: { backgroundColor: '#f8fafc', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '80%', overflow: 'hidden' },
@@ -488,7 +550,7 @@ const s = StyleSheet.create({
   sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   sheetTitle: { fontSize: 18, fontWeight: '900', color: '#1e293b' },
   closeBtn: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' },
-  fieldLabel: { fontSize: 11, fontWeight: '800', color: '#64748b', marginBottom: 6, marginLeft: 2 },
+  fieldLabel: { fontSize: 11, fontWeight: '800', color: '#64748b', marginBottom: 6, marginStart: 2 },
   fieldRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: '#e2e8f0', borderRadius: 13, paddingHorizontal: 13, paddingVertical: 12, backgroundColor: '#f8fafc', marginBottom: 13, gap: 10 },
   fieldInput: { flex: 1, fontSize: 14, color: '#1e293b', fontWeight: '600' },
   sheetBtn: { padding: 15, borderRadius: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 },
@@ -503,6 +565,6 @@ const s = StyleSheet.create({
   optBtnTxt: { flex: 1, fontSize: 15, fontWeight: '700', color: '#1e293b' },
 
   viewOverlay: { flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' },
-  viewClose: { position: 'absolute', top: 54, right: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', zIndex: 10 },
+  viewClose: { position: 'absolute', top: 54, end: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center', zIndex: 10 },
   viewImg: { width: '100%', height: '100%' },
 });

@@ -9,6 +9,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { useAppStore } from '../../store/useAppStore';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
+import { apiFetch, API_URL } from '../../lib/config';
 
 const STATUS_COLOR: Record<string, string> = {
   completed: '#10b981',
@@ -16,12 +19,14 @@ const STATUS_COLOR: Record<string, string> = {
   processing: '#f59e0b',
   cancelled: '#ef4444',
 };
-const STATUS_LABEL: Record<string, string> = {
-  completed: 'Tamamlandı',
-  pending: 'Bekliyor',
-  processing: 'İşleniyor',
-  cancelled: 'İptal',
-};
+function getStatusLabels(): Record<string, string> {
+  return {
+    completed: i18n.t('home.completed'),
+    pending: i18n.t('home.pending'),
+    processing: i18n.t('dealers.processing'),
+    cancelled: i18n.t('home.cancelled'),
+  };
+}
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
@@ -33,6 +38,8 @@ function StatCard({ label, value, color }: { label: string; value: string | numb
 }
 
 export default function DealersScreen() {
+  const { t } = useTranslation();
+  const STATUS_LABEL = getStatusLabels();
   const insets = useSafeAreaInsets();
   const { token, user, updateUser } = useAuth();
   const { myDealers, anaBayiStats, dealerEarnings, fetchMyDealers, fetchAnaBayiStats, transferBalance, addDealer, fetchDealerEarnings } = useAppStore();
@@ -81,7 +88,6 @@ export default function DealersScreen() {
     setPriceModal(true);
     setPriceLoading(true);
     try {
-      const { apiFetch, API_URL } = await import('../../lib/config');
       const res = await apiFetch(`${API_URL}/api/ana-bayi/my-price-group`, token);
       setMyGroup(res.data?.group || null);
       setMyRules(res.data?.rules || []);
@@ -93,10 +99,9 @@ export default function DealersScreen() {
   };
 
   const handleSaveRule = async () => {
-    if (!ruleForm.margin_value) return Alert.alert('Hata', 'Kâr marjı girin');
+    if (!ruleForm.margin_value) return Alert.alert(t('common.error'), t('dealers.enterMargin'));
     setSavingRule(true);
     try {
-      const { apiFetch, API_URL } = await import('../../lib/config');
       await apiFetch(`${API_URL}/api/ana-bayi/my-price-group/rules`, token, {
         method: 'POST',
         body: JSON.stringify({
@@ -111,7 +116,7 @@ export default function DealersScreen() {
       setShowRuleForm(false);
       setRuleForm({ operator: '', category: '', margin_type: 'percent', margin_value: '' });
     } catch (e: any) {
-      Alert.alert('Hata', e.message || 'Kaydedilemedi');
+      Alert.alert(t('common.error'), e.message || t('dealers.saveFailed'));
     } finally {
       setSavingRule(false);
     }
@@ -119,11 +124,10 @@ export default function DealersScreen() {
 
   const handleDeleteRule = async (ruleId: string) => {
     try {
-      const { apiFetch, API_URL } = await import('../../lib/config');
       await apiFetch(`${API_URL}/api/ana-bayi/my-price-group/rules/${ruleId}`, token, { method: 'DELETE' });
       setMyRules(myRules.filter((r: any) => r.id !== ruleId));
     } catch (e: any) {
-      Alert.alert('Hata', e.message || 'Silinemedi');
+      Alert.alert(t('common.error'), e.message || t('dealers.deleteFailed'));
     }
   };
 
@@ -146,18 +150,18 @@ export default function DealersScreen() {
 
   const handleTransfer = async () => {
     const amount = parseFloat(transferAmount);
-    if (!amount || amount <= 0) return Alert.alert('Hata', 'Geçerli bir tutar girin');
+    if (!amount || amount <= 0) return Alert.alert(t('common.error'), t('dealers.enterValidAmount'));
     if (!transferModal) return;
     setTransferring(true);
     try {
       await transferBalance(token!, transferModal.id, amount);
       if (user) updateUser({ balance: parseFloat(String(user.balance)) - amount });
-      Alert.alert('Başarılı', `${transferModal.name} adlı bayiye ${amount.toLocaleString('tr-TR')} TL aktarıldı`);
+      Alert.alert(t('profile.successTitle'), t('dealers.transferredMessage', { name: transferModal.name, amount: amount.toLocaleString('tr-TR') }));
       setTransferModal(null);
       setTransferAmount('');
       loadData();
     } catch (e: any) {
-      Alert.alert('Hata', e.message || 'Aktarım başarısız');
+      Alert.alert(t('common.error'), e.message || t('dealers.transferFailed'));
     } finally {
       setTransferring(false);
     }
@@ -165,7 +169,7 @@ export default function DealersScreen() {
 
   const handleGiveDebt = async () => {
     const amount = parseFloat(debtAmount);
-    if (!amount || amount <= 0) return Alert.alert('Hata', 'Geçerli bir tutar girin');
+    if (!amount || amount <= 0) return Alert.alert(t('common.error'), t('dealers.enterValidAmount'));
     if (!debtModal) return;
     setDebtLoading(true);
     try {
@@ -174,12 +178,12 @@ export default function DealersScreen() {
         body: JSON.stringify({ amount }),
       });
       if (user) updateUser({ balance: parseFloat(String(user.balance)) - amount });
-      Alert.alert('Başarılı', `${debtModal.name} adlı bayiye ${amount.toLocaleString('tr-TR')} ₺ borç verildi`);
+      Alert.alert(t('profile.successTitle'), t('dealers.debtGivenMessage', { name: debtModal.name, amount: amount.toLocaleString('tr-TR') }));
       setDebtModal(null);
       setDebtAmount('');
       loadData();
     } catch (e: any) {
-      Alert.alert('Hata', e.message || 'İşlem başarısız');
+      Alert.alert(t('common.error'), e.message || t('login.actionFailed'));
     } finally {
       setDebtLoading(false);
     }
@@ -187,10 +191,10 @@ export default function DealersScreen() {
 
   const handleAddDealer = async () => {
     if (!addForm.name.trim() || !addForm.email.trim() || !addForm.password.trim()) {
-      return Alert.alert('Hata', 'Ad, email ve şifre zorunludur');
+      return Alert.alert(t('common.error'), t('dealers.requiredFields'));
     }
     if (addForm.password.length < 6) {
-      return Alert.alert('Hata', 'Şifre en az 6 karakter olmalı');
+      return Alert.alert(t('common.error'), t('profile.passwordTooShort'));
     }
     setAdding(true);
     try {
@@ -200,12 +204,12 @@ export default function DealersScreen() {
         phone: addForm.phone.trim() || undefined,
         password: addForm.password,
       });
-      Alert.alert('Başarılı', `${addForm.name} bayiye eklendi`);
+      Alert.alert(t('profile.successTitle'), t('dealers.dealerAddedMessage', { name: addForm.name }));
       setAddModal(false);
       setAddForm({ name: '', email: '', phone: '', password: '' });
       loadData();
     } catch (e: any) {
-      Alert.alert('Hata', e.message || 'Bayi eklenemedi');
+      Alert.alert(t('common.error'), e.message || t('dealers.addFailed'));
     } finally {
       setAdding(false);
     }
@@ -225,17 +229,17 @@ export default function DealersScreen() {
       <LinearGradient colors={['#f97316', '#ea580c', '#c2410c']} style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Bayilerim</Text>
-            <Text style={styles.headerSub}>{myDealers.length} alt bayi</Text>
+            <Text style={styles.headerTitle}>{t('dealers.title')}</Text>
+            <Text style={styles.headerSub}>{t('dealers.subDealerCount', { count: myDealers.length })}</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity style={styles.addBtn} onPress={openPriceModal} activeOpacity={0.85}>
               <Ionicons name="pricetag" size={16} color="#f97316" />
-              <Text style={styles.addBtnText}>Fiyatlar</Text>
+              <Text style={styles.addBtnText}>{t('dealers.prices')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.addBtn} onPress={() => setAddModal(true)} activeOpacity={0.85}>
               <Ionicons name="person-add" size={16} color="#f97316" />
-              <Text style={styles.addBtnText}>Bayi Ekle</Text>
+              <Text style={styles.addBtnText}>{t('dealers.addDealer')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -248,30 +252,30 @@ export default function DealersScreen() {
         {/* İstatistikler */}
         {anaBayiStats && (
           <View style={styles.statsRow}>
-            <StatCard label="Alt Bayi" value={anaBayiStats.dealerCount} color="#6366f1" />
-            <StatCard label="Toplam Sipariş" value={anaBayiStats.totalOrders} color="#10b981" />
-            <StatCard label="Kazanç" value={`${parseFloat(anaBayiStats.totalEarnings || 0).toLocaleString('tr-TR')} ₺`} color="#f59e0b" />
+            <StatCard label={t('dealers.subDealer')} value={anaBayiStats.dealerCount} color="#6366f1" />
+            <StatCard label={t('dealers.totalOrders')} value={anaBayiStats.totalOrders} color="#10b981" />
+            <StatCard label={t('dealers.earnings')} value={`${parseFloat(anaBayiStats.totalEarnings || 0).toLocaleString('tr-TR')} ₺`} color="#f59e0b" />
           </View>
         )}
 
         {/* Kendi bakiyem */}
         <View style={styles.myBalanceCard}>
-          <Text style={styles.myBalanceLabel}>Bakiyem</Text>
+          <Text style={styles.myBalanceLabel}>{t('dealers.myBalance')}</Text>
           <Text style={styles.myBalanceAmount}>
             {parseFloat(String(user?.balance || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} {user?.currency || 'TRY'}
           </Text>
-          <Text style={styles.myBalanceSub}>Bayilerinize buradan aktarım yapabilirsiniz</Text>
+          <Text style={styles.myBalanceSub}>{t('dealers.transferHint')}</Text>
         </View>
 
         {/* Bayi Listesi */}
-        <Text style={styles.sectionTitle}>Alt Bayiler</Text>
+        <Text style={styles.sectionTitle}>{t('dealers.subDealers')}</Text>
 
         {myDealers.length === 0 ? (
           <View style={styles.emptyBox}>
             <Ionicons name="people-outline" size={40} color="#d1d5db" />
-            <Text style={styles.emptyText}>Henüz alt bayiniz yok</Text>
+            <Text style={styles.emptyText}>{t('dealers.noSubDealers')}</Text>
             <TouchableOpacity style={styles.emptyAddBtn} onPress={() => setAddModal(true)}>
-              <Text style={styles.emptyAddText}>+ Bayi Ekle</Text>
+              <Text style={styles.emptyAddText}>+ {t('dealers.addDealer')}</Text>
             </TouchableOpacity>
           </View>
         ) : myDealers.map(dealer => (
@@ -293,7 +297,7 @@ export default function DealersScreen() {
               <Text style={styles.dealerCurrency}>{dealer.currency || 'TRY'}</Text>
               <View style={[styles.statusBadge, { backgroundColor: dealer.is_active ? '#d1fae5' : '#fee2e2' }]}>
                 <Text style={[styles.statusText, { color: dealer.is_active ? '#065f46' : '#991b1b' }]}>
-                  {dealer.is_active ? 'Aktif' : 'Pasif'}
+                  {dealer.is_active ? t('dealers.active') : t('dealers.inactive')}
                 </Text>
               </View>
             </View>
@@ -307,14 +311,14 @@ export default function DealersScreen() {
           <View style={styles.modalSheet}>
             <View style={styles.modalHandle} />
             <View style={styles.modalTitleRow}>
-              <Text style={styles.modalTitle}>Yeni Bayi Ekle</Text>
+              <Text style={styles.modalTitle}>{t('dealers.addNewDealer')}</Text>
               <TouchableOpacity onPress={() => setAddModal(false)} style={styles.closeBtn}>
                 <Ionicons name="close" size={20} color="#6b7280" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>Ad Soyad *</Text>
+              <Text style={styles.inputLabel}>{t('dealers.nameRequired')}</Text>
               <TextInput
                 style={styles.input}
                 value={addForm.name}
@@ -324,7 +328,7 @@ export default function DealersScreen() {
               />
             </View>
             <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>E-posta *</Text>
+              <Text style={styles.inputLabel}>{t('dealers.emailRequired')}</Text>
               <TextInput
                 style={styles.input}
                 value={addForm.email}
@@ -336,7 +340,7 @@ export default function DealersScreen() {
               />
             </View>
             <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>Telefon</Text>
+              <Text style={styles.inputLabel}>{t('login.phonePlaceholder')}</Text>
               <TextInput
                 style={styles.input}
                 value={addForm.phone}
@@ -347,7 +351,7 @@ export default function DealersScreen() {
               />
             </View>
             <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>Şifre * (en az 6 karakter)</Text>
+              <Text style={styles.inputLabel}>{t('dealers.passwordRequiredHint')}</Text>
               <TextInput
                 style={styles.input}
                 value={addForm.password}
@@ -360,13 +364,13 @@ export default function DealersScreen() {
 
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setAddModal(false)}>
-                <Text style={styles.cancelText}>İptal</Text>
+                <Text style={styles.cancelText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleAddDealer} disabled={adding} style={{ flex: 1 }}>
                 <LinearGradient colors={['#f97316', '#ea580c']} style={styles.confirmBtn}>
                   {adding
                     ? <ActivityIndicator color="#fff" size="small" />
-                    : <Text style={styles.confirmText}>Ekle</Text>
+                    : <Text style={styles.confirmText}>{t('dealers.add')}</Text>
                   }
                 </LinearGradient>
               </TouchableOpacity>
@@ -405,7 +409,7 @@ export default function DealersScreen() {
                       onPress={() => setDetailTab(tab)}
                     >
                       <Text style={[styles.tabText, detailTab === tab && styles.tabTextActive]}>
-                        {tab === 'info' ? 'Bilgi' : tab === 'orders' ? 'Siparişler' : 'Kazanç'}
+                        {tab === 'info' ? t('dealers.info') : tab === 'orders' ? t('dealers.orders') : t('dealers.earnings')}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -422,15 +426,15 @@ export default function DealersScreen() {
                       <>
                         <View style={styles.infoRow}>
                           <View style={styles.infoBox}>
-                            <Text style={styles.infoLabel}>Bakiye</Text>
+                            <Text style={styles.infoLabel}>{t('balance.amount')}</Text>
                             <Text style={styles.infoValue}>
                               {parseFloat(detailDealer.balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} {detailDealer.currency}
                             </Text>
                           </View>
                           <View style={styles.infoBox}>
-                            <Text style={styles.infoLabel}>Durum</Text>
+                            <Text style={styles.infoLabel}>{t('orders.status')}</Text>
                             <Text style={[styles.infoValue, { color: detailDealer.is_active ? '#10b981' : '#ef4444' }]}>
-                              {detailDealer.is_active ? 'Aktif' : 'Pasif'}
+                              {detailDealer.is_active ? t('dealers.active') : t('dealers.inactive')}
                             </Text>
                           </View>
                         </View>
@@ -441,7 +445,7 @@ export default function DealersScreen() {
                           >
                             <LinearGradient colors={['#10b981', '#059669']} style={styles.transferBtnGrad}>
                               <Ionicons name="swap-horizontal" size={18} color="#fff" />
-                              <Text style={styles.transferBtnText}>Bakiye Aktar</Text>
+                              <Text style={styles.transferBtnText}>{t('dealers.transferBalance')}</Text>
                             </LinearGradient>
                           </TouchableOpacity>
                           <TouchableOpacity
@@ -450,7 +454,7 @@ export default function DealersScreen() {
                           >
                             <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.transferBtnGrad}>
                               <Ionicons name="card" size={18} color="#fff" />
-                              <Text style={styles.transferBtnText}>Borç Ver</Text>
+                              <Text style={styles.transferBtnText}>{t('dealers.giveDebt')}</Text>
                             </LinearGradient>
                           </TouchableOpacity>
                         </View>
@@ -461,7 +465,7 @@ export default function DealersScreen() {
                     {detailTab === 'orders' && (
                       <View style={{ paddingBottom: 8 }}>
                         {!dealerEarnings?.orders?.length ? (
-                          <Text style={styles.emptyTabText}>Henüz sipariş yok</Text>
+                          <Text style={styles.emptyTabText}>{t('home.noOrders')}</Text>
                         ) : dealerEarnings.orders.map((order: any) => (
                           <View key={order.id} style={styles.orderRow}>
                             <View style={{ flex: 1 }}>
@@ -486,20 +490,20 @@ export default function DealersScreen() {
                       <View style={{ paddingBottom: 8 }}>
                         <View style={styles.earningsSummary}>
                           <View style={styles.earningsBox}>
-                            <Text style={styles.earningsLabel}>Toplam Kazanç</Text>
+                            <Text style={styles.earningsLabel}>{t('dealers.totalEarnings')}</Text>
                             <Text style={styles.earningsValue}>
                               {parseFloat(dealerEarnings?.totalEarning || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺
                             </Text>
                           </View>
                           <View style={styles.earningsBox}>
-                            <Text style={styles.earningsLabel}>Tamamlanan</Text>
+                            <Text style={styles.earningsLabel}>{t('home.completed')}</Text>
                             <Text style={[styles.earningsValue, { color: '#10b981' }]}>
                               {dealerEarnings?.completedCount || 0} / {dealerEarnings?.totalCount || 0}
                             </Text>
                           </View>
                         </View>
                         <Text style={styles.earningsNote}>
-                          * Kazanç = Alt bayinin ödediği fiyat − Maliyet (tamamlanan siparişler)
+                          {t('dealers.earningsNote')}
                         </Text>
                         {dealerEarnings?.orders?.filter((o: any) => o.status === 'completed').map((order: any) => (
                           <View key={order.id} style={styles.orderRow}>
@@ -534,7 +538,7 @@ export default function DealersScreen() {
             {!showRuleForm ? (
               <>
                 <View style={styles.modalTitleRow}>
-                  <Text style={styles.modalTitle}>Fiyat Ayarları</Text>
+                  <Text style={styles.modalTitle}>{t('dealers.priceSettings')}</Text>
                   <TouchableOpacity onPress={() => setPriceModal(false)} style={styles.closeBtn}>
                     <Ionicons name="close" size={20} color="#6b7280" />
                   </TouchableOpacity>
@@ -546,45 +550,45 @@ export default function DealersScreen() {
                   <View style={{ alignItems: 'center', paddingVertical: 32 }}>
                     <Ionicons name="pricetag-outline" size={40} color="#d1d5db" />
                     <Text style={{ color: '#9ca3af', fontSize: 14, marginTop: 12, textAlign: 'center' }}>
-                      Fiyat grubunuz henüz tanımlanmamış.{'\n'}Lütfen yöneticinizle iletişime geçin.
+                      {t('dealers.noPriceGroup')}
                     </Text>
                   </View>
                 ) : (
                   <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }}>
                     {/* Grup Bilgisi */}
                     <View style={{ backgroundColor: '#f0f0ff', borderRadius: 14, padding: 14, marginBottom: 16 }}>
-                      <Text style={{ fontSize: 12, color: '#6366f1', fontWeight: '700', marginBottom: 4 }}>AKTİF FİYAT GRUBU</Text>
+                      <Text style={{ fontSize: 12, color: '#6366f1', fontWeight: '700', marginBottom: 4 }}>{t('dealers.activePriceGroup')}</Text>
                       <Text style={{ fontSize: 16, fontWeight: '900', color: '#1e293b' }}>{myGroup.name}</Text>
                       <Text style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
-                        Varsayılan: {myGroup.margin_type === 'percent' ? `%${myGroup.margin_value}` : `+${myGroup.margin_value} ₺`} ekle
+                        {t('dealers.defaultMargin')}: {myGroup.margin_type === 'percent' ? `%${myGroup.margin_value}` : `+${myGroup.margin_value} ₺`}
                       </Text>
                     </View>
 
                     {/* Kural Listesi */}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                      <Text style={{ fontSize: 14, fontWeight: '800', color: '#1e293b' }}>Operatör / Kategori Kuralları</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '800', color: '#1e293b' }}>{t('dealers.operatorCategoryRules')}</Text>
                       <TouchableOpacity onPress={() => { setShowRuleForm(true); setRuleForm({ operator: '', category: '', margin_type: 'percent', margin_value: '' }); }}
                         style={{ backgroundColor: '#6366f1', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <Ionicons name="add" size={14} color="#fff" />
-                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800' }}>Kural Ekle</Text>
+                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800' }}>{t('dealers.addRule')}</Text>
                       </TouchableOpacity>
                     </View>
 
                     {myRules.length === 0 ? (
                       <Text style={{ color: '#9ca3af', fontSize: 13, textAlign: 'center', paddingVertical: 16 }}>
-                        Kural yok — tüm paketlere varsayılan marj uygulanır
+                        {t('dealers.noRules')}
                       </Text>
                     ) : myRules.map((rule: any) => {
                       const parts = [];
                       if (rule.operator) parts.push(rule.operator);
                       if (rule.category) parts.push(rule.category);
-                      const label = parts.length ? parts.join(' + ') : 'Tüm Paketler';
+                      const label = parts.length ? parts.join(' + ') : t('dealers.allPackages');
                       return (
                         <View key={rule.id} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: '#f1f5f9' }}>
                           <View style={{ flex: 1 }}>
                             <Text style={{ fontSize: 13, fontWeight: '800', color: '#1e293b' }}>{label}</Text>
                             <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
-                              {rule.margin_type === 'percent' ? `%${rule.margin_value} ekle` : `+${rule.margin_value} ₺ ekle`}
+                              {rule.margin_type === 'percent' ? `%${rule.margin_value}` : `+${rule.margin_value} ₺`} {t('dealers.add')}
                             </Text>
                           </View>
                           <TouchableOpacity onPress={() => handleDeleteRule(rule.id)} style={{ padding: 6 }}>
@@ -602,15 +606,15 @@ export default function DealersScreen() {
                   <TouchableOpacity onPress={() => setShowRuleForm(false)} style={styles.closeBtn}>
                     <Ionicons name="arrow-back" size={20} color="#6b7280" />
                   </TouchableOpacity>
-                  <Text style={[styles.modalTitle, { flex: 1, marginLeft: 8 }]}>Kural Ekle</Text>
+                  <Text style={[styles.modalTitle, { flex: 1, marginStart: 8 }]}>{t('dealers.addRule')}</Text>
                 </View>
 
                 <Text style={[styles.priceNote, { marginBottom: 12 }]}>
-                  Operatör veya kategori seçin. Boş bırakırsanız tüm paketlere uygulanır.
+                  {t('dealers.ruleFormHint')}
                 </Text>
 
                 {/* Operatör */}
-                <Text style={styles.inputLabel}>Operatör (isteğe bağlı)</Text>
+                <Text style={styles.inputLabel}>{t('dealers.operatorOptional')}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     {['', 'Turkcell', 'Vodafone', 'Avea', 'PUBG', 'Valorant', 'Free Fire', 'Google Play', 'Steam'].map(op => (
@@ -619,7 +623,7 @@ export default function DealersScreen() {
                           borderColor: ruleForm.operator === op ? '#6366f1' : '#e5e7eb',
                           backgroundColor: ruleForm.operator === op ? '#eef2ff' : '#fff' }}>
                         <Text style={{ fontSize: 12, fontWeight: '700', color: ruleForm.operator === op ? '#6366f1' : '#6b7280' }}>
-                          {op || 'Tümü'}
+                          {op || t('dealers.allOption')}
                         </Text>
                       </TouchableOpacity>
                     ))}
@@ -627,9 +631,9 @@ export default function DealersScreen() {
                 </ScrollView>
 
                 {/* Kategori */}
-                <Text style={styles.inputLabel}>Kategori (isteğe bağlı)</Text>
+                <Text style={styles.inputLabel}>{t('dealers.categoryOptional')}</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-                  {[{ value: '', label: 'Tümü' }, { value: 'gsm', label: 'GSM' }, { value: 'game', label: 'Oyun' }, { value: 'topup', label: 'TL Yükleme' }, { value: 'bill', label: 'Fatura' }].map(cat => (
+                  {[{ value: '', label: t('dealers.allOption') }, { value: 'gsm', label: 'GSM' }, { value: 'game', label: t('dealers.categoryGame') }, { value: 'topup', label: t('dealers.categoryTopup') }, { value: 'bill', label: t('dealers.categoryBill') }].map(cat => (
                     <TouchableOpacity key={cat.value} onPress={() => setRuleForm({ ...ruleForm, category: cat.value })}
                       style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5,
                         borderColor: ruleForm.category === cat.value ? '#6366f1' : '#e5e7eb',
@@ -642,20 +646,20 @@ export default function DealersScreen() {
                 </View>
 
                 {/* Marj Türü */}
-                <Text style={styles.inputLabel}>Marj Türü</Text>
+                <Text style={styles.inputLabel}>{t('dealers.marginType')}</Text>
                 <View style={[styles.tabRow, { marginBottom: 12 }]}>
-                  {['percent', 'tl'].map(t => (
-                    <TouchableOpacity key={t} style={[styles.tab, ruleForm.margin_type === t && styles.tabActive]}
-                      onPress={() => setRuleForm({ ...ruleForm, margin_type: t })}>
-                      <Text style={[styles.tabText, ruleForm.margin_type === t && styles.tabTextActive]}>
-                        {t === 'percent' ? '% Yüzde' : '₺ Sabit'}
+                  {['percent', 'tl'].map(mt => (
+                    <TouchableOpacity key={mt} style={[styles.tab, ruleForm.margin_type === mt && styles.tabActive]}
+                      onPress={() => setRuleForm({ ...ruleForm, margin_type: mt })}>
+                      <Text style={[styles.tabText, ruleForm.margin_type === mt && styles.tabTextActive]}>
+                        {mt === 'percent' ? t('dealers.percentType') : t('dealers.fixedType')}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
 
                 {/* Değer */}
-                <Text style={styles.inputLabel}>Değer {ruleForm.margin_type === 'percent' ? '(%)' : '(₺)'}</Text>
+                <Text style={styles.inputLabel}>{t('dealers.value')} {ruleForm.margin_type === 'percent' ? '(%)' : '(₺)'}</Text>
                 <TextInput
                   style={[styles.input, { marginBottom: 16 }]}
                   value={ruleForm.margin_value}
@@ -668,11 +672,11 @@ export default function DealersScreen() {
 
                 <View style={styles.modalButtons}>
                   <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowRuleForm(false)}>
-                    <Text style={styles.cancelText}>İptal</Text>
+                    <Text style={styles.cancelText}>{t('common.cancel')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={handleSaveRule} disabled={savingRule || !ruleForm.margin_value} style={{ flex: 1 }}>
                     <LinearGradient colors={['#6366f1', '#8b5cf6']} style={[styles.confirmBtn, { opacity: !ruleForm.margin_value ? 0.5 : 1 }]}>
-                      {savingRule ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.confirmText}>Kaydet</Text>}
+                      {savingRule ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.confirmText}>{t('common.save')}</Text>}
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
@@ -688,9 +692,9 @@ export default function DealersScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <View style={styles.modalHandle} />
-            <Text style={styles.transferTitle}>Bakiye Aktar</Text>
+            <Text style={styles.transferTitle}>{t('dealers.transferBalance')}</Text>
             <Text style={styles.transferSub}>
-              <Text style={{ fontWeight: '700', color: '#6366f1' }}>{transferModal?.name}</Text> adlı bayiye
+              <Text style={{ fontWeight: '700', color: '#6366f1' }}>{transferModal?.name}</Text> {t('dealers.toDealer')}
             </Text>
 
             <View style={styles.amountWrap}>
@@ -707,18 +711,18 @@ export default function DealersScreen() {
             </View>
 
             <Text style={styles.availableText}>
-              Kullanılabilir: {parseFloat(String(user?.balance || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} {user?.currency}
+              {t('dealers.available')}: {parseFloat(String(user?.balance || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} {user?.currency}
             </Text>
 
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setTransferModal(null)}>
-                <Text style={styles.cancelText}>İptal</Text>
+                <Text style={styles.cancelText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleTransfer} disabled={transferring} style={{ flex: 1 }}>
                 <LinearGradient colors={['#10b981', '#059669']} style={styles.confirmBtn}>
                   {transferring
                     ? <ActivityIndicator color="#fff" size="small" />
-                    : <Text style={styles.confirmText}>Aktar</Text>
+                    : <Text style={styles.confirmText}>{t('dealers.transfer')}</Text>
                   }
                 </LinearGradient>
               </TouchableOpacity>
@@ -731,9 +735,9 @@ export default function DealersScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <View style={styles.modalHandle} />
-            <Text style={styles.transferTitle}>💳 Borç Ver</Text>
+            <Text style={styles.transferTitle}>💳 {t('dealers.giveDebt')}</Text>
             <Text style={styles.transferSub}>
-              <Text style={{ fontWeight: '700', color: '#f59e0b' }}>{debtModal?.name}</Text> adlı bayiye borç ver
+              <Text style={{ fontWeight: '700', color: '#f59e0b' }}>{debtModal?.name}</Text> {t('dealers.giveDebtToDealer')}
             </Text>
             <View style={styles.amountWrap}>
               <TextInput
@@ -748,17 +752,17 @@ export default function DealersScreen() {
               <Text style={styles.amountCurrency}>{user?.currency || 'TRY'}</Text>
             </View>
             <Text style={styles.availableText}>
-              Bakiyeniz: {parseFloat(String(user?.balance || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} {user?.currency}
+              {t('profile.balance')}: {parseFloat(String(user?.balance || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} {user?.currency}
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setDebtModal(null)}>
-                <Text style={styles.cancelText}>İptal</Text>
+                <Text style={styles.cancelText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleGiveDebt} disabled={debtLoading} style={{ flex: 1 }}>
                 <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.confirmBtn}>
                   {debtLoading
                     ? <ActivityIndicator color="#fff" size="small" />
-                    : <Text style={styles.confirmText}>Borç Ver</Text>
+                    : <Text style={styles.confirmText}>{t('dealers.giveDebt')}</Text>
                   }
                 </LinearGradient>
               </TouchableOpacity>
