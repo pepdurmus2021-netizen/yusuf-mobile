@@ -113,7 +113,7 @@ export function useOrderFlow() {
 
       let apiResult: any;
       try {
-        apiResult = await apiFetch(`${API_URL}:4000/api/orders`, token, {
+        apiResult = await apiFetch(`${API_URL}/api/orders`, token, {
           method: 'POST',
           body: JSON.stringify({
             package_id:   payload.packageId,

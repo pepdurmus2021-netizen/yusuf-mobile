@@ -47,7 +47,7 @@ export default function ProfileScreen() {
   const fetchAnnouncements = useCallback(async () => {
     if (!token) return;
     try {
-      const data = await apiFetch(`${API_URL}:4000/api/me/announcements`, token);
+      const data = await apiFetch(`${API_URL}/api/me/announcements`, token);
       setAnnouncements(data.data || []);
     } catch { setAnnouncements([]); }
   }, [token]);
@@ -94,7 +94,7 @@ export default function ProfileScreen() {
     if (!user?.id) return;
     setPassLoading(true);
     try {
-      await apiFetch(`${API_URL}:4000/api/me/password`, token, {
+      await apiFetch(`${API_URL}/api/me/password`, token, {
         method: 'PUT',
         body: JSON.stringify({ current_password: currentPass, new_password: newPass }),
       });

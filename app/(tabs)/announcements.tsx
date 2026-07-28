@@ -22,7 +22,7 @@ export default function AnnouncementsScreen() {
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-      const data = await apiFetch(`${API_URL}:4000/api/me/announcements`, token);
+      const data = await apiFetch(`${API_URL}/api/me/announcements`, token);
       setAnnouncements(data.data || []);
     } catch {
       setAnnouncements([]);

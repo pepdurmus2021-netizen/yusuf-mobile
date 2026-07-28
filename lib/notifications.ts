@@ -29,7 +29,7 @@ export async function registerPushToken(token: string): Promise<void> {
       projectId: 'd8c271ed-c11f-4acf-9c75-86a345e8af97',
     });
 
-    await apiFetch(`${API_URL}:4000/api/me/push-token`, token, {
+    await apiFetch(`${API_URL}/api/me/push-token`, token, {
       method: 'POST',
       body: JSON.stringify({ push_token: pushToken.data }),
     });

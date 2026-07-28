@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (savedToken && savedUser) {
           // Token'ı yenilemeyi dene
           try {
-            const res = await fetch(`${API_URL}:4000/api/auth/refresh`, {
+            const res = await fetch(`${API_URL}/api/auth/refresh`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ token: savedToken }),

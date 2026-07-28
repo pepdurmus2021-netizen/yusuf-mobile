@@ -58,7 +58,7 @@ export const useAppStore = create<AppStore>((set) => ({
     try {
       const token = await (await import('@react-native-async-storage/async-storage')).default.getItem('token');
       if (!token) return;
-      const res = await apiFetch(`${API_URL}:4000/api/packages`, token);
+      const res = await apiFetch(`${API_URL}/api/packages`, token);
       set({ packages: res.data || [] });
     } catch {
       // token yoksa veya hata olursa sessizce geç
@@ -94,48 +94,48 @@ export const useAppStore = create<AppStore>((set) => ({
   },
 
   fetchMyDealers: async (token) => {
-    const res = await apiFetch(`${API_URL}:4000/api/ana-bayi/my-dealers`, token);
+    const res = await apiFetch(`${API_URL}/api/ana-bayi/my-dealers`, token);
     set({ myDealers: res.data || [] });
   },
 
   fetchAnaBayiStats: async (token) => {
-    const res = await apiFetch(`${API_URL}:4000/api/ana-bayi/stats`, token);
+    const res = await apiFetch(`${API_URL}/api/ana-bayi/stats`, token);
     set({ anaBayiStats: res.data || null });
   },
 
   fetchDealerOrders: async (token) => {
-    const res = await apiFetch(`${API_URL}:4000/api/ana-bayi/orders`, token);
+    const res = await apiFetch(`${API_URL}/api/ana-bayi/orders`, token);
     set({ dealerOrders: res.data || [] });
   },
 
   transferBalance: async (token, toUserId, amount) => {
-    await apiFetch(`${API_URL}:4000/api/ana-bayi/transfer-balance`, token, {
+    await apiFetch(`${API_URL}/api/ana-bayi/transfer-balance`, token, {
       method: 'POST',
       body: JSON.stringify({ to_user_id: toUserId, amount }),
     });
   },
 
   fetchPriceRules: async (token) => {
-    const res = await apiFetch(`${API_URL}:4000/api/ana-bayi/price-rules`, token);
+    const res = await apiFetch(`${API_URL}/api/ana-bayi/price-rules`, token);
     set({ priceRules: res.data || [] });
   },
 
   savePriceRule: async (token, packageId, marginType, marginValue) => {
-    await apiFetch(`${API_URL}:4000/api/ana-bayi/price-rules`, token, {
+    await apiFetch(`${API_URL}/api/ana-bayi/price-rules`, token, {
       method: 'POST',
       body: JSON.stringify({ package_id: packageId, margin_type: marginType, margin_value: marginValue }),
     });
   },
 
   addDealer: async (token, data) => {
-    await apiFetch(`${API_URL}:4000/api/ana-bayi/add-dealer`, token, {
+    await apiFetch(`${API_URL}/api/ana-bayi/add-dealer`, token, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
 
   fetchDealerEarnings: async (token, dealerId) => {
-    const res = await apiFetch(`${API_URL}:4000/api/ana-bayi/dealer/${dealerId}/earnings`, token);
+    const res = await apiFetch(`${API_URL}/api/ana-bayi/dealer/${dealerId}/earnings`, token);
     set({ dealerEarnings: res.data || null });
   },
 

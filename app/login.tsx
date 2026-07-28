@@ -58,7 +58,7 @@ export default function LoginScreen() {
       if (!session?.user?.email) return;
       setGoogleLoading(true);
       try {
-        const response = await fetch(`${API_URL}:4000/api/auth/google`, {
+        const response = await fetch(`${API_URL}/api/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

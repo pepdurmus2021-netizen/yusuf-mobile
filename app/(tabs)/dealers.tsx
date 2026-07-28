@@ -82,7 +82,7 @@ export default function DealersScreen() {
     setPriceLoading(true);
     try {
       const { apiFetch, API_URL } = await import('../../lib/config');
-      const res = await apiFetch(`${API_URL}:4000/api/ana-bayi/my-price-group`, token);
+      const res = await apiFetch(`${API_URL}/api/ana-bayi/my-price-group`, token);
       setMyGroup(res.data?.group || null);
       setMyRules(res.data?.rules || []);
     } catch (e) {
@@ -97,7 +97,7 @@ export default function DealersScreen() {
     setSavingRule(true);
     try {
       const { apiFetch, API_URL } = await import('../../lib/config');
-      await apiFetch(`${API_URL}:4000/api/ana-bayi/my-price-group/rules`, token, {
+      await apiFetch(`${API_URL}/api/ana-bayi/my-price-group/rules`, token, {
         method: 'POST',
         body: JSON.stringify({
           operator: ruleForm.operator || null,
@@ -106,7 +106,7 @@ export default function DealersScreen() {
           margin_value: parseFloat(ruleForm.margin_value),
         }),
       });
-      const res = await apiFetch(`${API_URL}:4000/api/ana-bayi/my-price-group`, token);
+      const res = await apiFetch(`${API_URL}/api/ana-bayi/my-price-group`, token);
       setMyRules(res.data?.rules || []);
       setShowRuleForm(false);
       setRuleForm({ operator: '', category: '', margin_type: 'percent', margin_value: '' });
@@ -120,7 +120,7 @@ export default function DealersScreen() {
   const handleDeleteRule = async (ruleId: string) => {
     try {
       const { apiFetch, API_URL } = await import('../../lib/config');
-      await apiFetch(`${API_URL}:4000/api/ana-bayi/my-price-group/rules/${ruleId}`, token, { method: 'DELETE' });
+      await apiFetch(`${API_URL}/api/ana-bayi/my-price-group/rules/${ruleId}`, token, { method: 'DELETE' });
       setMyRules(myRules.filter((r: any) => r.id !== ruleId));
     } catch (e: any) {
       Alert.alert('Hata', e.message || 'Silinemedi');
@@ -169,7 +169,7 @@ export default function DealersScreen() {
     if (!debtModal) return;
     setDebtLoading(true);
     try {
-      await apiFetch(`${API_URL}:4000/api/ana-bayi/give-debt/${debtModal.id}`, token!, {
+      await apiFetch(`${API_URL}/api/ana-bayi/give-debt/${debtModal.id}`, token!, {
         method: 'POST',
         body: JSON.stringify({ amount }),
       });

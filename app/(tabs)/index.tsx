@@ -3,6 +3,15 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   ActivityIndicator, Dimensions, RefreshControl, Image, Linking
 } from 'react-native';
+import { useFocusEffect , useRouter } from 'expo-router';
+import { useAuth } from '../../context/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { safeDate, safeDateFull } from '../../lib/config';
+import { useAppStore } from '../../store/useAppStore';
+import { supabase } from '../../lib/supabase';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                       logo: require('../../assets/images/turkcell.png') },
@@ -43,16 +52,6 @@ function getOperatorLogo(operatorName?: string) {
   const lower = operatorName.toLowerCase();
   return ALL_OPERATORS.find(op => op.dbNames.some(n => lower.includes(n)))?.logo || null;
 }
-import { useFocusEffect } from 'expo-router';
-import { useAuth } from '../../context/AuthContext';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { safeDate, safeDateFull } from '../../lib/config';
-import { useAppStore } from '../../store/useAppStore';
-import { supabase } from '../../lib/supabase';
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
