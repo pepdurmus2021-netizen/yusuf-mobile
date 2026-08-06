@@ -22,9 +22,9 @@ const PAD = 16;
 // Bu veriler sadece UI gösterimi için; iş mantığına karışmıyor.
 
 const TURKEY_OPERATORS = [
-  { id: 'turkcell',    name: 'Turkcell',     logo: require('../../assets/images/turkcell.png'),     colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['turkcell','türkcell'] },
-  { id: 'vodafone',    name: 'Vodafone',     logo: require('../../assets/images/vodafone.png'),     colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['vodafone'] },
-  { id: 'turktelekom', name: 'Türk Telekom', logo: require('../../assets/images/turktelekom.png'),  colors: ['#3b82f6','#1d4ed8'] as [string,string], dbNames: ['turk telekom','türk telekom','turktelekom'] },
+  { id: 'turkcell',    name: 'Turkcell',     logo: require('../../assets/images/turkcell.png'),     colors: ['#f59e0b','#d97706'] as [string,string], prefixes: ['530','531','532','533','534','535','536','537','538','539','501','505','506','507'], dbNames: ['turkcell','türkcell'] },
+  { id: 'vodafone',    name: 'Vodafone',     logo: require('../../assets/images/vodafone.png'),     colors: ['#ef4444','#dc2626'] as [string,string], prefixes: ['541','542','543','544','545','546','547','548','549','502','555','556','557','558','559'], dbNames: ['vodafone'] },
+  { id: 'turktelekom', name: 'Türk Telekom', logo: require('../../assets/images/turktelekom.png'),  colors: ['#3b82f6','#1d4ed8'] as [string,string], prefixes: ['551','552','553','554','561','562','563','564','565','566','500'], dbNames: ['turk telekom','türk telekom','turktelekom'] },
 ];
 
 const AFGHAN_OPERATORS = [
@@ -107,10 +107,21 @@ const GAME_OPERATORS = [
   { id: 'yaahlan',     name: 'Yaahlan',       logo: require('../../assets/images/yaahlan.png'),       colors: ['#10b981','#059669'] as [string,string], dbNames: ['yaahlan'] },
 ];
 
-function detectAfghan(phone: string): string | null {
+const ALL_OPERATORS = [...TURKEY_OPERATORS, ...AFGHAN_OPERATORS];
+
+// Numaranın başındaki alan koduna göre operatörü otomatik bulur (Türkiye + Afganistan)
+function detectOperator(phone: string): string | null {
   const clean = phone.replace(/\D/g, '');
-  const digits = clean.startsWith('93') ? clean.slice(2) : clean.startsWith('0') ? clean.slice(1) : clean;
-  return AFGHAN_OPERATORS.find(o => o.prefixes.includes(digits.slice(0, 2)))?.id || null;
+
+  const trDigits = clean.startsWith('90') ? clean.slice(2) : clean.startsWith('0') ? clean.slice(1) : clean;
+  const trHit = TURKEY_OPERATORS.find(o => o.prefixes.includes(trDigits.slice(0, 3)));
+  if (trHit) return trHit.id;
+
+  const afDigits = clean.startsWith('93') ? clean.slice(2) : clean.startsWith('0') ? clean.slice(1) : clean;
+  const afHit = AFGHAN_OPERATORS.find(o => o.prefixes.includes(afDigits.slice(0, 2)));
+  if (afHit) return afHit.id;
+
+  return null;
 }
 
 // Hata kodunu kullanıcı dostu Türkçe mesaja çevir
@@ -124,8 +135,6 @@ function orderErrorMessage(err: OrderError): string {
     default:                     return err.message || i18n.t('explore.genericError');
   }
 }
-
-type CountryKey = 'turk' | 'afgan' | 'game' | null;
 
 // ─── Ana ekran ────────────────────────────────────────────────────────────────
 
@@ -197,10 +206,13 @@ export default function ExploreScreen() {
 
   // UI state — sadece görsel akış
   const [loading, setLoading]         = useState(true);
-  const [country, setCountry]         = useState<CountryKey>(null);
   const [opId, setOpId]               = useState<string | null>(null);
   const [phone, setPhone]             = useState('');
   const [detectedOp, setDetectedOp]   = useState<string | null>(null);
+  const [selCountry, setSelCountry]   = useState<'turk' | 'afgan'>('turk');
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [phoneError, setPhoneError]   = useState('');
+  const [marketMode, setMarketMode]   = useState<'phone' | 'game'>('phone');
   const [selPkg, setSelPkg]           = useState<any>(null);
   const [orderPhone, setOrderPhone]   = useState('');
   const [phoneFocused, setPhoneFocused] = useState(false);
@@ -221,16 +233,15 @@ export default function ExploreScreen() {
     const onBack = () => {
       if (selPkg) { setSelPkg(null); clearError(); return true; }
       if (opId || detectedOp) { setOpId(null); setDetectedOp(null); setPhone(''); return true; }
-      if (country) { setCountry(null); return true; }
       return false;
     };
     const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
     return () => sub.remove();
-  }, [selPkg, opId, detectedOp, country]));
+  }, [selPkg, opId, detectedOp]));
 
-  const allOps      = country === 'turk' ? TURKEY_OPERATORS : country === 'afgan' ? AFGHAN_OPERATORS : GAME_OPERATORS;
-  const activeOpId  = country === 'afgan' && !opId ? detectedOp : opId;
-  const activeOp    = allOps.find(o => o.id === activeOpId);
+  const activeOpId = opId || detectedOp;
+  const activeOp    = [...ALL_OPERATORS, ...GAME_OPERATORS].find(o => o.id === activeOpId);
+  const isGameOrder = GAME_OPERATORS.some(o => o.id === activeOpId);
 
   const pkgs = useMemo(() => {
     if (!activeOp) return [];
@@ -254,7 +265,7 @@ export default function ExploreScreen() {
       await submitOrder({
         packageId:    selPkg.id,
         amount:       price,
-        orderType:    country === 'game' ? 'game' : 'topup',
+        orderType:    isGameOrder ? 'game' : 'topup',
         phoneOrGameId: orderPhone,
         distPrice:    selPkg.dist_price ?? null,
         satisFiyati:  parseFloat(selPkg.app_price_try ?? 0) || null,
@@ -304,6 +315,141 @@ export default function ExploreScreen() {
     </View>
   );
 
+  // ── Numara ekranı — Telegram tarzı, ülke seçici + numara girişi ─────────────
+  if (!opId) {
+    const countries: { key: 'turk' | 'afgan'; flag: string; name: string; code: string }[] = [
+      { key: 'turk',  flag: '🇹🇷', name: t('explore.turkey'),      code: '+90' },
+      { key: 'afgan', flag: '🇦🇫', name: t('explore.afghanistan'), code: '+93' },
+    ];
+    const activeCountry = countries.find(c => c.key === selCountry)!;
+
+    const onContinue = () => {
+      const found = detectOperator(activeCountry.code.replace('+', '') + phone.replace(/\D/g, ''));
+      if (found) {
+        setPhoneError('');
+        setDetectedOp(found);
+        setOpId(found);
+      } else {
+        setPhoneError(t('explore.operatorNotDetected'));
+      }
+    };
+
+    return (
+      <View style={s.phoneScreen}>
+        <LinearGradient colors={['#4f46e5', '#7c3aed', '#a855f7']} style={s.phoneHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <View style={s.hDecor1} /><View style={s.hDecor2} />
+          <View style={s.phoneHeaderIconWrap}>
+            <Ionicons name={marketMode === 'game' ? 'game-controller' : 'call'} size={30} color="#fff" />
+          </View>
+          <Text style={s.phoneScreenTitle}>{marketMode === 'game' ? t('explore.gameAndDigital') : t('explore.yourPhone')}</Text>
+          <Text style={s.phoneScreenSub}>{marketMode === 'game' ? t('explore.selectPlatform') : t('explore.enterPhoneNumber')}</Text>
+        </LinearGradient>
+
+        <View style={s.modeToggleRow}>
+          <TouchableOpacity onPress={() => setMarketMode('phone')} style={[s.modeToggleBtn, marketMode === 'phone' && s.modeToggleBtnActive]} activeOpacity={0.8}>
+            <Ionicons name="call" size={15} color={marketMode === 'phone' ? '#fff' : '#6366f1'} />
+            <Text style={[s.modeToggleTxt, marketMode === 'phone' && s.modeToggleTxtActive]}>{t('explore.phoneTopup')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setMarketMode('game')} style={[s.modeToggleBtn, marketMode === 'game' && s.modeToggleBtnActive]} activeOpacity={0.8}>
+            <Ionicons name="game-controller" size={15} color={marketMode === 'game' ? '#fff' : '#6366f1'} />
+            <Text style={[s.modeToggleTxt, marketMode === 'game' && s.modeToggleTxtActive]}>{t('explore.gameAndDigital')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {marketMode === 'game' ? (
+          <ScrollView contentContainerStyle={s.phoneScreenBody} showsVerticalScrollIndicator={false}>
+            <View style={s.gameGrid}>
+              {GAME_OPERATORS.map(op => (
+                <TouchableOpacity key={op.id} onPress={() => setOpId(op.id)} activeOpacity={0.82} style={s.gameCell}>
+                  <View style={s.gameCellInner}>
+                    <View style={s.gameLogoWrap}>
+                      <Image source={op.logo} style={s.gameOpLogo} resizeMode="contain" resizeMethod="resize" />
+                    </View>
+                    <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
+                    <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
+                      <View style={[s.gameOpDot, { backgroundColor: op.colors[0] }]} />
+                      <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
+                    </View>
+                    <LinearGradient colors={op.colors} style={s.gameArrow} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                      <Ionicons name="chevron-forward" size={10} color="#fff" />
+                    </LinearGradient>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        ) : (
+          <TouchableOpacity onPress={() => setShowCountryPicker(false)} activeOpacity={1} style={s.phoneScreenBody}>
+            <TouchableOpacity
+              onPress={() => setShowCountryPicker(v => !v)}
+              style={s.countrySelectRow}
+              activeOpacity={0.7}
+            >
+              <Text style={s.countrySelectFlag}>{activeCountry.flag}</Text>
+              <Text style={s.countrySelectName}>{activeCountry.name}</Text>
+              <Ionicons name={showCountryPicker ? 'chevron-down' : 'chevron-forward'} size={16} color="#6366f1" />
+            </TouchableOpacity>
+
+            {showCountryPicker && (
+              <View style={s.countryPickerList}>
+                {countries.map(c => (
+                  <TouchableOpacity
+                    key={c.key}
+                    onPress={() => { setSelCountry(c.key); setShowCountryPicker(false); setPhoneError(''); }}
+                    style={s.countryPickerItem}
+                  >
+                    <Text style={s.countrySelectFlag}>{c.flag}</Text>
+                    <Text style={s.countryPickerItemTxt}>{c.name}</Text>
+                    <Text style={s.countryPickerItemCode}>{c.code}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            <View style={[s.phoneNumberRow, phoneFocused && { borderColor: '#6366f1', backgroundColor: '#fff' }]}>
+              <Text style={s.phoneCode}>{activeCountry.code}</Text>
+              <TextInput
+                style={s.phoneScreenInput}
+                placeholder={selCountry === 'afgan' ? '7XX XXX XXX' : '5XX XXX XX XX'}
+                placeholderTextColor="#94a3b8"
+                value={phone}
+                onChangeText={v => { setPhone(v); setPhoneError(''); }}
+                keyboardType="phone-pad"
+                autoFocus
+                onFocus={() => setPhoneFocused(true)}
+                onBlur={() => setPhoneFocused(false)}
+              />
+              {phone.length > 0 && (
+                <TouchableOpacity onPress={() => { setPhone(''); setPhoneError(''); }}>
+                  <Ionicons name="close-circle" size={18} color="#94a3b8" />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {!!phoneError && (
+              <View style={s.errorBox}>
+                <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                <Text style={s.errorTxt}>{phoneError}</Text>
+              </View>
+            )}
+
+            <TouchableOpacity
+              onPress={onContinue}
+              disabled={phone.replace(/\D/g, '').length < 6}
+              style={{ borderRadius: 16, overflow: 'hidden', marginTop: 24, opacity: phone.replace(/\D/g, '').length < 6 ? 0.4 : 1 }}
+              activeOpacity={0.85}
+            >
+              <LinearGradient colors={['#4f46e5', '#7c3aed']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <Text style={s.confirmTxt}>{t('explore.continue')}</Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }
+
   // ── Ana render ─────────────────────────────────────────────────────────────
   return (
     <View style={s.root}>
@@ -311,34 +457,19 @@ export default function ExploreScreen() {
       <LinearGradient colors={['#4f46e5', '#7c3aed', '#a855f7']} style={s.header} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
         <View style={s.hDecor1} /><View style={s.hDecor2} />
 
-        {!country ? (
-          <View style={s.hCenter}>
-            <View style={s.hTitleRow}>
-              <Text style={s.hTitleBig}>{t('explore.digitalMarket')}</Text>
-              <Ionicons name="flash" size={28} color="#fff" />
-            </View>
+        <View style={s.hRow}>
+          <TouchableOpacity
+            onPress={() => { setOpId(null); setDetectedOp(null); setPhone(''); }}
+            style={s.backBtn}
+          >
+            <Ionicons name="arrow-back" size={18} color="#fff" />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text style={s.hTitle}>{activeOp?.name}</Text>
+            {activeOp && <Text style={s.hSub}>{t('explore.packagesAvailable', { count: pkgs.length })}</Text>}
           </View>
-        ) : (
-          <View style={s.hRow}>
-            <TouchableOpacity
-              onPress={() => {
-                if (opId || detectedOp) { setOpId(null); setDetectedOp(null); setPhone(''); }
-                else { setCountry(null); }
-              }}
-              style={s.backBtn}
-            >
-              <Ionicons name="arrow-back" size={18} color="#fff" />
-            </TouchableOpacity>
-            <View style={{ flex: 1 }}>
-              <Text style={s.hTitle}>
-                {!activeOpId ? (country === 'turk' ? `🇹🇷 ${t('explore.turkey')}` : country === 'afgan' ? `🇦🇫 ${t('explore.afghanistan')}` : `🎮 ${t('explore.game')}`) : activeOp?.name}
-              </Text>
-              {activeOp && <Text style={s.hSub}>{t('explore.packagesAvailable', { count: pkgs.length })}</Text>}
-            </View>
-            {activeOp && <Image source={activeOp.logo} style={s.hLogo} resizeMode="contain" />}
-          </View>
-        )}
-
+          {activeOp && <Image source={activeOp.logo} style={s.hLogo} resizeMode="contain" />}
+        </View>
       </LinearGradient>
 
       <ScrollView
@@ -347,117 +478,6 @@ export default function ExploreScreen() {
         contentContainerStyle={s.scroll}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ÜLKE SEÇİMİ */}
-        {!country && (
-          <View style={s.countryGrid}>
-            {[
-              { key: 'turk',  flag: '🇹🇷', name: t('explore.turkey'),        sub: t('explore.operatorCount', { count: TURKEY_OPERATORS.length }), colors: ['#ef4444','#f97316'] as [string,string] },
-              { key: 'afgan', flag: '🇦🇫', name: t('explore.afghanistan'),     sub: t('explore.operatorCount', { count: AFGHAN_OPERATORS.length }), colors: ['#10b981','#06b6d4'] as [string,string] },
-              { key: 'game',  flag: '🎮',  name: t('explore.gameAndDigital'),  sub: t('explore.platformCount', { count: GAME_OPERATORS.length }),  colors: ['#8b5cf6','#ec4899'] as [string,string] },
-            ].map(c => (
-              <TouchableOpacity key={c.key} onPress={() => setCountry(c.key as CountryKey)} activeOpacity={0.85} style={s.countryCard}>
-                <LinearGradient colors={c.colors} style={s.countryGrad}>
-                  <View style={s.countryDecor} />
-                  <Text style={s.countryFlag}>{c.flag}</Text>
-                  <Text style={s.countryName}>{c.name}</Text>
-                  <View style={s.countryRow}>
-                    <Text style={s.countrySub}>{c.sub}</Text>
-                    <View style={s.countryArrow}><Ionicons name="chevron-forward" size={12} color={c.colors[0]} /></View>
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* TÜRKİYE OPERATÖRLER */}
-        {country === 'turk' && !opId && TURKEY_OPERATORS.map(op => (
-          <TouchableOpacity key={op.id} onPress={() => setOpId(op.id)} activeOpacity={0.8} style={s.opCard}>
-            <View style={s.opLogoWrap}>
-              <Image source={op.logo} style={s.opLogo} resizeMode="contain" />
-            </View>
-            <View style={s.opInfo}>
-              <Text style={s.opName}>{op.name}</Text>
-              <Text style={s.opSub}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
-            </View>
-            <LinearGradient colors={op.colors} style={s.opChevron}>
-              <Ionicons name="chevron-forward" size={14} color="#fff" />
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
-
-        {/* AFGANİSTAN */}
-        {country === 'afgan' && !opId && (
-          <>
-            <View style={s.phoneWrap}>
-              <Ionicons name="call-outline" size={18} color="#94a3b8" />
-              <TextInput
-                style={s.phoneInput}
-                placeholder={t('explore.phoneExamplePlaceholder')}
-                placeholderTextColor="#94a3b8"
-                value={phone}
-                onChangeText={v => { setPhone(v); setDetectedOp(detectAfghan(v)); }}
-                keyboardType="phone-pad"
-                autoFocus
-              />
-              {phone.length > 0 && (
-                <TouchableOpacity onPress={() => { setPhone(''); setDetectedOp(null); }}>
-                  <Ionicons name="close-circle" size={18} color="#94a3b8" />
-                </TouchableOpacity>
-              )}
-            </View>
-            {detectedOp && (() => {
-              const op = AFGHAN_OPERATORS.find(o => o.id === detectedOp)!;
-              return (
-                <TouchableOpacity onPress={() => setOpId(detectedOp)} style={s.detectedCard} activeOpacity={0.85}>
-                  <LinearGradient colors={op.colors} style={s.detectedInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                    <Image source={op.logo} style={s.detectedLogo} resizeMode="contain" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={s.detectedName}>{t('explore.operatorDetected', { name: op.name })}</Text>
-                      <Text style={s.detectedSub}>{t('explore.packagesAvailable', { count: pkgCount(op) })}</Text>
-                    </View>
-                    <Ionicons name="arrow-forward" size={18} color="#fff" />
-                  </LinearGradient>
-                </TouchableOpacity>
-              );
-            })()}
-            <Text style={s.orLabel}>{t('explore.orSelectOperator')}</Text>
-            <View style={s.afgGrid}>
-              {AFGHAN_OPERATORS.map(op => (
-                <TouchableOpacity key={op.id} onPress={() => setOpId(op.id)} style={s.afgItem} activeOpacity={0.8}>
-                  <View style={s.afgLogoBox}>
-                    <Image source={op.logo} style={s.afgLogo} resizeMode="contain" />
-                  </View>
-                  <Text style={s.afgName}>{op.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        )}
-
-        {/* OYUN OPERATÖRLER — 2 sütun grid */}
-        {country === 'game' && !opId && (
-          <View style={s.gameGrid}>
-            {GAME_OPERATORS.map(op => (
-              <TouchableOpacity key={op.id} onPress={() => setOpId(op.id)} activeOpacity={0.82} style={s.gameCell}>
-                <View style={s.gameCellInner}>
-                  <View style={s.gameLogoWrap}>
-                    <Image source={op.logo} style={s.gameOpLogo} resizeMode="contain" resizeMethod="resize" />
-                  </View>
-                  <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
-                  <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
-                    <View style={[s.gameOpDot, { backgroundColor: op.colors[0] }]} />
-                    <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
-                  </View>
-                  <LinearGradient colors={op.colors} style={s.gameArrow} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                    <Ionicons name="chevron-forward" size={10} color="#fff" />
-                  </LinearGradient>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
         {/* PAKET LİSTESİ */}
         {activeOp && (
           pkgs.length === 0 ? (
@@ -529,12 +549,12 @@ export default function ExploreScreen() {
                 {/* Telefon / Oyun ID girişi */}
                 <View style={s.inputSection}>
                   <Text style={s.inputLabel}>
-                    {country === 'game' ? t('explore.gameIdLabel') : t('explore.phoneNumberLabel')}
+                    {isGameOrder ? t('explore.gameIdLabel') : t('explore.phoneNumberLabel')}
                   </Text>
                   <View style={[s.inputRow, phoneFocused && { borderColor: activeOp?.colors[0] || '#6366f1', backgroundColor: '#fff' }]}>
                     <View style={[s.inputIconWrap, phoneFocused && { backgroundColor: (activeOp?.colors[0] || '#6366f1') + '15' }]}>
                       <Ionicons
-                        name={country === 'game' ? 'game-controller' : 'call'}
+                        name={isGameOrder ? 'game-controller' : 'call'}
                         size={16}
                         color={phoneFocused ? (activeOp?.colors[0] || '#6366f1') : '#94a3b8'}
                       />
@@ -543,8 +563,8 @@ export default function ExploreScreen() {
                       style={s.inputField}
                       value={orderPhone}
                       onChangeText={setOrderPhone}
-                      keyboardType={country === 'game' ? 'default' : 'phone-pad'}
-                      placeholder={country === 'game' ? t('explore.enterGameId') : '05xx xxx xx xx'}
+                      keyboardType={isGameOrder ? 'default' : 'phone-pad'}
+                      placeholder={isGameOrder ? t('explore.enterGameId') : '05xx xxx xx xx'}
                       placeholderTextColor="#b0bec5"
                       autoFocus
                       onFocus={() => setPhoneFocused(true)}
@@ -622,6 +642,28 @@ const s = StyleSheet.create({
   hLogo: { width: 38, height: 38 },
 
   scroll: { padding: PAD },
+
+  phoneScreen: { flex: 1, backgroundColor: '#f8fafc' },
+  phoneHeader: { paddingTop: 50, paddingBottom: 20, paddingHorizontal: 22, alignItems: 'center', overflow: 'hidden' },
+  phoneHeaderIconWrap: { width: 50, height: 50, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
+  phoneScreenTitle: { color: '#fff', fontSize: 19, fontWeight: '900', marginBottom: 4, letterSpacing: -0.3 },
+  phoneScreenSub: { color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: '600', textAlign: 'center' },
+  phoneScreenBody: { flex: 1, padding: PAD },
+  modeToggleRow: { flexDirection: 'row', gap: 8, paddingHorizontal: PAD, paddingTop: 14 },
+  modeToggleBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#eef2ff', borderRadius: 12, paddingVertical: 10 },
+  modeToggleBtnActive: { backgroundColor: '#6366f1' },
+  modeToggleTxt: { fontSize: 12, fontWeight: '700', color: '#6366f1' },
+  modeToggleTxtActive: { color: '#fff' },
+  countrySelectRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 15, borderWidth: 1.5, borderColor: '#e2e8f0', marginTop: 20 },
+  countrySelectFlag: { fontSize: 22 },
+  countrySelectName: { flex: 1, color: '#1e293b', fontSize: 15, fontWeight: '700' },
+  countryPickerList: { backgroundColor: '#fff', borderRadius: 16, marginTop: 8, borderWidth: 1.5, borderColor: '#e2e8f0', overflow: 'hidden' },
+  countryPickerItem: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 13, borderBottomWidth: 1, borderColor: '#f1f5f9' },
+  countryPickerItemTxt: { flex: 1, color: '#1e293b', fontSize: 14, fontWeight: '700' },
+  countryPickerItemCode: { color: '#94a3b8', fontSize: 13, fontWeight: '600' },
+  phoneNumberRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 15, gap: 10, borderWidth: 1.5, borderColor: '#e2e8f0', marginTop: 12 },
+  phoneCode: { color: '#1e293b', fontSize: 16, fontWeight: '800' },
+  phoneScreenInput: { flex: 1, color: '#1e293b', fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
 
   countryGrid: { gap: 10 },
   countryCard: { borderRadius: 20, overflow: 'hidden', elevation: 4, shadowColor: '#6366f1', shadowOpacity: 0.15, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },

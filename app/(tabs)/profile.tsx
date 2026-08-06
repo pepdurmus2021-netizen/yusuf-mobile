@@ -16,11 +16,18 @@ import AppModal from '../../components/AppModal';
 import { useTranslation } from 'react-i18next';
 import { applyRTLIfNeeded, reloadApp } from '../../lib/rtl';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../i18n';
+import { TR as FLAG_TR, AF as FLAG_AF, SA as FLAG_SA } from 'react-native-flags/flags/flat/64';
 
 const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
-  tr: '🇹🇷 Türkçe',
-  fa: '🇦🇫 فارسی',
-  ar: '🇸🇾 العربية',
+  tr: 'Türkçe',
+  fa: 'فارسی',
+  ar: 'العربية',
+};
+
+const LANGUAGE_FLAGS: Record<SupportedLanguage, any> = {
+  tr: FLAG_TR,
+  fa: FLAG_AF,
+  ar: FLAG_SA,
 };
 
 export default function ProfileScreen() {
@@ -326,6 +333,7 @@ export default function ProfileScreen() {
                   (user?.language || i18n.language) === lang && s.langBtnActive,
                 ]}
               >
+                <Image source={LANGUAGE_FLAGS[lang]} style={s.langFlag} resizeMode="cover" />
                 <Text style={[s.langBtnTxt, (user?.language || i18n.language) === lang && s.langBtnTxtActive]}>
                   {LANGUAGE_LABELS[lang]}
                 </Text>
@@ -519,8 +527,9 @@ const s = StyleSheet.create({
   badge: { backgroundColor: '#4f46e5', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, marginEnd: 4 },
   badgeTxt: { color: 'white', fontSize: 11, fontWeight: '800' },
 
-  langBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1.5, borderColor: '#e2e8f0' },
+  langBtn: { flex: 1, paddingVertical: 8, borderRadius: 12, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, backgroundColor: '#f8fafc', borderWidth: 1.5, borderColor: '#e2e8f0' },
   langBtnActive: { backgroundColor: '#ede9fe', borderColor: '#6366f1' },
+  langFlag: { width: 22, height: 16, borderRadius: 2 },
   langBtnTxt: { fontSize: 13, fontWeight: '700', color: '#64748b' },
   langBtnTxtActive: { color: '#6366f1' },
 
