@@ -1,3 +1,5 @@
+import i18n from '../i18n';
+
 export const API_URL = 'https://api.bayiwebpanel.online';
 
 export function safeDate(iso: string | null | undefined): string {
@@ -17,6 +19,7 @@ export function safeDateFull(iso: string | null | undefined): string {
 export async function apiFetch(url: string, token: string | null, options?: RequestInit) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'X-Language': i18n.language || 'tr',
     ...(options?.headers as Record<string, string>),
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;

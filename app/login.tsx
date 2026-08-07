@@ -14,6 +14,7 @@ import * as AuthSession from 'expo-auth-session';
 import { API_URL } from '../lib/config';
 import { useFonts, Orbitron_900Black } from '@expo-google-fonts/orbitron';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -62,7 +63,7 @@ export default function LoginScreen() {
       try {
         const response = await fetch(`${API_URL}/api/auth/google`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-Language': i18n.language || 'tr' },
           body: JSON.stringify({
             email: session.user.email,
             name: session.user.user_metadata?.full_name || session.user.email.split('@')[0]

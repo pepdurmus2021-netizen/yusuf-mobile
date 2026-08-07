@@ -5,6 +5,7 @@ import { useAppStore } from '../store/useAppStore';
 import { API_URL } from '../lib/config';
 import { registerPushToken } from '../lib/notifications';
 import { applyRTLIfNeeded } from '../lib/rtl';
+import i18n from '../i18n';
 import type { SupportedLanguage } from '../i18n';
 
 export interface User {
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           try {
             const res = await fetch(`${API_URL}/api/auth/refresh`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'application/json', 'X-Language': i18n.language || 'tr' },
               body: JSON.stringify({ token: savedToken }),
             });
             const data = await res.json();
