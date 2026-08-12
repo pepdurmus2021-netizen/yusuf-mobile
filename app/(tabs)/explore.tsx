@@ -456,6 +456,7 @@ export default function ExploreScreen() {
           </ScrollView>
         ) : (
           <ScrollView
+            style={{ flex: 1 }}
             contentContainerStyle={[s.phoneScreenBody, { paddingBottom: kbHeight > 0 ? kbHeight + 20 : PAD }]}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
