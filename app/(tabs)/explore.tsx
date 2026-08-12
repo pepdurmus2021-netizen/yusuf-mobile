@@ -535,8 +535,7 @@ export default function ExploreScreen() {
                   )}
                 </LinearGradient>
               </TouchableOpacity>
-            </ScrollView>
-          </KeyboardAvoidingView>
+          </ScrollView>
         )}
       </View>
     );
