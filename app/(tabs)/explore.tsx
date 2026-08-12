@@ -504,7 +504,7 @@ export default function ExploreScreen() {
 
         <View style={s.hRow}>
           <TouchableOpacity
-            onPress={() => { setOpId(null); setDetectedOp(null); setPhone(''); }}
+            onPress={() => { setOpId(null); setDetectedOp(null); setPhone(''); setEligibleIds(null); setEligibleNote(null); setShowAllOverride(false); }}
             style={s.backBtn}
           >
             <Ionicons name="arrow-back" size={18} color="#fff" />
