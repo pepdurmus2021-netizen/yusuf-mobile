@@ -523,6 +523,23 @@ export default function ExploreScreen() {
         contentContainerStyle={s.scroll}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Uygun paket sorgu bilgi bandı */}
+        {activeOp && eligibleIds && !showAllOverride && (
+          <View style={s.eligibleBanner}>
+            <Ionicons name="checkmark-circle" size={16} color="#10b981" />
+            <Text style={s.eligibleBannerTxt}>{t('explore.eligiblePackagesFound', { count: eligibleIds.size })}</Text>
+            <TouchableOpacity onPress={() => setShowAllOverride(true)}>
+              <Text style={s.eligibleBannerLink}>{t('explore.showAllPackages')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {activeOp && eligibleNote && (
+          <View style={s.eligibleNoteBanner}>
+            <Ionicons name="information-circle" size={16} color="#f59e0b" />
+            <Text style={s.eligibleNoteTxt}>{eligibleNote}</Text>
+          </View>
+        )}
+
         {/* PAKET LİSTESİ */}
         {activeOp && (
           pkgs.length === 0 ? (
