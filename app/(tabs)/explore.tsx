@@ -451,28 +451,35 @@ export default function ExploreScreen() {
             </View>
           </ScrollView>
         ) : (
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+          <ScrollView
+            contentContainerStyle={[s.phoneScreenBody, { paddingBottom: kbHeight > 0 ? kbHeight + 20 : PAD }]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <ScrollView
-              contentContainerStyle={s.phoneScreenBody}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
               <View style={s.countryFlagRow}>
-                {countries.map(c => (
-                  <TouchableOpacity
-                    key={c.key}
-                    onPress={() => { setSelCountry(c.key); setPhoneError(''); }}
-                    style={[s.countryFlagBtn, selCountry === c.key && s.countryFlagBtnActive]}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={s.countryFlagEmoji}>{c.flag}</Text>
-                    <Text style={[s.countryFlagName, selCountry === c.key && s.countryFlagNameActive]} numberOfLines={1}>{c.name}</Text>
-                  </TouchableOpacity>
-                ))}
+                {countries.map(c => {
+                  const active = selCountry === c.key;
+                  return (
+                    <TouchableOpacity
+                      key={c.key}
+                      onPress={() => { setSelCountry(c.key); setPhoneError(''); }}
+                      style={s.countryFlagBtn}
+                      activeOpacity={0.85}
+                    >
+                      {active ? (
+                        <LinearGradient colors={['#4f46e5', '#7c3aed']} style={s.countryFlagBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                          <Text style={s.countryFlagEmoji}>{c.flag}</Text>
+                          <Text style={s.countryFlagNameActive} numberOfLines={1}>{c.name}</Text>
+                        </LinearGradient>
+                      ) : (
+                        <View style={[s.countryFlagBtnInner, s.countryFlagBtnInnerIdle]}>
+                          <Text style={s.countryFlagEmoji}>{c.flag}</Text>
+                          <Text style={s.countryFlagName} numberOfLines={1}>{c.name}</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
 
               <View style={[s.phoneNumberRow, phoneFocused && { borderColor: '#6366f1', backgroundColor: '#fff' }]}>
