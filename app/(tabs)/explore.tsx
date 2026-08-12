@@ -238,6 +238,20 @@ export default function ExploreScreen() {
   const [eligibleIds, setEligibleIds] = useState<Set<string> | null>(null);
   const [eligibleNote, setEligibleNote] = useState<string | null>(null);
   const [showAllOverride, setShowAllOverride] = useState(false);
+  const [loadingStepIdx, setLoadingStepIdx] = useState(0);
+  const loadingTextAnim = useRef(new Animated.Value(1)).current;
+
+  // Sorgu sürerken ~3sn'de bir mesaj değiştir, kayarak görünsün
+  useEffect(() => {
+    if (!checkingEligible) { setLoadingStepIdx(0); return; }
+    const id = setInterval(() => setLoadingStepIdx(i => (i + 1) % LOADING_STEPS.length), 3000);
+    return () => clearInterval(id);
+  }, [checkingEligible]);
+
+  useEffect(() => {
+    loadingTextAnim.setValue(0);
+    Animated.timing(loadingTextAnim, { toValue: 1, duration: 380, useNativeDriver: true }).start();
+  }, [loadingStepIdx]);
 
   // İş mantığı — tek kaynak, tasarımdan bağımsız
   const { submitOrder, isLoading: orderLoading, error: orderError, clearError } = useOrderFlow();
