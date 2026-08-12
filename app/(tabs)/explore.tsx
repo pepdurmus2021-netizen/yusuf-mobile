@@ -519,6 +519,7 @@ export default function ExploreScreen() {
                     <>
                       <ActivityIndicator color="#fff" size="small" />
                       <Animated.Text
+                        numberOfLines={1}
                         style={[s.confirmTxt, {
                           opacity: loadingTextAnim,
                           transform: [{ translateY: loadingTextAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
