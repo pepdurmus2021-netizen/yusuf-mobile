@@ -356,14 +356,16 @@ export default function ExploreScreen() {
 
   // ── Numara ekranı — Telegram tarzı, ülke seçici + numara girişi ─────────────
   if (!opId) {
-    const countries: { key: 'turk' | 'afgan'; flag: string; name: string; code: string }[] = [
+    const countries: { key: CountryKey; flag: string; name: string; code: string }[] = [
       { key: 'turk',  flag: '🇹🇷', name: t('explore.turkey'),      code: '+90' },
+      { key: 'iran',  flag: '🇮🇷', name: t('explore.iran'),        code: '+98' },
       { key: 'afgan', flag: '🇦🇫', name: t('explore.afghanistan'), code: '+93' },
     ];
     const activeCountry = countries.find(c => c.key === selCountry)!;
+    const phonePlaceholder = selCountry === 'afgan' ? '7XX XXX XXX' : selCountry === 'iran' ? '9XX XXX XXXX' : '5XX XXX XX XX';
 
     const onContinue = async () => {
-      const found = detectOperator(activeCountry.code.replace('+', '') + phone.replace(/\D/g, ''));
+      const found = detectOperator(phone.replace(/\D/g, ''), selCountry);
       if (!found) {
         setPhoneError(t('explore.operatorNotDetected'));
         return;
