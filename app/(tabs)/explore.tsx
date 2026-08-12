@@ -244,7 +244,7 @@ export default function ExploreScreen() {
   useFocusEffect(useCallback(() => {
     const onBack = () => {
       if (selPkg) { setSelPkg(null); clearError(); return true; }
-      if (opId || detectedOp) { setOpId(null); setDetectedOp(null); setPhone(''); return true; }
+      if (opId || detectedOp) { setOpId(null); setDetectedOp(null); setPhone(''); setEligibleIds(null); setEligibleNote(null); setShowAllOverride(false); return true; }
       return false;
     };
     const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
