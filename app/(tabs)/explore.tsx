@@ -604,7 +604,7 @@ export default function ExploreScreen() {
               <View key={key}>
                 <View style={s.catHeader}>
                   <View style={[s.catHeaderBar, { backgroundColor: activeOp.colors[0] }]} />
-                  <Text style={s.catHeaderTxt}>{getSubCategoryLabel(activeOp.name, key)}</Text>
+                  <Text style={s.catHeaderTxt} numberOfLines={1}>{getSubCategoryLabel(activeOp.name, key)}</Text>
                 </View>
                 {grouped[key].map(pkg => renderPkgCard(pkg, activeOp))}
               </View>
