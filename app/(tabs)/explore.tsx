@@ -556,7 +556,7 @@ export default function ExploreScreen() {
             <Ionicons name="arrow-back" size={18} color="#fff" />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={s.hTitle}>{activeOp?.name}</Text>
+            <Text style={s.hTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{activeOp?.name}</Text>
             {activeOp && <Text style={s.hSub}>{t('explore.packagesAvailable', { count: pkgs.length })}</Text>}
           </View>
           {activeOp && <Image source={activeOp.logo} style={s.hLogo} resizeMode="contain" />}
