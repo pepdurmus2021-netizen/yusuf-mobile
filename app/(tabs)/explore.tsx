@@ -410,11 +410,15 @@ export default function ExploreScreen() {
       <View style={s.phoneScreen}>
         <LinearGradient colors={['#4f46e5', '#7c3aed', '#a855f7']} style={s.phoneHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
           <View style={s.hDecor1} /><View style={s.hDecor2} />
-          <View style={s.phoneHeaderIconWrap}>
-            <Ionicons name={marketMode === 'game' ? 'game-controller' : 'call'} size={30} color="#fff" />
+          <View style={s.phoneHeaderRow}>
+            <View style={s.phoneHeaderIconWrap}>
+              <Ionicons name={marketMode === 'game' ? 'game-controller' : 'call'} size={24} color="#fff" />
+            </View>
+            <View style={s.phoneHeaderTextWrap}>
+              <Text style={s.phoneScreenTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{marketMode === 'game' ? t('explore.gameAndDigital') : t('explore.yourPhone')}</Text>
+              <Text style={s.phoneScreenSub} numberOfLines={1}>{marketMode === 'game' ? t('explore.selectPlatform') : t('explore.enterPhoneNumber')}</Text>
+            </View>
           </View>
-          <Text style={s.phoneScreenTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{marketMode === 'game' ? t('explore.gameAndDigital') : t('explore.yourPhone')}</Text>
-          <Text style={s.phoneScreenSub}>{marketMode === 'game' ? t('explore.selectPlatform') : t('explore.enterPhoneNumber')}</Text>
         </LinearGradient>
 
         <View style={s.modeToggleRow}>
