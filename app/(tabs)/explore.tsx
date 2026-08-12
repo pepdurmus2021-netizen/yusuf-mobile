@@ -44,9 +44,9 @@ const AFGHAN_OPERATORS = [
 ];
 
 const IRAN_OPERATORS = [
-  { id: 'irancell', name: 'Irancell',      logo: require('../../assets/images/iran.jpg'), colors: ['#fbbf24','#f59e0b'] as [string,string], prefixes: ['930','933','935','936','937','938','939','901','902','903','905'], dbNames: ['irancell'] },
-  { id: 'mci',      name: 'Hamrah-e Avval', logo: require('../../assets/images/iran.jpg'), colors: ['#10b981','#059669'] as [string,string], prefixes: ['910','911','912','913','914','915','916','917','918','919'],           dbNames: ['mci','hamrah'] },
-  { id: 'rightel',  name: 'Rightel',        logo: require('../../assets/images/iran.jpg'), colors: ['#8b5cf6','#7c3aed'] as [string,string], prefixes: ['920','921','922'],                                                     dbNames: ['rightel'] },
+  { id: 'irancell', name: 'Irancell',      logo: require('../../assets/images/iran.jpg'), colors: ['#fbbf24','#f59e0b'] as [string,string], prefixes: ['93','90'], dbNames: ['irancell'] },
+  { id: 'mci',      name: 'Hamrah-e Avval', logo: require('../../assets/images/iran.jpg'), colors: ['#10b981','#059669'] as [string,string], prefixes: ['91'],      dbNames: ['mci','hamrah'] },
+  { id: 'rightel',  name: 'Rightel',        logo: require('../../assets/images/iran.jpg'), colors: ['#8b5cf6','#7c3aed'] as [string,string], prefixes: ['92'],      dbNames: ['rightel'] },
 ];
 
 const GAME_OPERATORS = [
