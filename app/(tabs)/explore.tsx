@@ -170,12 +170,20 @@ export default function ExploreScreen() {
     const sellPrice = parseFloat(pkg.app_price_try) || 0;
     const details: { icon: string; label: string }[] = [];
     const nm = (pkg.name_tr || '').toLowerCase();
+    // Önce gerçek DB sütunlarını kullan (PayStore'dan gelen paketlerde dolu),
+    // yoksa eski paketler için isimden regex ile ayıkla
+    const dbMinutes = parseFloat(pkg.minutes) || 0;
+    const dbSms     = parseFloat(pkg.sms_count) || 0;
+    const dbGb      = parseFloat(pkg.data_gb) || 0;
     const minuteMatch = nm.match(/(\d+)\s*(dk|dak|dakika|min)/);
     const gbMatch     = nm.match(/(\d+[\.,]?\d*)\s*(gb|mb)/i);
     const smsMatch    = nm.match(/(\d+)\s*sms/i);
-    if (minuteMatch) details.push({ icon: 'call-outline',       label: minuteMatch[1] + ' Dk' });
-    if (gbMatch)     details.push({ icon: 'wifi-outline',       label: gbMatch[1] + ' ' + gbMatch[2].toUpperCase() });
-    if (smsMatch)    details.push({ icon: 'chatbubble-outline', label: smsMatch[1] + ' SMS' });
+    if (dbMinutes > 0) details.push({ icon: 'call-outline', label: dbMinutes + ' Dk' });
+    else if (minuteMatch) details.push({ icon: 'call-outline', label: minuteMatch[1] + ' Dk' });
+    if (dbGb > 0) details.push({ icon: 'wifi-outline', label: dbGb + ' GB' });
+    else if (gbMatch) details.push({ icon: 'wifi-outline', label: gbMatch[1] + ' ' + gbMatch[2].toUpperCase() });
+    if (dbSms > 0) details.push({ icon: 'chatbubble-outline', label: dbSms + ' SMS' });
+    else if (smsMatch) details.push({ icon: 'chatbubble-outline', label: smsMatch[1] + ' SMS' });
     return (
       <TouchableOpacity
         key={pkg.id}
