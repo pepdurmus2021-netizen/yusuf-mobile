@@ -43,6 +43,12 @@ const AFGHAN_OPERATORS = [
   { id: 'etisalat', name: 'Etisalat', logo: require('../../assets/images/etisalat.png'), colors: ['#10b981','#059669'] as [string,string], prefixes: ['78','73'], dbNames: ['etisalat'] },
 ];
 
+const IRAN_OPERATORS = [
+  { id: 'irancell', name: 'Irancell',      logo: require('../../assets/images/iran.jpg'), colors: ['#fbbf24','#f59e0b'] as [string,string], prefixes: ['930','933','935','936','937','938','939','901','902','903','905'], dbNames: ['irancell'] },
+  { id: 'mci',      name: 'Hamrah-e Avval', logo: require('../../assets/images/iran.jpg'), colors: ['#10b981','#059669'] as [string,string], prefixes: ['910','911','912','913','914','915','916','917','918','919'],           dbNames: ['mci','hamrah'] },
+  { id: 'rightel',  name: 'Rightel',        logo: require('../../assets/images/iran.jpg'), colors: ['#8b5cf6','#7c3aed'] as [string,string], prefixes: ['920','921','922'],                                                     dbNames: ['rightel'] },
+];
+
 const GAME_OPERATORS = [
   { id: 'pubg',        name: 'PUBG',          logo: require('../../assets/images/pubg.png'),         colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['pubg'] },
   { id: 'valorant',    name: 'Valorant',      logo: require('../../assets/images/valorant.png'),     colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['valorant'] },
