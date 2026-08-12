@@ -121,20 +121,15 @@ const GAME_OPERATORS = [
   { id: 'yaahlan',     name: 'Yaahlan',       logo: require('../../assets/images/yaahlan.png'),       colors: ['#10b981','#059669'] as [string,string], dbNames: ['yaahlan'] },
 ];
 
-const ALL_OPERATORS = [...TURKEY_OPERATORS, ...AFGHAN_OPERATORS];
+const ALL_OPERATORS = [...TURKEY_OPERATORS, ...AFGHAN_OPERATORS, ...IRAN_OPERATORS];
 
-// Numaranın başındaki alan koduna göre operatörü otomatik bulur (Türkiye + Afganistan)
-function detectOperator(phone: string): string | null {
-  const clean = phone.replace(/\D/g, '');
+type CountryKey = 'turk' | 'afgan' | 'iran';
 
-  const trDigits = clean.startsWith('90') ? clean.slice(2) : clean.startsWith('0') ? clean.slice(1) : clean;
-  const trHit = TURKEY_OPERATORS.find(o => o.prefixes.includes(trDigits.slice(0, 3)));
-  if (trHit) return trHit.id;
-
-  const afDigits = clean.startsWith('93') ? clean.slice(2) : clean.startsWith('0') ? clean.slice(1) : clean;
-  const afHit = AFGHAN_OPERATORS.find(o => o.prefixes.includes(afDigits.slice(0, 2)));
-  if (afHit) return afHit.id;
-
+// Seçili ülkeye göre, numaranın başındaki alan koduna göre operatörü bulur
+function detectOperator(localDigits: string, country: CountryKey): string | null {
+  if (country === 'turk')  return TURKEY_OPERATORS.find(o => o.prefixes.includes(localDigits.slice(0, 3)))?.id || null;
+  if (country === 'afgan') return AFGHAN_OPERATORS.find(o => o.prefixes.includes(localDigits.slice(0, 2)))?.id || null;
+  if (country === 'iran')  return IRAN_OPERATORS.find(o => o.prefixes.includes(localDigits.slice(0, 3)))?.id || null;
   return null;
 }
 
