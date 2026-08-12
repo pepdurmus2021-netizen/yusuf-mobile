@@ -420,7 +420,7 @@ export default function ExploreScreen() {
         <View style={s.modeToggleRow}>
           <TouchableOpacity onPress={() => setMarketMode('phone')} style={[s.modeToggleBtn, marketMode === 'phone' && s.modeToggleBtnActive]} activeOpacity={0.8}>
             <Ionicons name="call" size={15} color={marketMode === 'phone' ? '#fff' : '#6366f1'} />
-            <Text style={[s.modeToggleTxt, marketMode === 'phone' && s.modeToggleTxtActive]}>{t('explore.phoneTopup')}</Text>
+            <Text style={[s.modeToggleTxt, marketMode === 'phone' && s.modeToggleTxtActive]} numberOfLines={1}>{t('explore.phoneTopup')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setMarketMode('game')} style={[s.modeToggleBtn, marketMode === 'game' && s.modeToggleBtnActive]} activeOpacity={0.8}>
             <Ionicons name="game-controller" size={15} color={marketMode === 'game' ? '#fff' : '#6366f1'} />
