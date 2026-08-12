@@ -359,7 +359,7 @@ export default function ExploreScreen() {
           </View>
         </View>
       </LinearGradient>
-      <ScrollView contentContainerStyle={{ padding: PAD, gap: 10 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: PAD, gap: 10 }}>
         {[1,2,3,4,5].map(i => <SkeletonCard key={i} />)}
       </ScrollView>
     </View>
