@@ -764,7 +764,7 @@ const s = StyleSheet.create({
   phoneHeaderTextWrap: { flex: 1 },
   phoneScreenTitle: { color: '#fff', fontSize: 17, fontWeight: '900', letterSpacing: -0.3 },
   phoneScreenSub: { color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '600', marginTop: 1 },
-  phoneScreenBody: { flex: 1, padding: PAD },
+  phoneScreenBody: { padding: PAD },
   modeToggleRow: { flexDirection: 'row', gap: 8, paddingHorizontal: PAD, paddingTop: 14 },
   modeToggleBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#eef2ff', borderRadius: 12, paddingVertical: 10 },
   modeToggleBtnActive: { backgroundColor: '#6366f1' },
