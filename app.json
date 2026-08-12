@@ -14,8 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png"
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -59,8 +58,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "d8c271ed-c11f-4acf-9c75-86a345e8af97"
+        "projectId": "d7dc428a-9ba2-4cc8-a520-e4c75c104f7e"
       }
-    }
+    },
+    "owner": "bayiwebpanel"
   }
 }
