@@ -471,13 +471,22 @@ export default function ExploreScreen() {
 
             <TouchableOpacity
               onPress={onContinue}
-              disabled={phone.replace(/\D/g, '').length < 6}
-              style={{ borderRadius: 16, overflow: 'hidden', marginTop: 24, opacity: phone.replace(/\D/g, '').length < 6 ? 0.4 : 1 }}
+              disabled={phone.replace(/\D/g, '').length < 6 || checkingEligible}
+              style={{ borderRadius: 16, overflow: 'hidden', marginTop: 24, opacity: (phone.replace(/\D/g, '').length < 6 || checkingEligible) ? 0.4 : 1 }}
               activeOpacity={0.85}
             >
               <LinearGradient colors={['#4f46e5', '#7c3aed']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                <Text style={s.confirmTxt}>{t('explore.continue')}</Text>
-                <Ionicons name="arrow-forward" size={18} color="#fff" />
+                {checkingEligible ? (
+                  <>
+                    <ActivityIndicator color="#fff" size="small" />
+                    <Text style={s.confirmTxt}>{t('explore.checkingPackages')}</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={s.confirmTxt}>{t('explore.continue')}</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                  </>
+                )}
               </LinearGradient>
             </TouchableOpacity>
           </TouchableOpacity>
