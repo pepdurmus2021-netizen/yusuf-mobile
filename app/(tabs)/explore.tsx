@@ -253,6 +253,17 @@ export default function ExploreScreen() {
     Animated.timing(loadingTextAnim, { toValue: 1, duration: 380, useNativeDriver: true }).start();
   }, [loadingStepIdx]);
 
+  // edgeToEdgeEnabled açıkken Android'in otomatik resize'ı güvenilir değil —
+  // klavye yüksekliğini elle takip edip ScrollView'a boşluk ekliyoruz
+  const [kbHeight, setKbHeight] = useState(0);
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvt, e => setKbHeight(e.endCoordinates?.height || 0));
+    const hideSub = Keyboard.addListener(hideEvt, () => setKbHeight(0));
+    return () => { showSub.remove(); hideSub.remove(); };
+  }, []);
+
   // İş mantığı — tek kaynak, tasarımdan bağımsız
   const { submitOrder, isLoading: orderLoading, error: orderError, clearError } = useOrderFlow();
 
