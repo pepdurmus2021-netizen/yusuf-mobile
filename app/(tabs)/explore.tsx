@@ -440,81 +440,85 @@ export default function ExploreScreen() {
             </View>
           </ScrollView>
         ) : (
-          <TouchableOpacity onPress={() => setShowCountryPicker(false)} activeOpacity={1} style={s.phoneScreenBody}>
-            <TouchableOpacity
-              onPress={() => setShowCountryPicker(v => !v)}
-              style={s.countrySelectRow}
-              activeOpacity={0.7}
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+          >
+            <ScrollView
+              contentContainerStyle={s.phoneScreenBody}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
-              <Text style={s.countrySelectFlag}>{activeCountry.flag}</Text>
-              <Text style={s.countrySelectName}>{activeCountry.name}</Text>
-              <Ionicons name={showCountryPicker ? 'chevron-down' : 'chevron-forward'} size={16} color="#6366f1" />
-            </TouchableOpacity>
-
-            {showCountryPicker && (
-              <View style={s.countryPickerList}>
+              <View style={s.countryFlagRow}>
                 {countries.map(c => (
                   <TouchableOpacity
                     key={c.key}
-                    onPress={() => { setSelCountry(c.key); setShowCountryPicker(false); setPhoneError(''); }}
-                    style={s.countryPickerItem}
+                    onPress={() => { setSelCountry(c.key); setPhoneError(''); }}
+                    style={[s.countryFlagBtn, selCountry === c.key && s.countryFlagBtnActive]}
+                    activeOpacity={0.8}
                   >
-                    <Text style={s.countrySelectFlag}>{c.flag}</Text>
-                    <Text style={s.countryPickerItemTxt}>{c.name}</Text>
-                    <Text style={s.countryPickerItemCode}>{c.code}</Text>
+                    <Text style={s.countryFlagEmoji}>{c.flag}</Text>
+                    <Text style={[s.countryFlagName, selCountry === c.key && s.countryFlagNameActive]} numberOfLines={1}>{c.name}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
-            )}
 
-            <View style={[s.phoneNumberRow, phoneFocused && { borderColor: '#6366f1', backgroundColor: '#fff' }]}>
-              <Text style={s.phoneCode}>{activeCountry.code}</Text>
-              <TextInput
-                style={s.phoneScreenInput}
-                placeholder={selCountry === 'afgan' ? '7XX XXX XXX' : '5XX XXX XX XX'}
-                placeholderTextColor="#94a3b8"
-                value={phone}
-                onChangeText={v => { setPhone(v); setPhoneError(''); }}
-                keyboardType="phone-pad"
-                autoFocus
-                onFocus={() => setPhoneFocused(true)}
-                onBlur={() => setPhoneFocused(false)}
-              />
-              {phone.length > 0 && (
-                <TouchableOpacity onPress={() => { setPhone(''); setPhoneError(''); }}>
-                  <Ionicons name="close-circle" size={18} color="#94a3b8" />
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {!!phoneError && (
-              <View style={s.errorBox}>
-                <Ionicons name="alert-circle" size={16} color="#ef4444" />
-                <Text style={s.errorTxt}>{phoneError}</Text>
-              </View>
-            )}
-
-            <TouchableOpacity
-              onPress={onContinue}
-              disabled={phone.replace(/\D/g, '').length < 6 || checkingEligible}
-              style={{ borderRadius: 16, overflow: 'hidden', marginTop: 24, opacity: (phone.replace(/\D/g, '').length < 6 || checkingEligible) ? 0.4 : 1 }}
-              activeOpacity={0.85}
-            >
-              <LinearGradient colors={['#4f46e5', '#7c3aed']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                {checkingEligible ? (
-                  <>
-                    <ActivityIndicator color="#fff" size="small" />
-                    <Text style={s.confirmTxt}>{t('explore.checkingPackages')}</Text>
-                  </>
-                ) : (
-                  <>
-                    <Text style={s.confirmTxt}>{t('explore.continue')}</Text>
-                    <Ionicons name="arrow-forward" size={18} color="#fff" />
-                  </>
+              <View style={[s.phoneNumberRow, phoneFocused && { borderColor: '#6366f1', backgroundColor: '#fff' }]}>
+                <Text style={s.phoneCode}>{activeCountry.code}</Text>
+                <TextInput
+                  style={s.phoneScreenInput}
+                  placeholder={phonePlaceholder}
+                  placeholderTextColor="#94a3b8"
+                  value={phone}
+                  onChangeText={v => { setPhone(v); setPhoneError(''); }}
+                  keyboardType="phone-pad"
+                  onFocus={() => setPhoneFocused(true)}
+                  onBlur={() => setPhoneFocused(false)}
+                />
+                {phone.length > 0 && (
+                  <TouchableOpacity onPress={() => { setPhone(''); setPhoneError(''); }}>
+                    <Ionicons name="close-circle" size={18} color="#94a3b8" />
+                  </TouchableOpacity>
                 )}
-              </LinearGradient>
-            </TouchableOpacity>
-          </TouchableOpacity>
+              </View>
+
+              {!!phoneError && (
+                <View style={s.errorBox}>
+                  <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                  <Text style={s.errorTxt}>{phoneError}</Text>
+                </View>
+              )}
+
+              <TouchableOpacity
+                onPress={onContinue}
+                disabled={phone.replace(/\D/g, '').length < 6 || checkingEligible}
+                style={{ borderRadius: 16, overflow: 'hidden', marginTop: 24, opacity: (phone.replace(/\D/g, '').length < 6 || checkingEligible) ? 0.4 : 1 }}
+                activeOpacity={0.85}
+              >
+                <LinearGradient colors={['#4f46e5', '#7c3aed']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  {checkingEligible ? (
+                    <>
+                      <ActivityIndicator color="#fff" size="small" />
+                      <Animated.Text
+                        style={[s.confirmTxt, {
+                          opacity: loadingTextAnim,
+                          transform: [{ translateY: loadingTextAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
+                        }]}
+                      >
+                        {t(LOADING_STEPS[loadingStepIdx])}
+                      </Animated.Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={s.confirmTxt}>{t('explore.continue')}</Text>
+                      <Ionicons name="arrow-forward" size={18} color="#fff" />
+                    </>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+            </ScrollView>
+          </KeyboardAvoidingView>
         )}
       </View>
     );
