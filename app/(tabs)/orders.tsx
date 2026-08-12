@@ -212,7 +212,7 @@ export default function OrdersScreen() {
     if (filter !== 'all' && filter !== 'pending' && filter !== 'failed' && o.status !== filter) return false;
     if (search) {
       const q = search.toLowerCase();
-      return (o.phone_number || '').includes(q) || (o.package?.name_tr || '').toLowerCase().includes(q);
+      return (o.phone_number || '').includes(q) || (o.package_name_tr || o.package?.name_tr || '').toLowerCase().includes(q);
     }
     return true;
   }), [orders, filter, search]);
