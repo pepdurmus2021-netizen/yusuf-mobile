@@ -762,7 +762,7 @@ const s = StyleSheet.create({
   modeToggleBtnActive: { backgroundColor: '#6366f1' },
   modeToggleTxt: { fontSize: 12, fontWeight: '700', color: '#6366f1' },
   modeToggleTxtActive: { color: '#fff' },
-  countryFlagRow: { flexDirection: 'row', gap: 8, marginTop: 20 },
+  countryFlagRow: { flexDirection: 'row', gap: 8, marginTop: 6 },
   countryFlagBtn: { flex: 1, borderRadius: 14, overflow: 'hidden', elevation: 2, shadowColor: '#6366f1', shadowOpacity: 0.1, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
   countryFlagBtnInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 13, paddingHorizontal: 6 },
   countryFlagBtnInnerIdle: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#e2e8f0' },
