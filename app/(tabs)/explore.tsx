@@ -413,7 +413,7 @@ export default function ExploreScreen() {
           <View style={s.phoneHeaderIconWrap}>
             <Ionicons name={marketMode === 'game' ? 'game-controller' : 'call'} size={30} color="#fff" />
           </View>
-          <Text style={s.phoneScreenTitle}>{marketMode === 'game' ? t('explore.gameAndDigital') : t('explore.yourPhone')}</Text>
+          <Text style={s.phoneScreenTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{marketMode === 'game' ? t('explore.gameAndDigital') : t('explore.yourPhone')}</Text>
           <Text style={s.phoneScreenSub}>{marketMode === 'game' ? t('explore.selectPlatform') : t('explore.enterPhoneNumber')}</Text>
         </LinearGradient>
 
