@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  TextInput, Alert, Modal, ActivityIndicator,
+  TextInput, Alert, Modal, ActivityIndicator, Animated,
   KeyboardAvoidingView, Platform, Image, Dimensions, BackHandler,
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
