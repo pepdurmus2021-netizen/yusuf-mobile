@@ -424,7 +424,7 @@ export default function ExploreScreen() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setMarketMode('game')} style={[s.modeToggleBtn, marketMode === 'game' && s.modeToggleBtnActive]} activeOpacity={0.8}>
             <Ionicons name="game-controller" size={15} color={marketMode === 'game' ? '#fff' : '#6366f1'} />
-            <Text style={[s.modeToggleTxt, marketMode === 'game' && s.modeToggleTxtActive]}>{t('explore.gameAndDigital')}</Text>
+            <Text style={[s.modeToggleTxt, marketMode === 'game' && s.modeToggleTxtActive]} numberOfLines={1}>{t('explore.gameAndDigital')}</Text>
           </TouchableOpacity>
         </View>
 
