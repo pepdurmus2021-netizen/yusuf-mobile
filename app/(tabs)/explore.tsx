@@ -799,6 +799,12 @@ const s = StyleSheet.create({
   empty: { alignItems: 'center', paddingVertical: 40, gap: 8 },
   emptyTxt: { color: '#94a3b8', fontSize: 13, fontWeight: '600' },
 
+  eligibleBanner: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#f0fdf4', borderRadius: 12, borderWidth: 1, borderColor: '#bbf7d0', paddingHorizontal: 12, paddingVertical: 10, marginBottom: 10 },
+  eligibleBannerTxt: { flex: 1, fontSize: 12, fontWeight: '700', color: '#059669' },
+  eligibleBannerLink: { fontSize: 11, fontWeight: '700', color: '#10b981', textDecorationLine: 'underline' },
+  eligibleNoteBanner: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#fffbeb', borderRadius: 12, borderWidth: 1, borderColor: '#fde68a', paddingHorizontal: 12, paddingVertical: 10, marginBottom: 10 },
+  eligibleNoteTxt: { flex: 1, fontSize: 12, fontWeight: '600', color: '#b45309' },
+
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, padding: 22, paddingBottom: 40 },
   handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: '#e2e8f0', alignSelf: 'center', marginBottom: 18 },
