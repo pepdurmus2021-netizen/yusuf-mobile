@@ -680,7 +680,7 @@ export default function ExploreScreen() {
                       keyboardType={isGameOrder ? 'default' : 'phone-pad'}
                       placeholder={isGameOrder ? t('explore.enterGameId') : '05xx xxx xx xx'}
                       placeholderTextColor="#b0bec5"
-                      autoFocus
+                      autoFocus={isGameOrder}
                       onFocus={() => setPhoneFocused(true)}
                       onBlur={() => setPhoneFocused(false)}
                     />
