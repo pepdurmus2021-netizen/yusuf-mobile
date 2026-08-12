@@ -339,15 +339,35 @@ export default function ExploreScreen() {
     ];
     const activeCountry = countries.find(c => c.key === selCountry)!;
 
-    const onContinue = () => {
+    const onContinue = async () => {
       const found = detectOperator(activeCountry.code.replace('+', '') + phone.replace(/\D/g, ''));
-      if (found) {
-        setPhoneError('');
-        setDetectedOp(found);
-        setOpId(found);
-      } else {
+      if (!found) {
         setPhoneError(t('explore.operatorNotDetected'));
+        return;
       }
+      setPhoneError('');
+      setDetectedOp(found);
+      setEligibleIds(null);
+      setEligibleNote(null);
+      setShowAllOverride(false);
+
+      const queryOperator = selCountry === 'turk' ? ELIGIBLE_QUERY_OPERATOR[found] : null;
+      if (queryOperator && token) {
+        setCheckingEligible(true);
+        try {
+          const gsm = phone.replace(/\D/g, '');
+          const res = await apiFetch(`${API_URL}/api/paystore/eligible-packages/${gsm}?operator=${queryOperator}`, token);
+          const ids = new Set<string>((res.data || []).map((p: any) => String(p.id)));
+          if (ids.size > 0) setEligibleIds(ids);
+          else setEligibleNote(t('explore.noEligiblePackagesFallback'));
+        } catch {
+          // Sorgu başarısız olursa akışı kesmiyoruz, tüm paketler gösterilmeye devam eder
+        } finally {
+          setCheckingEligible(false);
+        }
+      }
+
+      setOpId(found);
     };
 
     return (
