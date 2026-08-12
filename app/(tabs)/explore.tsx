@@ -433,7 +433,7 @@ export default function ExploreScreen() {
         </View>
 
         {marketMode === 'game' ? (
-          <ScrollView contentContainerStyle={s.phoneScreenBody} showsVerticalScrollIndicator={false}>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={s.phoneScreenBody} showsVerticalScrollIndicator={false}>
             <View style={s.gameGrid}>
               {GAME_OPERATORS.map(op => (
                 <TouchableOpacity key={op.id} onPress={() => setOpId(op.id)} activeOpacity={0.82} style={s.gameCell}>
