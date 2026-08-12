@@ -257,8 +257,12 @@ export default function ExploreScreen() {
 
   const pkgs = useMemo(() => {
     if (!activeOp) return [];
-    return packages.filter(p => activeOp.dbNames.some(n => (p.operator || '').toLowerCase().includes(n)));
-  }, [packages, activeOp]);
+    let list = packages.filter(p => activeOp.dbNames.some(n => (p.operator || '').toLowerCase().includes(n)));
+    if (eligibleIds && !showAllOverride) {
+      list = list.filter(p => p.paystore_product_id != null && eligibleIds.has(String(p.paystore_product_id)));
+    }
+    return list;
+  }, [packages, activeOp, eligibleIds, showAllOverride]);
 
   const pkgCount = (op: any) =>
     packages.filter(p => op.dbNames.some((n: string) => (p.operator || '').toLowerCase().includes(n))).length;
