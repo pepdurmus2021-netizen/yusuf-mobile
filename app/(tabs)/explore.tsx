@@ -218,8 +218,7 @@ export default function ExploreScreen() {
   const [opId, setOpId]               = useState<string | null>(null);
   const [phone, setPhone]             = useState('');
   const [detectedOp, setDetectedOp]   = useState<string | null>(null);
-  const [selCountry, setSelCountry]   = useState<'turk' | 'afgan'>('turk');
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [selCountry, setSelCountry]   = useState<CountryKey>('turk');
   const [phoneError, setPhoneError]   = useState('');
   const [marketMode, setMarketMode]   = useState<'phone' | 'game'>('phone');
   const [selPkg, setSelPkg]           = useState<any>(null);
