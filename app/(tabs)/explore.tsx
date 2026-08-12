@@ -373,7 +373,7 @@ export default function ExploreScreen() {
       { key: 'afgan', flag: '🇦🇫', name: t('explore.afghanistan'), code: '+93' },
     ];
     const activeCountry = countries.find(c => c.key === selCountry)!;
-    const phonePlaceholder = selCountry === 'afgan' ? '7XX XXX XXX' : selCountry === 'iran' ? '9XX XXX XXXX' : '5XX XXX XX XX';
+    const phonePlaceholder = selCountry === 'afgan' ? '7XX XXX XXX' : selCountry === 'iran' ? '9XX XXX XXX' : '5XX XXX XX XX';
 
     const onContinue = async () => {
       const found = detectOperator(phone.replace(/\D/g, ''), selCountry);
