@@ -133,6 +133,15 @@ function detectOperator(localDigits: string, country: CountryKey): string | null
   return null;
 }
 
+// Uygun paket sorgusu ~15sn sürüyor — beklerken sıkılmasın diye kayan mesajlar
+const LOADING_STEPS = [
+  'explore.checkingStep1',
+  'explore.checkingStep2',
+  'explore.checkingStep3',
+  'explore.checkingStep4',
+  'explore.checkingStep5',
+];
+
 // Hata kodunu kullanıcı dostu Türkçe mesaja çevir
 function orderErrorMessage(err: OrderError): string {
   switch (err.code) {
