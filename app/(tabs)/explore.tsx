@@ -529,7 +529,7 @@ export default function ExploreScreen() {
                     </>
                   ) : (
                     <>
-                      <Text style={s.confirmTxt}>{t('explore.continue')}</Text>
+                      <Text style={s.confirmTxt} numberOfLines={1}>{t('explore.continue')}</Text>
                       <Ionicons name="arrow-forward" size={18} color="#fff" />
                     </>
                   )}
