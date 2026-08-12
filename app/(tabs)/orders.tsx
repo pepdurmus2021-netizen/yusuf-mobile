@@ -303,7 +303,7 @@ export default function OrdersScreen() {
                 </LinearGradient>
               )}
               <View style={s.cardBody}>
-                <Text style={s.cardPkg} numberOfLines={1}>{item.package?.name_tr || t('orders.defaultPackage')}</Text>
+                <Text style={s.cardPkg} numberOfLines={1}>{item.package_name_tr || item.package?.name_tr || t('orders.defaultPackage')}</Text>
                 <Text style={s.cardPhone}>{item.phone_number || '—'}</Text>
                 <Text style={s.cardDate}>{safeDate(item.created_at)}</Text>
               </View>
