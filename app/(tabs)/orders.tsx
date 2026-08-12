@@ -79,8 +79,8 @@ function generateReceiptHtml(order: any, forPrint = false): string {
   const orderId = (order.id || '').toString().toUpperCase().slice(-10);
   const date = safeDateFull(order.created_at);
   const phone = order.phone_number || '—';
-  const pkg = order.package?.name_tr || 'Paket';
-  const operator = order.package?.operator || '—';
+  const pkg = order.package_name_tr || order.package?.name_tr || 'Paket';
+  const operator = order.package_operator || order.package?.operator || '—';
   const amount = parseFloat(order.satis_fiyati || order.amount || 0).toFixed(2);
 
   return `<!DOCTYPE html>
