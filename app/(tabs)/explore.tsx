@@ -225,6 +225,10 @@ export default function ExploreScreen() {
   const [orderPhone, setOrderPhone]   = useState('');
   const [phoneFocused, setPhoneFocused] = useState(false);
   const [appModal, setAppModal] = useState<{ type: 'success' | 'pending' | 'error'; title: string; message: string } | null>(null);
+  const [checkingEligible, setCheckingEligible] = useState(false);
+  const [eligibleIds, setEligibleIds] = useState<Set<string> | null>(null);
+  const [eligibleNote, setEligibleNote] = useState<string | null>(null);
+  const [showAllOverride, setShowAllOverride] = useState(false);
 
   // İş mantığı — tek kaynak, tasarımdan bağımsız
   const { submitOrder, isLoading: orderLoading, error: orderError, clearError } = useOrderFlow();
