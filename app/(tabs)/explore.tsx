@@ -716,7 +716,7 @@ export default function ExploreScreen() {
               <LinearGradient colors={activeOp?.colors || ['#6366f1', '#8b5cf6']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                 {orderLoading
                   ? <ActivityIndicator color="#fff" size="small" />
-                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={s.confirmTxt}>{t('explore.confirmOrder')}</Text></>
+                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={s.confirmTxt} numberOfLines={1}>{t('explore.confirmOrder')}</Text></>
                 }
               </LinearGradient>
             </TouchableOpacity>
