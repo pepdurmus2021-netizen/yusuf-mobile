@@ -355,7 +355,7 @@ export default function ExploreScreen() {
         <View style={s.hDecor1} /><View style={s.hDecor2} />
         <View style={s.hRow}>
           <View style={{ flex: 1 }}>
-            <Text style={s.hTitle}>{t('explore.loadAndBuy')}</Text>
+            <Text style={s.hTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{t('explore.loadAndBuy')}</Text>
           </View>
         </View>
       </LinearGradient>
