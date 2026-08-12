@@ -129,7 +129,7 @@ type CountryKey = 'turk' | 'afgan' | 'iran';
 function detectOperator(localDigits: string, country: CountryKey): string | null {
   if (country === 'turk')  return TURKEY_OPERATORS.find(o => o.prefixes.includes(localDigits.slice(0, 3)))?.id || null;
   if (country === 'afgan') return AFGHAN_OPERATORS.find(o => o.prefixes.includes(localDigits.slice(0, 2)))?.id || null;
-  if (country === 'iran')  return IRAN_OPERATORS.find(o => o.prefixes.includes(localDigits.slice(0, 3)))?.id || null;
+  if (country === 'iran')  return IRAN_OPERATORS.find(o => o.prefixes.includes(localDigits.slice(0, 2)))?.id || null;
   return null;
 }
 
