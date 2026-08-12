@@ -367,8 +367,8 @@ export default function OrdersScreen() {
                       <Ionicons name={cfg.icon as any} size={22} color="#fff" />
                     </LinearGradient>
                     <View style={{ flex: 1 }}>
-                      <Text style={s.sheetBadgePkg} numberOfLines={1}>{selected.package?.name_tr || t('orders.defaultPackage')}</Text>
-                      <Text style={s.sheetBadgeOp}>{selected.package?.operator || '—'}</Text>
+                      <Text style={s.sheetBadgePkg} numberOfLines={1}>{selected.package_name_tr || selected.package?.name_tr || t('orders.defaultPackage')}</Text>
+                      <Text style={s.sheetBadgeOp}>{selected.package_operator || selected.package?.operator || '—'}</Text>
                     </View>
                     <Text style={s.sheetBadgeAmt}>{parseFloat(selected.amount || 0).toFixed(2)} ₺</Text>
                   </LinearGradient>
