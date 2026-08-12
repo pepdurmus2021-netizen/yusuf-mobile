@@ -631,7 +631,7 @@ export default function ExploreScreen() {
 
             {/* Başlık */}
             <View style={s.sheetTop}>
-              <Text style={s.sheetTitle}>{t('explore.orderSummary')}</Text>
+              <Text style={s.sheetTitle} numberOfLines={1}>{t('explore.orderSummary')}</Text>
               <TouchableOpacity onPress={() => { setSelPkg(null); clearError(); }} style={s.closeBtn}>
                 <Ionicons name="close" size={18} color="#64748b" />
               </TouchableOpacity>
