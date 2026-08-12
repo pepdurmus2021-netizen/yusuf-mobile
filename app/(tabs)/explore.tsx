@@ -14,6 +14,14 @@ import AppModal from '../../components/AppModal';
 import { groupPackagesBySubCategory, getSubCategoryOrder, getSubCategoryLabel } from '../../lib/categories';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
+import { API_URL, apiFetch } from '../../lib/config';
+
+// PayStore TopUpPackageQuery operatör parametresi — sadece Türkiye operatörleri destekleniyor
+const ELIGIBLE_QUERY_OPERATOR: Record<string, string> = {
+  turkcell: 'Turkcell',
+  vodafone: 'Vodafone',
+  turktelekom: 'TurkTelekom',
+};
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
