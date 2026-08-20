@@ -312,7 +312,7 @@ export default function ProfileScreen() {
             <Text style={s.groupTitle}>{t('reports.groupTitle')}</Text>
           </View>
           <View style={s.group}>
-            <MenuItem icon="bar-chart-outline" color="#6366f1" label={t('reports.title')} onPress={() => router.push('/reports')} last />
+            <MenuItem icon="bar-chart-outline" color="#6366f1" label={t('reports.title')} onPress={() => router.push('/reports' as any)} last />
           </View>
 
           {/* HESAP */}
