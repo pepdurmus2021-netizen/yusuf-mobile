@@ -182,7 +182,7 @@ export default function ReportsScreen() {
           return (
             <View style={st.card}>
               <View style={st.cardBody}>
-                <Text style={st.cardTitle}>{t(`reports.ledgerType.${item.type}`, item.type)}</Text>
+                <Text style={st.cardTitle}>{t(`reports.ledgerType.${item.type}` as any, { defaultValue: item.type })}</Text>
                 {isAnaBayi && <Text style={st.cardSub}>{item.user?.firma_adi || item.user?.name || '—'}</Text>}
                 <Text style={st.cardDate}>{safeDateFull(item.created_at)}</Text>
               </View>
