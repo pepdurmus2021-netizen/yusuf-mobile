@@ -306,6 +306,15 @@ export default function ProfileScreen() {
 
         <View style={s.content}>
 
+          {/* RAPORLAMA */}
+          <View style={s.groupHead}>
+            <Ionicons name="bar-chart-outline" size={13} color="#94a3b8" />
+            <Text style={s.groupTitle}>{t('reports.groupTitle')}</Text>
+          </View>
+          <View style={s.group}>
+            <MenuItem icon="bar-chart-outline" color="#6366f1" label={t('reports.title')} onPress={() => router.push('/reports')} last />
+          </View>
+
           {/* HESAP */}
           <View style={s.groupHead}>
             <Ionicons name="settings-outline" size={13} color="#94a3b8" />
