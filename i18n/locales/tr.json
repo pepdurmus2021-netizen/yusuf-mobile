@@ -265,5 +265,29 @@
     "title": "Fotoğrafı Düzenle",
     "drag": "Kaydır",
     "pinch": "Sıkıştır / Aç"
+  },
+  "reports": {
+    "groupTitle": "RAPORLAMA",
+    "title": "Raporlama",
+    "empty": "Kayıt bulunamadı",
+    "lastNDays": "Son {{count}} gün",
+    "tabOrders": "Siparişler",
+    "tabBills": "Fatura",
+    "tabBalance": "Bakiye",
+    "orderCount": "Sipariş Sayısı",
+    "totalRevenue": "Toplam Ciro",
+    "billTotal": "Fatura Ödemeleri",
+    "balanceChange": "Net Bakiye",
+    "balanceAfter": "Bakiye",
+    "ledgerType": {
+      "order_debit": "Sipariş Düşümü",
+      "order_refund": "Sipariş İadesi",
+      "balance_request_approved": "Bakiye Talebi Onayı",
+      "transfer_in": "Gelen Transfer",
+      "transfer_out": "Giden Transfer",
+      "admin_adjustment": "Admin Düzenlemesi",
+      "debt_given": "Borç",
+      "debt_collected": "Borç Tahsilatı"
+    }
   }
 }
