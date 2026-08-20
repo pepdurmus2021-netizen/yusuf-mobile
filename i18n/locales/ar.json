@@ -265,5 +265,29 @@
     "title": "تعديل الصورة",
     "drag": "اسحب",
     "pinch": "قرّب / بعّد"
+  },
+  "reports": {
+    "groupTitle": "التقارير",
+    "title": "التقارير",
+    "empty": "لم يتم العثور على سجلات",
+    "lastNDays": "آخر {{count}} يوم",
+    "tabOrders": "الطلبات",
+    "tabBills": "الفواتير",
+    "tabBalance": "الرصيد",
+    "orderCount": "عدد الطلبات",
+    "totalRevenue": "إجمالي الإيرادات",
+    "billTotal": "مدفوعات الفواتير",
+    "balanceChange": "صافي الرصيد",
+    "balanceAfter": "الرصيد",
+    "ledgerType": {
+      "order_debit": "خصم الطلب",
+      "order_refund": "استرداد الطلب",
+      "balance_request_approved": "الموافقة على طلب الرصيد",
+      "transfer_in": "تحويل وارد",
+      "transfer_out": "تحويل صادر",
+      "admin_adjustment": "تعديل الإدارة",
+      "debt_given": "دين",
+      "debt_collected": "تحصيل دين"
+    }
   }
 }
