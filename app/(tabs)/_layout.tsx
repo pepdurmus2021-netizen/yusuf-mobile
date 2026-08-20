@@ -77,9 +77,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="orders"
         options={{
-          title: t('tabs.orders'),
-          tabBarIcon: ({ focused }) => <TabIcon name="stats-chart" focused={focused} />,
-          tabBarItemStyle: isAnaBayi ? { display: 'none' } : {},
+          href: null,
         }}
       />
       <Tabs.Screen
