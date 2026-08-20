@@ -265,5 +265,29 @@
     "title": "ویرایش عکس",
     "drag": "بکشید",
     "pinch": "فشرده / باز کنید"
+  },
+  "reports": {
+    "groupTitle": "گزارش‌ها",
+    "title": "گزارش‌ها",
+    "empty": "رکوردی یافت نشد",
+    "lastNDays": "{{count}} روز اخیر",
+    "tabOrders": "سفارش‌ها",
+    "tabBills": "قبض",
+    "tabBalance": "موجودی",
+    "orderCount": "تعداد سفارش",
+    "totalRevenue": "درآمد کل",
+    "billTotal": "پرداخت قبض",
+    "balanceChange": "خالص موجودی",
+    "balanceAfter": "موجودی",
+    "ledgerType": {
+      "order_debit": "کسر سفارش",
+      "order_refund": "بازگشت سفارش",
+      "balance_request_approved": "تأیید درخواست موجودی",
+      "transfer_in": "انتقال ورودی",
+      "transfer_out": "انتقال خروجی",
+      "admin_adjustment": "تنظیم مدیر",
+      "debt_given": "بدهی",
+      "debt_collected": "وصول بدهی"
+    }
   }
 }
