@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 const supabaseUrl = 'https://wstawtccbxkhujhupukd.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzdGF3dGNjYnhraHVqaHVwdWtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NDI1MTAsImV4cCI6MjA4NjIxODUxMH0.byQIXLbDYQBQvBaRDgaxHs6RMTx_U-CsnRDrMQ0Vhxk';
+const supabaseAnonKey = 'sb_publishable_YfGtqP61Kd952kYP5AAUjg_ytfZBLQy';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
