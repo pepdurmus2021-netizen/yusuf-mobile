@@ -112,10 +112,13 @@ export default function ProfileScreen() {
     if (!user?.id) return;
     setPassLoading(true);
     try {
-      await apiFetch(`${API_URL}/api/me/password`, token, {
+      const res = await apiFetch(`${API_URL}/api/me/password`, token, {
         method: 'PUT',
         body: JSON.stringify({ current_password: currentPass, new_password: newPass }),
       });
+      // Backend şifre değişince eski token'ı geçersiz kılıyor (token_version) —
+      // response'taki yeni token'ı kaydetmezsek kullanıcı kendi oturumundan da düşer.
+      if (res?.token && user) await login(res.token, user);
       setPassModal(false); setCurrentPass(''); setNewPass(''); setConfirmPass('');
       setAppModal({ type: 'success', title: t('profile.successTitle'), message: t('profile.passwordChangedMessage') });
     } catch (e: any) { setAppModal({ type: 'error', title: t('common.error'), message: e?.message || t('profile.passwordChangeFailed') }); }
