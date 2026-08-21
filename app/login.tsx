@@ -65,8 +65,7 @@ export default function LoginScreen() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Language': i18n.language || 'tr' },
           body: JSON.stringify({
-            email: session.user.email,
-            name: session.user.user_metadata?.full_name || session.user.email.split('@')[0]
+            access_token: session.access_token,
           }),
         });
         const resData = await response.json();
