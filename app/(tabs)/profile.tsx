@@ -32,7 +32,7 @@ const LANGUAGE_FLAGS: Record<SupportedLanguage, any> = {
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
-  const { user, token, logout, updateUser } = useAuth();
+  const { user, token, logout, updateUser, login } = useAuth();
   const [photo, setPhoto] = useState<string | null>(null);
   const [languageLoading, setLanguageLoading] = useState(false);
 
