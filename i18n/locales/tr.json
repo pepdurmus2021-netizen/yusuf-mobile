@@ -265,14 +265,6 @@
     "home": "Ana Sayfa",
     "orders": "Siparişler"
   },
-  "legacyHome": {
-    "title": "Ana Sayfa",
-    "welcome": "Hoş geldiniz!"
-  },
-  "legacyModal": {
-    "title": "Bu bir modal",
-    "goHome": "Ana sayfaya git"
-  },
   "crop": {
     "title": "Fotoğrafı Düzenle",
     "drag": "Kaydır",
