@@ -26,6 +26,16 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Kayıt e-posta doğrulama akışı: signUp sonrası hesap Supabase'de "unconfirmed"
+  // kalır, kullanıcı mailine gelen 6 haneli kodu girmeden giriş yapamaz.
+  const [verifyStep, setVerifyStep] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [pendingName, setPendingName] = useState('');
+  const [pendingPhone, setPendingPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
   useEffect(() => {
     if (currentToken) router.replace('/(tabs)');
   }, [currentToken]);
@@ -43,15 +53,48 @@ export default function LoginScreen() {
         router.replace('/(tabs)');
       } else {
         if (!name) return Alert.alert(t('common.error'), t('login.nameRequired'));
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        const uid = data.user!.id;
-        await supabase.from('users').insert([{ id: uid, name, email, phone: phone || '', country: 'TR', role: 'user', balance: 0, currency: 'TRY' }]);
-        Alert.alert(t('login.registerSuccessTitle'), t('login.registerSuccessMessage'));
-        setTab('login');
+        // Hesap oluştu ama Supabase'de "unconfirmed" durumda — public.users'a burada
+        // yazmıyoruz, doğrulama koduyla onaylandıktan sonra handleVerifyCode yazacak.
+        setPendingEmail(email);
+        setPendingName(name);
+        setPendingPhone(phone);
+        setVerifyStep(true);
       }
     } catch (e: any) { Alert.alert(t('common.error'), e?.message || t('login.actionFailed')); }
     finally { setLoading(false); }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!code || code.length < 6) return Alert.alert(t('common.error'), t('login.codeRequired'));
+    setVerifyLoading(true);
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({ email: pendingEmail, token: code, type: 'signup' });
+      if (error) throw error;
+      const session = data.session!;
+      const uid = session.user.id;
+      // upsert + ignoreDuplicates: on_auth_user_created trigger'ı zaten bir satır
+      // oluşturmuş olabilir, burada sadece isim/telefon eksikse tamamlıyoruz.
+      await supabase.from('users').upsert(
+        [{ id: uid, name: pendingName, email: pendingEmail, phone: pendingPhone || '', country: 'TR', role: 'user', balance: 0, currency: 'TRY' }],
+        { onConflict: 'id', ignoreDuplicates: true }
+      );
+      const { data: userData } = await supabase.from('users').select('*').eq('id', uid).single();
+      await login(session.access_token, userData || { id: uid, name: pendingName, email: pendingEmail, phone: pendingPhone || '', balance: 0, currency: 'TRY', role: 'user' });
+      router.replace('/(tabs)');
+    } catch (e: any) { Alert.alert(t('common.error'), e?.message || t('login.codeInvalid')); }
+    finally { setVerifyLoading(false); }
+  };
+
+  const handleResendCode = async () => {
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({ type: 'signup', email: pendingEmail });
+      if (error) throw error;
+      Alert.alert(t('login.codeResentTitle'), t('login.codeResentMessage'));
+    } catch (e: any) { Alert.alert(t('common.error'), e?.message || t('login.actionFailed')); }
+    finally { setResendLoading(false); }
   };
 
   return (
