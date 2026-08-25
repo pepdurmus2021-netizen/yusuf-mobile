@@ -17,7 +17,17 @@
     "nameRequired": "نام و نام خانوادگی الزامی است",
     "registerSuccessTitle": "موفقیت",
     "registerSuccessMessage": "ثبت‌نام انجام شد. می‌توانید وارد شوید.",
-    "actionFailed": "عملیات ناموفق بود"
+    "actionFailed": "عملیات ناموفق بود",
+    "codeRequired": "لطفاً کد ۶ رقمی را وارد کنید.",
+    "codeInvalid": "کد نامعتبر یا منقضی شده است.",
+    "codeResentTitle": "کد ارسال شد",
+    "codeResentMessage": "کد تأیید جدید به ایمیل شما ارسال شد.",
+    "backToRegister": "بازگشت",
+    "verifyTitle": "ایمیل خود را تأیید کنید",
+    "verifyDesc": "یک کد تأیید ۶ رقمی به {{email}} ارسال کردیم. کد را وارد کنید تا حساب شما فعال شود.",
+    "codePlaceholder": "کد ۶ رقمی",
+    "verifyButton": "تأیید و ورود",
+    "resendCode": "ارسال مجدد کد"
   },
   "profile": {
     "title": "پروفایل من",

@@ -17,7 +17,17 @@
     "nameRequired": "الاسم الكامل مطلوب",
     "registerSuccessTitle": "تم بنجاح",
     "registerSuccessMessage": "تم التسجيل بنجاح. يمكنك تسجيل الدخول الآن.",
-    "actionFailed": "فشلت العملية"
+    "actionFailed": "فشلت العملية",
+    "codeRequired": "الرجاء إدخال الرمز المكون من 6 أرقام.",
+    "codeInvalid": "الرمز غير صالح أو منتهي الصلاحية.",
+    "codeResentTitle": "تم إرسال الرمز",
+    "codeResentMessage": "تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني.",
+    "backToRegister": "رجوع",
+    "verifyTitle": "تحقق من بريدك الإلكتروني",
+    "verifyDesc": "أرسلنا رمز تحقق مكون من 6 أرقام إلى {{email}}. أدخل الرمز لتفعيل حسابك.",
+    "codePlaceholder": "رمز مكون من 6 أرقام",
+    "verifyButton": "تحقق وتسجيل الدخول",
+    "resendCode": "إعادة إرسال الرمز"
   },
   "profile": {
     "title": "ملفي الشخصي",

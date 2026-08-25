@@ -17,7 +17,17 @@
     "nameRequired": "Ad soyad zorunlu",
     "registerSuccessTitle": "Başarılı",
     "registerSuccessMessage": "Kayıt olundu. Giriş yapabilirsiniz.",
-    "actionFailed": "İşlem başarısız"
+    "actionFailed": "İşlem başarısız",
+    "codeRequired": "Lütfen 6 haneli kodu girin.",
+    "codeInvalid": "Kod geçersiz veya süresi dolmuş.",
+    "codeResentTitle": "Kod Gönderildi",
+    "codeResentMessage": "Yeni doğrulama kodu e-postanıza gönderildi.",
+    "backToRegister": "Geri dön",
+    "verifyTitle": "E-postanı Doğrula",
+    "verifyDesc": "{{email}} adresine 6 haneli bir doğrulama kodu gönderdik. Kodu girip hesabını aktif et.",
+    "codePlaceholder": "6 haneli kod",
+    "verifyButton": "Doğrula ve Giriş Yap",
+    "resendCode": "Kodu tekrar gönder"
   },
   "profile": {
     "title": "Profilim",
