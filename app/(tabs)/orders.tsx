@@ -13,6 +13,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { WebView } from 'react-native-webview';
 import { useTranslation } from 'react-i18next';
+import { BRAND } from '../../config/brand';
 import i18n from '../../i18n';
 
 const ALL_OPERATORS = [
