@@ -432,7 +432,7 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={15} color="#ef4444" />
           </TouchableOpacity>
 
-          <Text style={s.version}>Yusuf Telecom v1.0.0</Text>
+          <Text style={s.version}>BWP v1.0.0</Text>
         </View>
         <View style={{ height: 100 }} />
       </ScrollView>
