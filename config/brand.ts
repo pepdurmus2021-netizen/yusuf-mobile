@@ -26,11 +26,12 @@ export const BRAND = {
 //    Play Store/App Store'a hiç yayınlanmadıysa değiştir. Yayınlandıktan
 //    sonra bunu değiştirmek yeni bir uygulama olarak sayılır (eski
 //    kullanıcılar güncelleme alamaz, sıfırdan kurulum gerekir).
-// 3. app.json → "scheme" — Google OAuth redirect URI'si buna bağlı,
-//    değiştirirsen Supabase Dashboard → Authentication → URL Configuration
-//    → Redirect URLs listesine yeni "{scheme}://login" değerini eklemen
-//    ve login.tsx'teki AuthSession.makeRedirectUri({ scheme: '...' })
-//    değerini eşitlemen gerekir.
+// 3. app.json → "scheme" — BİLİNÇLİ OLARAK MARKA ADINDAN BAĞIMSIZ TUTULUYOR
+//    ("bwpauth", sabit). Google OAuth redirect'i buna bağlı olduğu için
+//    her rebrand'de değiştirilirse Supabase Dashboard'daki Redirect URL
+//    listesini de güncellemek gerekirdi — bu tekrarlayan baş ağrısını
+//    önlemek için scheme marka adından ayrıldı. REBRAND'DE BU SATIRA
+//    DOKUNMA, hep "bwpauth" kalsın.
 // 4. assets/images/icon.png, android-icon-foreground.png, splash-icon.png,
 //    favicon.png — uygulama ikonu/splash görseli (grafik dosyalar, kod değil)
 // ============================================================
