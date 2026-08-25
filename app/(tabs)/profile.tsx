@@ -16,6 +16,7 @@ import AppModal from '../../components/AppModal';
 import { useTranslation } from 'react-i18next';
 import { applyRTLIfNeeded, reloadApp } from '../../lib/rtl';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../i18n';
+import { BRAND } from '../../config/brand';
 import { TR as FLAG_TR, AF as FLAG_AF, SA as FLAG_SA } from 'react-native-flags/flags/flat/64';
 
 const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
