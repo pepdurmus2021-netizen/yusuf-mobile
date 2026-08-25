@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { API_URL } from '../lib/config';
+import { BRAND } from '../config/brand';
 import { useFonts, Orbitron_900Black } from '@expo-google-fonts/orbitron';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
