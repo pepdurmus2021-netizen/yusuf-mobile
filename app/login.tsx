@@ -109,22 +109,6 @@ export default function LoginScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerTxt}>{t('login.or')}</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <TouchableOpacity onPress={handleGoogleLogin} disabled={googleLoading || loading} style={styles.googleBtn}>
-              {googleLoading
-                ? <ActivityIndicator color="#6366f1" />
-                : <>
-                    <View style={styles.googleIconWrap}><Ionicons name="logo-google" size={16} color="#6366f1" /></View>
-                    <Text style={styles.googleTxt}>{t('login.continueWithGoogle')}</Text>
-                  </>
-              }
-            </TouchableOpacity>
-
           </View>
 
           <View style={{ height: 40 }} />
