@@ -105,7 +105,7 @@ export default function LoginScreen() {
     try {
       const redirectTo = Platform.OS === 'web'
         ? window.location.origin + '/login'
-        : AuthSession.makeRedirectUri({ scheme: 'hasiptech', path: 'login' });
+        : AuthSession.makeRedirectUri({ scheme: Constants.expoConfig?.scheme as string, path: 'login' });
 
       if (Platform.OS === 'web') {
         const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
