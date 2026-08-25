@@ -121,8 +121,8 @@ function generateReceiptHtml(order: any, forPrint = false): string {
 <body>
 <div class="page">
   <div class="header">
-    <div class="brand">TECH TELEKOMUNIKASYON YAZILIM</div>
-    <div class="brand-name">Hasip Tech</div>
+    <div class="brand">${BRAND.legalCompanyName}</div>
+    <div class="brand-name">${BRAND.displayName}</div>
     <div class="brand-sub">Yükleme Dekontu</div>
   </div>
   <div class="body">
