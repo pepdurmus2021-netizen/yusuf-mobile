@@ -419,8 +419,8 @@ export default function ProfileScreen() {
             <Text style={s.groupTitle}>{t('profile.supportGroupTitle')}</Text>
           </View>
           <View style={s.group}>
-            <MenuItem icon="logo-whatsapp"       color="#25D366" label={t('profile.whatsappSupport')}       onPress={() => Linking.openURL('https://wa.me/905069690724')} />
-            <MenuItem icon="mail-outline"        color="#0ea5e9" label={t('profile.sendEmail')}        onPress={() => Linking.openURL('mailto:destek@yusufmobile.com')} />
+            <MenuItem icon="logo-whatsapp"       color="#25D366" label={t('profile.whatsappSupport')}       onPress={() => Linking.openURL(`https://wa.me/${BRAND.supportWhatsapp}`)} />
+            <MenuItem icon="mail-outline"        color="#0ea5e9" label={t('profile.sendEmail')}        onPress={() => Linking.openURL(`mailto:${BRAND.supportEmail}`)} />
             <MenuItem icon="help-circle-outline" color="#8b5cf6" label={t('profile.faq')} onPress={() => setInfoModal('faq')} last />
           </View>
 
