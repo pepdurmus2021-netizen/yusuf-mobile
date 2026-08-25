@@ -183,11 +183,4 @@ const styles = StyleSheet.create({
   submitBtn: { padding: 16, borderRadius: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 },
   submitTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 
-  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 18, gap: 10 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#e2e8f0' },
-  dividerTxt: { fontSize: 12, color: '#94a3b8', fontWeight: '600' },
-
-  googleBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', borderRadius: 14, padding: 14, borderWidth: 1.5, borderColor: '#e2e8f0', gap: 10 },
-  googleIconWrap: { width: 28, height: 28, borderRadius: 8, backgroundColor: '#ede9fe', justifyContent: 'center', alignItems: 'center' },
-  googleTxt: { fontSize: 14, fontWeight: '700', color: '#1e293b' },
 });
