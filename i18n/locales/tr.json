@@ -34,6 +34,18 @@
     "editInfo": "Bilgilerimi Düzenle",
     "changePassword": "Şifre Değiştir",
     "security": "Güvenlik",
+    "securityTips": [
+      "Şifrenizi kimseyle paylaşmayın, admin veya destek ekibi asla şifrenizi sormaz.",
+      "Hesabınıza her girişten sonra oturumu güvenli cihazlarda açık bırakmayın.",
+      "Şüpheli bir işlem (bilmediğiniz bir sipariş/bakiye hareketi) görürseniz hemen şifrenizi değiştirin ve destek ekibine bildirin.",
+      "Güçlü bir şifre kullanın (en az 8 karakter, harf+rakam karışık)."
+    ],
+    "faqItems": [
+      { "q": "Sipariş sonucunu ne zaman öğrenirim?", "a": "Sipariş verdikten sonra durumu Siparişlerim sayfasından takip edebilirsiniz, işlem genelde birkaç saniye içinde tamamlanır." },
+      { "q": "Bakiye talebim ne zaman onaylanır?", "a": "Bakiye talepleri admin ekibi tarafından kontrol edilip onaylanır, genellikle kısa süre içinde sonuçlanır." },
+      { "q": "Şifremi unuttum, ne yapmalıyım?", "a": "Giriş ekranındaki \"Şifremi Unuttum\" bağlantısını kullanarak e-posta adresinize sıfırlama bağlantısı gönderebilirsiniz." },
+      { "q": "Yanlış numaraya sipariş verdim, ne yapmalıyım?", "a": "Hemen WhatsApp veya e-posta ile destek ekibimize ulaşın, durumu birlikte değerlendirelim." }
+    ],
     "languageTitle": "DİL",
     "announcementsGroupTitle": "DUYURULAR",
     "announcementsTitle": "Duyurular",
