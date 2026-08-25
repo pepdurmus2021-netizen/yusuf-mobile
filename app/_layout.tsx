@@ -64,11 +64,11 @@ function SplashScreen() {
       <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }], alignItems: 'center' }}>
         {/* Logo kutusu */}
         <Animated.View style={[splash.logoBox, { opacity: glowOpacity }]}>
-          <Text style={splash.logoText}>BWP</Text>
+          <Text style={splash.logoText}>HT</Text>
         </Animated.View>
 
         {/* İsim */}
-        <Text style={splash.title}>bayiwebpanel</Text>
+        <Text style={splash.title}>Hasip Tech</Text>
         <Text style={splash.subtitle}>Bayi Yönetim Sistemi</Text>
 
         {/* Nokta animasyonu */}
