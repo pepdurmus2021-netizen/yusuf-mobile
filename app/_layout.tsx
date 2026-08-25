@@ -5,6 +5,7 @@ import { Animated, View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { I18nextProvider } from 'react-i18next';
 import i18n, { initI18n } from '../i18n';
+import { BRAND } from '../config/brand';
 
 function AuthGuard() {
   const { token, loading } = useAuth();
