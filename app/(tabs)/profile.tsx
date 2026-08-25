@@ -369,7 +369,7 @@ export default function ProfileScreen() {
           <View style={s.group}>
             <MenuItem icon="person-outline"           color="#6366f1" label={t('profile.editInfo')}   onPress={openEdit} />
             <MenuItem icon="lock-closed-outline"      color="#10b981" label={t('profile.changePassword')}         onPress={() => setPassModal(true)} />
-            <MenuItem icon="shield-checkmark-outline" color="#f59e0b" label={t('profile.security')}               last />
+            <MenuItem icon="shield-checkmark-outline" color="#f59e0b" label={t('profile.security')} onPress={() => setInfoModal('security')} last />
           </View>
 
           {/* DİL */}
