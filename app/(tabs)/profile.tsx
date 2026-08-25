@@ -204,6 +204,57 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
+      {/* GÜVENLİK / SSS BİLGİ MODALI */}
+      <Modal visible={!!infoModal} transparent animationType="slide" onRequestClose={() => setInfoModal(null)}>
+        <View style={s.annOverlay}>
+          <View style={s.annSheet}>
+            <LinearGradient colors={infoModal === 'security' ? ['#f59e0b', '#d97706'] : ['#8b5cf6', '#7c3aed']} style={s.annHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Ionicons name={infoModal === 'security' ? 'shield-checkmark' : 'help-circle'} size={20} color="white" />
+                <Text style={s.annHeaderTitle}>{t(infoModal === 'security' ? 'profile.security' : 'profile.faq')}</Text>
+              </View>
+              <TouchableOpacity onPress={() => setInfoModal(null)} style={s.annClose}>
+                <Ionicons name="close" size={20} color="white" />
+              </TouchableOpacity>
+            </LinearGradient>
+            <ScrollView style={{ maxHeight: 420 }} contentContainerStyle={{ padding: 16, gap: 12 }}>
+              {infoModal === 'security' ? (
+                <>
+                  {(t('profile.securityTips', { returnObjects: true }) as string[]).map((tip, i) => (
+                    <View key={i} style={s.annCard}>
+                      <View style={s.annCardIcon}>
+                        <Ionicons name="checkmark-circle" size={16} color="#f59e0b" />
+                      </View>
+                      <Text style={[s.annCardMsg, { flex: 1 }]}>{tip}</Text>
+                    </View>
+                  ))}
+                  <TouchableOpacity
+                    style={[s.optBtn, { marginTop: 4 }]}
+                    onPress={() => { setInfoModal(null); setPassModal(true); }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[s.optIcon, { backgroundColor: '#fef3c7' }]}>
+                      <Ionicons name="lock-closed-outline" size={20} color="#f59e0b" />
+                    </View>
+                    <Text style={s.optBtnTxt}>{t('profile.changePassword')}</Text>
+                    <Ionicons name="chevron-forward" size={16} color="#cbd5e1" />
+                  </TouchableOpacity>
+                </>
+              ) : (
+                (t('profile.faqItems', { returnObjects: true }) as { q: string; a: string }[]).map((item, i) => (
+                  <View key={i} style={s.annCard}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.annCardTitle}>{item.q}</Text>
+                      <Text style={s.annCardMsg}>{item.a}</Text>
+                    </View>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       {/* FOTOĞRAF SEÇENEK MODALI */}
       <Modal visible={photoOptions} transparent animationType="slide" onRequestClose={() => setPhotoOptions(false)}>
         <TouchableOpacity style={s.optOverlay} activeOpacity={1} onPress={() => setPhotoOptions(false)}>
