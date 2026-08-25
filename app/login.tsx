@@ -116,42 +116,70 @@ export default function LoginScreen() {
 
           {/* KART */}
           <View style={styles.card}>
-
-            {/* TAB */}
-            <View style={styles.tabRow}>
-              <TouchableOpacity onPress={() => setTab('login')} style={[styles.tabBtn, tab === 'login' && styles.tabBtnActive]}>
-                <Text style={[styles.tabTxt, tab === 'login' && styles.tabTxtActive]}>{t('login.loginTab')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setTab('register')} style={[styles.tabBtn, tab === 'register' && styles.tabBtnActive]}>
-                <Text style={[styles.tabTxt, tab === 'register' && styles.tabTxtActive]}>{t('login.registerTab')}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {tab === 'register' && (
+            {verifyStep ? (
               <>
-                <Field icon="person-outline" placeholder={t('login.namePlaceholder')} value={name} onChangeText={setName} />
-                <Field icon="call-outline" placeholder={t('login.phonePlaceholder')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+                <TouchableOpacity onPress={() => setVerifyStep(false)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
+                  <Ionicons name="arrow-back" size={16} color="#6366f1" />
+                  <Text style={{ color: '#6366f1', fontWeight: '700', fontSize: 13 }}>{t('login.backToRegister')}</Text>
+                </TouchableOpacity>
+                <Text style={styles.verifyTitle}>{t('login.verifyTitle')}</Text>
+                <Text style={styles.verifyDesc}>{t('login.verifyDesc', { email: pendingEmail })}</Text>
+
+                <Field icon="key-outline" placeholder={t('login.codePlaceholder')} value={code} onChangeText={setCode} keyboardType="number-pad" />
+
+                <TouchableOpacity onPress={handleVerifyCode} disabled={verifyLoading} style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4 }}>
+                  <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.submitBtn}>
+                    {verifyLoading
+                      ? <ActivityIndicator color="#fff" />
+                      : <><Ionicons name="checkmark-circle" size={18} color="#fff" /><Text style={styles.submitTxt}>{t('login.verifyButton')}</Text></>
+                    }
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={handleResendCode} disabled={resendLoading} style={{ marginTop: 16, alignItems: 'center' }}>
+                  <Text style={{ color: '#94a3b8', fontWeight: '700', fontSize: 13 }}>
+                    {resendLoading ? t('common.loading') : t('login.resendCode')}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                {/* TAB */}
+                <View style={styles.tabRow}>
+                  <TouchableOpacity onPress={() => setTab('login')} style={[styles.tabBtn, tab === 'login' && styles.tabBtnActive]}>
+                    <Text style={[styles.tabTxt, tab === 'login' && styles.tabTxtActive]}>{t('login.loginTab')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setTab('register')} style={[styles.tabBtn, tab === 'register' && styles.tabBtnActive]}>
+                    <Text style={[styles.tabTxt, tab === 'register' && styles.tabTxtActive]}>{t('login.registerTab')}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {tab === 'register' && (
+                  <>
+                    <Field icon="person-outline" placeholder={t('login.namePlaceholder')} value={name} onChangeText={setName} />
+                    <Field icon="call-outline" placeholder={t('login.phonePlaceholder')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+                  </>
+                )}
+
+                <Field icon="mail-outline" placeholder={t('login.emailPlaceholder')} value={email} onChangeText={setEmail} autoCapitalize="none" />
+
+                <View style={{ position: 'relative' }}>
+                  <Field icon="lock-closed-outline" placeholder={t('login.passwordPlaceholder')} value={password} onChangeText={setPassword} secure={!showPassword} />
+                  <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
+                    <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={18} color="#94a3b8" />
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity onPress={handleSubmit} disabled={loading} style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4 }}>
+                  <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.submitBtn}>
+                    {loading
+                      ? <ActivityIndicator color="#fff" />
+                      : <><Ionicons name="flash" size={18} color="#fff" /><Text style={styles.submitTxt}>{tab === 'login' ? t('login.loginTab') : t('login.registerTab')}</Text></>
+                    }
+                  </LinearGradient>
+                </TouchableOpacity>
               </>
             )}
-
-            <Field icon="mail-outline" placeholder={t('login.emailPlaceholder')} value={email} onChangeText={setEmail} autoCapitalize="none" />
-
-            <View style={{ position: 'relative' }}>
-              <Field icon="lock-closed-outline" placeholder={t('login.passwordPlaceholder')} value={password} onChangeText={setPassword} secure={!showPassword} />
-              <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={18} color="#94a3b8" />
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity onPress={handleSubmit} disabled={loading} style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4 }}>
-              <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.submitBtn}>
-                {loading
-                  ? <ActivityIndicator color="#fff" />
-                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={styles.submitTxt}>{tab === 'login' ? t('login.loginTab') : t('login.registerTab')}</Text></>
-                }
-              </LinearGradient>
-            </TouchableOpacity>
-
           </View>
 
           <View style={{ height: 40 }} />
