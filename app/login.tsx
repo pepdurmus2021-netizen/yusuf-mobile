@@ -173,7 +173,7 @@ export default function LoginScreen() {
           {/* LOGO */}
           <View style={styles.logoArea}>
             <View style={styles.bwpLogoWrap}>
-              <Text style={[styles.bwpLetters, !fontsLoaded && { fontFamily: undefined }]}>BWP</Text>
+              <Text style={[styles.bwpLetters, !fontsLoaded && { fontFamily: undefined }]}>HASIP TECH</Text>
             </View>
           </View>
 
