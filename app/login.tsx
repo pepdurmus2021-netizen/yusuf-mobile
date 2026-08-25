@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   },
   bwpGradientWrap: { borderRadius: 20, overflow: 'hidden' },
   bwpGradientBg: { paddingHorizontal: 20, paddingVertical: 8 },
-  bwpLetters: { fontSize: 64, fontFamily: 'Orbitron_900Black', color: '#fff', letterSpacing: 4, textShadowColor: 'rgba(167,139,250,0.9)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 20 },
+  bwpLetters: { fontSize: 34, fontFamily: 'Orbitron_900Black', color: '#fff', letterSpacing: 2, textAlign: 'center', textShadowColor: 'rgba(167,139,250,0.9)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 20 },
   bwpLine: { width: 160, height: 1.5, backgroundColor: 'rgba(255,255,255,0.35)', marginVertical: 8 },
   bwpSub: { fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.75)', letterSpacing: 1 },
   welcomeText: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '600', marginTop: 4 },
