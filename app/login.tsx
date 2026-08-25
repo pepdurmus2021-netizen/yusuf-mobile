@@ -254,4 +254,6 @@ const styles = StyleSheet.create({
   submitBtn: { padding: 16, borderRadius: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 },
   submitTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 
+  verifyTitle: { fontSize: 18, fontWeight: '900', color: '#1e293b', marginBottom: 6 },
+  verifyDesc: { fontSize: 13, color: '#64748b', marginBottom: 18, lineHeight: 19 },
 });
