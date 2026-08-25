@@ -265,14 +265,6 @@
     "home": "خانه",
     "orders": "سفارشات"
   },
-  "legacyHome": {
-    "title": "خانه",
-    "welcome": "خوش آمدید!"
-  },
-  "legacyModal": {
-    "title": "این یک مودال است",
-    "goHome": "رفتن به صفحه اصلی"
-  },
   "crop": {
     "title": "ویرایش عکس",
     "drag": "بکشید",
