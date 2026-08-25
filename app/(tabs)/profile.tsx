@@ -54,6 +54,7 @@ export default function ProfileScreen() {
   const [viewPhoto, setViewPhoto] = useState(false);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [announcementsModal, setAnnouncementsModal] = useState(false);
+  const [infoModal, setInfoModal] = useState<'security' | 'faq' | null>(null);
 
   const photoKey = user?.id ? `profilePhoto_${user.id}` : null;
 
