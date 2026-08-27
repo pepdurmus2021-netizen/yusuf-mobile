@@ -13,6 +13,13 @@ import { BRAND } from '../config/brand';
 import { useFonts, Orbitron_900Black } from '@expo-google-fonts/orbitron';
 import { useTranslation } from 'react-i18next';
 
+// React Native'in Alert.alert'i web'de (Expo web) hiç görünmüyor — bu yüzden
+// hata/bilgi mesajları platforma göre window.alert veya native Alert ile gösterilir.
+function notify(title: string, message: string) {
+  if (Platform.OS === 'web') { window.alert(`${title}\n\n${message}`); return; }
+  Alert.alert(title, message);
+}
+
 export default function LoginScreen() {
   const { t } = useTranslation();
   const { login, token: currentToken } = useAuth();
@@ -41,7 +48,7 @@ export default function LoginScreen() {
   }, [currentToken]);
 
   const handleSubmit = async () => {
-    if (!email || !password) return Alert.alert(t('common.error'), t('login.emailPasswordRequired'));
+    if (!email || !password) return notify(t('common.error'), t('login.emailPasswordRequired'));
     setLoading(true);
     try {
       if (tab === 'login') {
@@ -52,7 +59,7 @@ export default function LoginScreen() {
         await login(session.access_token, userData || { id: session.user.id, name: email.split('@')[0], email, phone: '', balance: 0, currency: 'TRY', role: 'user' });
         router.replace('/(tabs)');
       } else {
-        if (!name) return Alert.alert(t('common.error'), t('login.nameRequired'));
+        if (!name) return notify(t('common.error'), t('login.nameRequired'));
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         // Hesap oluştu ama Supabase'de "unconfirmed" durumda — public.users'a burada
@@ -62,12 +69,12 @@ export default function LoginScreen() {
         setPendingPhone(phone);
         setVerifyStep(true);
       }
-    } catch (e: any) { Alert.alert(t('common.error'), e?.message || t('login.actionFailed')); }
+    } catch (e: any) { notify(t('common.error'), e?.message || t('login.actionFailed')); }
     finally { setLoading(false); }
   };
 
   const handleVerifyCode = async () => {
-    if (!code || code.length < 6) return Alert.alert(t('common.error'), t('login.codeRequired'));
+    if (!code || code.length < 6) return notify(t('common.error'), t('login.codeRequired'));
     setVerifyLoading(true);
     try {
       const { data, error } = await supabase.auth.verifyOtp({ email: pendingEmail, token: code, type: 'signup' });
@@ -83,7 +90,7 @@ export default function LoginScreen() {
       const { data: userData } = await supabase.from('users').select('*').eq('id', uid).single();
       await login(session.access_token, userData || { id: uid, name: pendingName, email: pendingEmail, phone: pendingPhone || '', balance: 0, currency: 'TRY', role: 'user' });
       router.replace('/(tabs)');
-    } catch (e: any) { Alert.alert(t('common.error'), e?.message || t('login.codeInvalid')); }
+    } catch (e: any) { notify(t('common.error'), e?.message || t('login.codeInvalid')); }
     finally { setVerifyLoading(false); }
   };
 
@@ -92,8 +99,8 @@ export default function LoginScreen() {
     try {
       const { error } = await supabase.auth.resend({ type: 'signup', email: pendingEmail });
       if (error) throw error;
-      Alert.alert(t('login.codeResentTitle'), t('login.codeResentMessage'));
-    } catch (e: any) { Alert.alert(t('common.error'), e?.message || t('login.actionFailed')); }
+      notify(t('login.codeResentTitle'), t('login.codeResentMessage'));
+    } catch (e: any) { notify(t('common.error'), e?.message || t('login.actionFailed')); }
     finally { setResendLoading(false); }
   };
 
