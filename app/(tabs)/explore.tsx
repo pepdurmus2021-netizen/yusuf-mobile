@@ -325,8 +325,6 @@ export default function ExploreScreen() {
         amount:       price,
         orderType:    isGameOrder ? 'game' : 'topup',
         phoneOrGameId: orderPhone,
-        distPrice:    selPkg.dist_price ?? null,
-        satisFiyati:  parseFloat(selPkg.app_price_try ?? 0) || null,
       });
 
       setSelPkg(null);
