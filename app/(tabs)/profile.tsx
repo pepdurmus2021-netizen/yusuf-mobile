@@ -128,6 +128,12 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
+    // React Native'in Alert.alert'i web'de (Expo web) hiç görünmüyor — buton
+    // tepkisiz kalmış gibi hissettiriyor. Web'de tarayıcının kendi confirm'ünü kullan.
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('profile.logoutConfirm'))) { logout(); router.replace('/login'); }
+      return;
+    }
     Alert.alert(t('profile.logoutTitle'), t('profile.logoutConfirm'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('profile.logoutAction'), style: 'destructive', onPress: () => { logout(); router.replace('/login'); } },
