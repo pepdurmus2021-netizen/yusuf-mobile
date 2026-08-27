@@ -189,7 +189,7 @@ export default function OrdersScreen() {
   const { t } = useTranslation();
   const STATUS = getStatusMap();
   const FILTERS = getFilters();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { orders, fetchOrders } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -198,11 +198,11 @@ export default function OrdersScreen() {
   const [selected, setSelected] = useState<any>(null);
   const [receiptOrder, setReceiptOrder] = useState<any>(null);
 
-  useEffect(() => { fetchOrdersData(); }, [user?.id]);
+  useEffect(() => { fetchOrdersData(); }, [token]);
 
   const fetchOrdersData = async () => {
-    if (!user?.id) { setLoading(false); setRefreshing(false); return; }
-    try { await fetchOrders(user.id); }
+    if (!token) { setLoading(false); setRefreshing(false); return; }
+    try { await fetchOrders(token); }
     catch {}
     finally { setLoading(false); setRefreshing(false); }
   };

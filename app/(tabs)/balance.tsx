@@ -42,7 +42,7 @@ function statusInfo(status: string) {
 
 export default function BalanceScreen() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { sendBalanceRequest, balanceRequests, fetchBalanceRequests } = useAppStore();
   const [tab, setTab] = useState<'yukle' | 'gecmis'>('yukle');
   const [amount, setAmount] = useState('');
@@ -52,8 +52,8 @@ export default function BalanceScreen() {
   const [appModal, setAppModal] = useState<{ type: 'success' | 'pending' | 'error'; title: string; message: string } | null>(null);
 
   useFocusEffect(useCallback(() => {
-    if (user?.id) fetchBalanceRequests(user.id);
-  }, [user?.id]));
+    if (token) fetchBalanceRequests(token);
+  }, [token]));
 
   const copy = async (text: string, label: string) => {
     await Clipboard.setStringAsync(text.replace(/\s/g, ''));
@@ -69,7 +69,7 @@ export default function BalanceScreen() {
       await sendBalanceRequest(authUser.id, parseFloat(amount), bank, user?.currency || 'TRY');
       setAppModal({ type: 'pending', title: t('balance.requestReceivedTitle'), message: t('balance.requestReceivedMessage') });
       setAmount(''); setBank(null);
-      if (user?.id) fetchBalanceRequests(user.id);
+      if (token) fetchBalanceRequests(token);
     } catch (e: any) { setAppModal({ type: 'error', title: t('common.error'), message: e?.message || t('login.actionFailed') }); }
     finally { setLoading(false); }
   };

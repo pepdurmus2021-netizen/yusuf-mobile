@@ -99,11 +99,11 @@ export default function HomeScreen() {
   };
 
   const fetchData = useCallback(async () => {
-    if (!user?.id) { setLoading(false); setRefreshing(false); return; }
+    if (!user?.id || !token) { setLoading(false); setRefreshing(false); return; }
     try {
       const [, , userRes] = await Promise.all([
-        fetchOrders(user.id),
-        fetchBalanceRequests(user.id),
+        fetchOrders(token),
+        fetchBalanceRequests(token),
         supabase.from('users').select('balance').eq('id', user.id).single(),
       ]);
       if (userRes.data) updateUser({ balance: userRes.data.balance });

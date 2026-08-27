@@ -138,7 +138,7 @@ export function useOrderFlow() {
 
       // 5. Local state'i güncelle (UI anında yansısın)
       updateUser({ balance: result.newBalance });
-      fetchOrders(authUser.id);
+      if (token) fetchOrders(token);
 
       setLastResult(result);
       return result;

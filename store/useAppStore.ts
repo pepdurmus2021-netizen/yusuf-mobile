@@ -13,8 +13,8 @@ interface AppStore {
   priceRules: any[];
   fetchPriceRules: (token: string) => Promise<void>;
   savePriceRule: (token: string, packageId: string, marginType: string, marginValue: number) => Promise<void>;
-  fetchOrders: (userId: string) => Promise<void>;
-  fetchBalanceRequests: (userId: string) => Promise<void>;
+  fetchOrders: (token: string) => Promise<void>;
+  fetchBalanceRequests: (token: string) => Promise<void>;
   fetchPackages: () => Promise<void>;
   sendBalanceRequest: (userId: string, amount: number, bank: any, currency: string) => Promise<void>;
   fetchMyDealers: (token: string) => Promise<void>;
@@ -36,22 +36,20 @@ export const useAppStore = create<AppStore>((set) => ({
   dealerEarnings: null,
   priceRules: [],
 
-  fetchOrders: async (userId) => {
-    const { data } = await supabase
-      .from('orders')
-      .select('*, package:packages(name_tr, operator, cost_try)')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-    set({ orders: data || [] });
+  // Backend API üzerinden çekiliyor — daha önce doğrudan Supabase'den (`.from('orders')`)
+  // çekiliyordu, ama `orders`/`balance_requests` tablolarında RLS açık ve authenticated
+  // rolüne SELECT policy'si hiç verilmemiş, bu yüzden sorgu hatasız ama HER ZAMAN BOŞ
+  // dönüyordu — "Sipariş bulunamadı" ekranı hiç kırılmamış gibi görünse de aslında
+  // haftalardır hiçbir siparişi göstermiyordu. Backend zaten service_role ile RLS'i
+  // bypass ediyor ve doğru şekilde scope'luyor (ana_bayi kendisi+alt bayileri görür).
+  fetchOrders: async (token) => {
+    const res = await apiFetch(`${API_URL}/api/orders`, token);
+    set({ orders: res.data || [] });
   },
 
-  fetchBalanceRequests: async (userId) => {
-    const { data } = await supabase
-      .from('balance_requests')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-    set({ balanceRequests: data || [] });
+  fetchBalanceRequests: async (token) => {
+    const res = await apiFetch(`${API_URL}/api/balance-requests`, token);
+    set({ balanceRequests: res.data || [] });
   },
 
   fetchPackages: async () => {
