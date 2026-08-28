@@ -67,12 +67,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               if (data.user?.language) await applyRTLIfNeeded(data.user.language);
               return;
             }
-          } catch (_) {}
-          // Refresh başarısız olursa mevcut token ile devam et
-          const parsedUser = JSON.parse(savedUser);
-          setToken(savedToken);
-          setUser(parsedUser);
-          if (parsedUser?.language) await applyRTLIfNeeded(parsedUser.language);
+            // Backend "başarısız" dedi (token gerçekten geçersiz/süresi dolmuş) —
+            // eskiden burada eski token'la devam edilmeye çalışılıyordu, bu da
+            // "giriş yapmış görünüp her istek 401 alan" bozuk bir duruma yol
+            // açıyordu. Artık oturumu temizleyip giriş ekranına düşüyoruz.
+            await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('user');
+            return;
+          } catch (_) {
+            // Ağ hatası (backend'e ulaşılamadı) — bu durumda kullanıcıyı
+            // internetsizken login'e atmamak için eski oturumla devam ediyoruz,
+            // token gerçekten geçersizse zaten ilk API isteğinde 401 alınır.
+            const parsedUser = JSON.parse(savedUser);
+            setToken(savedToken);
+            setUser(parsedUser);
+            if (parsedUser?.language) await applyRTLIfNeeded(parsedUser.language);
+          }
         }
       } catch (e) {
         console.error('Auth yüklenemedi:', e);
