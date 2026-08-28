@@ -101,7 +101,11 @@ const GAME_OPERATORS = [
   { id: 'hawa',        name: 'Hawa',          logo: require('../../assets/images/hawa.png'),         colors: ['#10b981','#059669'] as [string,string], dbNames: ['hawa'] },
   { id: 'wyak',        name: 'Wyak',          logo: require('../../assets/images/wyak.png'),         colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['wyak'] },
   { id: 'soulfa',      name: 'Soulfa',        logo: require('../../assets/images/soulfa.png'),       colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['soulfa'] },
-  { id: 'lami',        name: 'Lam',           logo: require('../../assets/images/lami.png'),         colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['lam'] },
+  // dbNames eskiden 'lam' idi — bu, "Salam Chat" gibi başka bir operatörün
+  // adının içinde de geçtiği için (lowercase 'salam chat'.includes('lam') === true)
+  // o oyunun paketlerini de yanlışlıkla bu kategoriye düşürüyordu. Logo/id zaten
+  // "lami" olduğu için dbNames de ona göre daraltıldı.
+  { id: 'lami',        name: 'Lam',           logo: require('../../assets/images/lami.png'),         colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['lami'] },
   { id: 'itunes',      name: 'iTunes Kart',   logo: require('../../assets/images/itunes.png'),       colors: ['#1e293b','#334155'] as [string,string], dbNames: ['itunes kart', 'i̇tunes kart'] },
   { id: 'yoyo',        name: 'Yoyo',          logo: require('../../assets/images/yoyo.png'),         colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['yoyo'] },
   { id: 'tango',       name: 'Tango',         logo: require('../../assets/images/tango.png'),        colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['tango'] },
@@ -297,9 +301,17 @@ export default function ExploreScreen() {
   const activeOp    = [...ALL_OPERATORS, ...GAME_OPERATORS].find(o => o.id === activeOpId);
   const isGameOrder = GAME_OPERATORS.some(o => o.id === activeOpId);
 
+  // Excel/DB kaynaklı bazı operatör isimlerinde normal 'i' yerine Türkçe
+  // "noktalı büyük İ"nin küçültülmüş hali (i + U+0307 combining dot) geliyor —
+  // görsel olarak aynı görünüp string olarak farklı, bu yüzden bazı oyunlar
+  // (örn. Cocco Live) hiç bulunamıyordu. dbNames tarafında da aynı sorun
+  // (büyük harfli girişler, örn. 'souLchill') olabileceği için HER İKİ tarafı
+  // da normalize ediyoruz — tek tek her oyuna varyant eklemek yerine kökten çözüm.
+  const normOpName = (s: string) => s.toLowerCase().normalize('NFC').replace(/̇/g, '');
+
   const pkgs = useMemo(() => {
     if (!activeOp) return [];
-    let list = packages.filter(p => activeOp.dbNames.some(n => (p.operator || '').toLowerCase().includes(n)));
+    let list = packages.filter(p => activeOp.dbNames.some(n => normOpName(p.operator || '').includes(normOpName(n))));
     if (eligibleIds && !showAllOverride) {
       list = list.filter(p => p.paystore_product_id != null && eligibleIds.has(String(p.paystore_product_id)));
     }
@@ -307,7 +319,7 @@ export default function ExploreScreen() {
   }, [packages, activeOp, eligibleIds, showAllOverride]);
 
   const pkgCount = (op: any) =>
-    packages.filter(p => op.dbNames.some((n: string) => (p.operator || '').toLowerCase().includes(n))).length;
+    packages.filter(p => op.dbNames.some((n: string) => normOpName(p.operator || '').includes(normOpName(n)))).length;
 
   // ── Sipariş onaylama — sadece hook'u çağırır ──────────────────────────────
   const confirmOrder = async () => {
