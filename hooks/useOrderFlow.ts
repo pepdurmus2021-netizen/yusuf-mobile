@@ -138,7 +138,11 @@ export function useOrderFlow() {
 
       // 5. Local state'i güncelle (UI anında yansısın)
       updateUser({ balance: result.newBalance });
-      if (token) fetchOrders(token);
+      // Fire-and-forget ama catch'siz bırakılırsa fetchOrders içinde herhangi bir
+      // hata (401/network) "Uncaught (in promise)" kırmızı ekranına yol açıyordu —
+      // sipariş zaten başarıyla oluştu, liste yenilemesi arka planda sessizce
+      // başarısız olabilir, kullanıcıyı rahatsız etmemeli.
+      if (token) fetchOrders(token).catch((err) => console.warn('[submitOrder] fetchOrders yenileme hatası:', err?.message));
 
       setLastResult(result);
       return result;
