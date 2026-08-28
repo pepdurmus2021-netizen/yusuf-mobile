@@ -55,11 +55,12 @@ export const useAppStore = create<AppStore>((set) => ({
   fetchPackages: async () => {
     try {
       const token = await (await import('@react-native-async-storage/async-storage')).default.getItem('token');
-      if (!token) return;
+      if (!token) { console.warn('[fetchPackages] token yok, istek atlanıyor'); return; }
       const res = await apiFetch(`${API_URL}/api/packages`, token);
+      console.log('[fetchPackages] gelen paket sayısı:', (res.data || []).length);
       set({ packages: res.data || [] });
-    } catch {
-      // token yoksa veya hata olursa sessizce geç
+    } catch (err: any) {
+      console.error('[fetchPackages] Hata:', err?.message || err);
     }
   },
 
