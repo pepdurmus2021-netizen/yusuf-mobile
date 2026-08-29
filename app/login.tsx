@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BRAND } from '../config/brand';
+import { API_URL, apiFetch } from '../lib/config';
 import { useFonts, Orbitron_900Black } from '@expo-google-fonts/orbitron';
 import { useTranslation } from 'react-i18next';
 
@@ -87,6 +88,21 @@ export default function LoginScreen() {
         [{ id: uid, name: pendingName, email: pendingEmail, phone: pendingPhone || '', country: 'TR', role: 'user', balance: 0, currency: 'TRY' }],
         { onConflict: 'id', ignoreDuplicates: true }
       );
+      // organization_id'yi backend üzerinden AYRICA ve KOŞULSUZ set ediyoruz —
+      // trigger yukarıdaki upsert'ten önce zaten satırı oluşturmuş olabilir
+      // (ignoreDuplicates:true bu durumda upsert'i tamamen atlar), bu marka
+      // build'inin kullanıcısı yanlışlıkla varsayılan (Tech Telekom)
+      // organizasyonda kalmasın diye. Kolon RLS'de authenticated'a kapalı
+      // (bkz. 017_rls_lockdown.sql), bu yüzden client'tan doğrudan değil,
+      // service_role kullanan backend endpoint'i üzerinden yapılıyor.
+      if (BRAND.organizationId) {
+        try {
+          await apiFetch(`${API_URL}/api/auth/set-organization`, session.access_token, {
+            method: 'POST',
+            body: JSON.stringify({ organization_id: BRAND.organizationId }),
+          });
+        } catch { /* kritik değil: kullanıcı yine de giriş yapabilir, organizasyon atanmamış kalır */ }
+      }
       const { data: userData } = await supabase.from('users').select('*').eq('id', uid).single();
       await login(session.access_token, userData || { id: uid, name: pendingName, email: pendingEmail, phone: pendingPhone || '', balance: 0, currency: 'TRY', role: 'user' });
       router.replace('/(tabs)');

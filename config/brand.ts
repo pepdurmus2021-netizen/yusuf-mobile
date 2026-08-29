@@ -14,6 +14,13 @@ export const BRAND = {
   supportWhatsapp: '905069690724', // ülke koduyla, başında + veya 00 olmadan
   supportEmail: 'destek@yusufmobile.com',
   appVersion: '1.0.0',
+  // Bu build'de kayıt olan kullanıcıların hangi organizasyona (bkz. backend
+  // organizations tablosu, çok markalı sistem) atanacağı — build-time sabit.
+  // Tech Telekom'un kendi app'i için boş bırakılır (DB'deki DEFAULT zaten
+  // Tech Telekom'un organizasyonuna düşürür). Yeni marka rebrand'inde
+  // backend'de organizations tablosuna satır eklenip UUID'si buraya yazılır
+  // (bkz. backend/supabase/migrations/027_hasip_tech_organization.sql).
+  organizationId: '00000000-0000-0000-0000-000000000002',
 };
 
 // ============================================================
