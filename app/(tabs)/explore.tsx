@@ -15,6 +15,7 @@ import { groupPackagesBySubCategory, getSubCategoryOrder, getSubCategoryLabel } 
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { API_URL, apiFetch } from '../../lib/config';
+import { useGameLogoOverrides, resolveLogo } from '../../lib/gameLogoOverrides';
 
 // PayStore TopUpPackageQuery operatör parametresi — sadece Türkiye operatörleri destekleniyor
 const ELIGIBLE_QUERY_OPERATOR: Record<string, string> = {
@@ -165,12 +166,13 @@ export default function ExploreScreen() {
   const { t } = useTranslation();
   const { token } = useAuth();
   const { packages, fetchPackages } = useAppStore();
+  const logoOverrides = useGameLogoOverrides(token);
 
   // Backend zaten role'e göre doğru fiyatı price_try'a yazdı
   const getPkgPrice = (pkg: any): number =>
     parseFloat(pkg.price_try ?? pkg.price ?? pkg.app_price_try ?? 0);
 
-  const renderPkgCard = (pkg: any, op: { colors: [string, string]; logo: any }) => {
+  const renderPkgCard = (pkg: any, op: { colors: [string, string]; logo: any; dbNames?: string[] }) => {
     const price = getPkgPrice(pkg);
     const sellPrice = parseFloat(pkg.app_price_try) || 0;
     const details: { icon: string; label: string }[] = [];
@@ -203,7 +205,7 @@ export default function ExploreScreen() {
         >
           <View style={s.pkgLeft}>
             <View style={[s.pkgLogoCircle, { borderColor: op.colors[0] + '40' }]}>
-              <Image source={op.logo} style={s.pkgLogo} resizeMode="contain" />
+              <Image source={resolveLogo(op, logoOverrides)} style={s.pkgLogo} resizeMode="contain" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.pkgName} numberOfLines={2}>{pkg.name_tr}</Text>
@@ -458,7 +460,7 @@ export default function ExploreScreen() {
                 <TouchableOpacity key={op.id} onPress={() => { setOpId(op.id); setEligibleIds(null); setEligibleNote(null); setShowAllOverride(false); }} activeOpacity={0.82} style={s.gameCell}>
                   <View style={s.gameCellInner}>
                     <View style={s.gameLogoWrap}>
-                      <Image source={op.logo} style={s.gameOpLogo} resizeMode="contain" resizeMethod="resize" />
+                      <Image source={resolveLogo(op, logoOverrides)} style={s.gameOpLogo} resizeMode="contain" resizeMethod="resize" />
                     </View>
                     <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
                     <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
@@ -584,7 +586,7 @@ export default function ExploreScreen() {
             <Text style={s.hTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{activeOp?.name}</Text>
             {activeOp && <Text style={s.hSub}>{t('explore.packagesAvailable', { count: pkgs.length })}</Text>}
           </View>
-          {activeOp && <Image source={activeOp.logo} style={s.hLogo} resizeMode="contain" />}
+          {activeOp && <Image source={resolveLogo(activeOp, logoOverrides)} style={s.hLogo} resizeMode="contain" />}
         </View>
       </LinearGradient>
 
@@ -667,7 +669,7 @@ export default function ExploreScreen() {
                 {/* Paket kartı — gradient */}
                 <LinearGradient colors={activeOp.colors} style={s.sheetPkg} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
                   <View style={s.sheetLogoBox}>
-                    <Image source={activeOp.logo} style={{ width: 34, height: 34 }} resizeMode="contain" />
+                    <Image source={resolveLogo(activeOp, logoOverrides)} style={{ width: 34, height: 34 }} resizeMode="contain" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={s.sheetPkgName}>{selPkg.name_tr}</Text>
