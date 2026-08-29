@@ -101,14 +101,21 @@ const splash = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#a78bfa' },
 });
 
+// Açılış ekranı en az bu kadar (ms) ekranda kalsın — i18n/auth kontrolü
+// genelde çok hızlı bitiyor ve marka animasyonu daha görünmeden kayboluyordu.
+const MIN_SPLASH_DURATION = 5000;
+
 export default function RootLayout() {
   const [i18nReady, setI18nReady] = useState(false);
+  const [minDelayDone, setMinDelayDone] = useState(false);
 
   useEffect(() => {
     initI18n().then(() => setI18nReady(true));
+    const timer = setTimeout(() => setMinDelayDone(true), MIN_SPLASH_DURATION);
+    return () => clearTimeout(timer);
   }, []);
 
-  if (!i18nReady) {
+  if (!i18nReady || !minDelayDone) {
     return <SplashScreen />;
   }
 
