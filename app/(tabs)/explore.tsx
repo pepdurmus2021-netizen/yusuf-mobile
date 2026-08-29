@@ -15,7 +15,7 @@ import { groupPackagesBySubCategory, getSubCategoryOrder, getSubCategoryLabel } 
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { API_URL, apiFetch } from '../../lib/config';
-import { useGameLogoOverrides, resolveLogo } from '../../lib/gameLogoOverrides';
+import { useGameLogoOverrides, resolveLogo, toSafeKey } from '../../lib/gameLogoOverrides';
 
 // PayStore'dan yeni gelen ama henüz GAME_OPERATORS'e elle eklenmemiş oyunlar için
 // logo bulunamayabiliyor (ne yerel asset ne admin override'ı) — bu durumda
@@ -65,82 +65,11 @@ const IRAN_OPERATORS = [
   { id: 'rightel',  name: 'Rightel',        logo: require('../../assets/images/iran.jpg'), colors: ['#8b5cf6','#7c3aed'] as [string,string], prefixes: ['92'],      dbNames: ['rightel'] },
 ];
 
-const GAME_OPERATORS = [
-  { id: 'pubg',        name: 'PUBG',          logo: require('../../assets/images/pubg.png'),         colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['pubg'] },
-  { id: 'valorant',    name: 'Valorant',      logo: require('../../assets/images/valorant.png'),     colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['valorant'] },
-  { id: 'free-fire',   name: 'Free Fire',     logo: require('../../assets/images/free-fire.png'),    colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['free fire', 'freefire'] },
-  { id: 'google-play', name: 'Google Play',   logo: require('../../assets/images/google-play.png'),  colors: ['#10b981','#059669'] as [string,string], dbNames: ['google play kart', 'google play'] },
-  { id: 'clash',       name: 'Clash Royale',  logo: require('../../assets/images/clash-royale.png'), colors: ['#3b82f6','#1d4ed8'] as [string,string], dbNames: ['clash'] },
-  { id: 'ahlan',       name: 'Ahlan',         logo: require('../../assets/images/ahlan.png'),        colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['ahlan'] },
-  { id: 'soulchill',   name: 'SoulChill',     logo: require('../../assets/images/soulchill.png'),    colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['soulchill', 'souLchill'] },
-  { id: 'hiya',        name: 'Hiya',          logo: require('../../assets/images/hiya.png'),         colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['hiya', 'hi̇ya'] },
-  { id: 'sugo',        name: 'Sugo',          logo: require('../../assets/images/sugo.png'),         colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['sugo'] },
-  { id: 'yoho',        name: 'Yoho',          logo: require('../../assets/images/yoho.png'),         colors: ['#10b981','#059669'] as [string,string], dbNames: ['yoho'] },
-  { id: 'ditto',       name: 'Ditto',         logo: require('../../assets/images/ditto.png'),        colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['ditto'] },
-  { id: 'jawaker',     name: 'Jawaker',       logo: require('../../assets/images/jawaker.png'),      colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['jawaker'] },
-  { id: 'haki',        name: 'Haki',          logo: require('../../assets/images/haki.png'),         colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['haki'] },
-  { id: 'light-chat',  name: 'Light Chat',    logo: require('../../assets/images/light-chat.png'),   colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['light cha', 'light chat', 'lightchat'] },
-  { id: 'haza',        name: 'Haza',          logo: require('../../assets/images/haza.png'),         colors: ['#10b981','#059669'] as [string,string], dbNames: ['haza'] },
-  { id: 'saya-likee',  name: 'Saya Likee',    logo: require('../../assets/images/saya-likee.png'),   colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['saya likee', 'saya li̇kee', 'sayalikee'] },
-  { id: 'lions-chat',  name: 'Lions Chat',    logo: require('../../assets/images/lions-chat.png'),   colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['lions chat', 'li̇ons chat', 'lionschat'] },
-  { id: 'azal-live',   name: 'Azal Live',     logo: require('../../assets/images/azal-live.png'),    colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['azal live', 'azal li̇ve', 'azallive'] },
-  { id: 'habi',        name: 'Habi',          logo: require('../../assets/images/habi.png'),         colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['habi', 'habi̇'] },
-  { id: 'hoby',        name: 'Hoby',          logo: require('../../assets/images/hoby.png'),         colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['hoby'] },
-  { id: 'habby',       name: 'Habby',         logo: require('../../assets/images/habby.png'),        colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['habby'] },
-  { id: 'ayome',       name: 'Ayome',         logo: require('../../assets/images/ayome.png'),        colors: ['#10b981','#059669'] as [string,string], dbNames: ['ayome'] },
-  { id: 'yalla-ludo',  name: 'Yalla Ludo',    logo: require('../../assets/images/yalla-ludo.png'),   colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['yalla ludo', 'yallaludo'] },
-  { id: 'paycell',     name: 'Paycell',       logo: require('../../assets/images/paycell.png'),      colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['paycell'] },
-  { id: 'talktalk',    name: 'TalkTalk',      logo: require('../../assets/images/talktalk.png'),     colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['talktalk', 'talk'] },
-  { id: 'imo',         name: 'İmo',           logo: require('../../assets/images/imo.png'),          colors: ['#10b981','#059669'] as [string,string], dbNames: ['imo', 'i̇mo'] },
-  { id: 'yooy',        name: 'Yooy',          logo: require('../../assets/images/yooy.png'),         colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['yooy'] },
-  { id: 'cocco-live',  name: 'Cocco Live',    logo: require('../../assets/images/cocco-live.png'),   colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['cocco live', 'cocco li̇ve', 'coccolive'] },
-  { id: 'bigo',        name: 'Bigo',          logo: require('../../assets/images/bigo.png'),         colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['bigo'] },
-  { id: 'weso-chat',   name: 'Weso Chat',     logo: require('../../assets/images/weso-chat.png'),    colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['weso chat', 'wesochat'] },
-  { id: 'wanasah',     name: 'Wanasah',       logo: require('../../assets/images/wanasah.png'),      colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['wanasah'] },
-  { id: 'honey',       name: 'Honey',         logo: require('../../assets/images/honey.png'),        colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['honey'] },
-  { id: 'tami-chat',   name: 'Tami Chat',     logo: require('../../assets/images/tami-chat.png'),    colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['tami chat', 'tami̇ chat', 'tamichat'] },
-  { id: 'poppo-live',  name: 'Poppo Live',    logo: require('../../assets/images/poppo-live.png'),   colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['poppo live', 'poppo li̇ve', 'poppolive'] },
-  { id: 'migo-live',   name: 'Migo Live',     logo: require('../../assets/images/migo-live.png'),    colors: ['#10b981','#059669'] as [string,string], dbNames: ['migo live', 'migo li̇ve', 'migolive'] },
-  { id: 'salam-chat',  name: 'Salam Chat',    logo: require('../../assets/images/salam-chat.png'),   colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['salam chat', 'salamchat'] },
-  { id: 'wego',        name: 'Wego',          logo: require('../../assets/images/wego.png'),         colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['wego'] },
-  { id: 'likee',       name: 'Likee',         logo: require('../../assets/images/likee.png'),        colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['likee', 'li̇kee'] },
-  { id: '4fun',        name: '4Fun',          logo: require('../../assets/images/4fun.png'),         colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['4fun'] },
-  { id: 'soul-star',   name: 'Soul Star',     logo: require('../../assets/images/soul-star.png'),    colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['soul star', 'soulstar'] },
-  { id: 'up-fun',      name: 'Up Fun',        logo: require('../../assets/images/up-fun.png'),       colors: ['#10b981','#059669'] as [string,string], dbNames: ['up fun', 'upfun'] },
-  { id: 'tiktok',      name: 'TikTok',        logo: require('../../assets/images/tiktok.png'),       colors: ['#1e293b','#334155'] as [string,string], dbNames: ['tiktok', 'ti̇ktok'] },
-  { id: 'binmo',       name: 'Binmo',         logo: require('../../assets/images/binmo.png'),        colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['binmo', 'bi̇nmo'] },
-  { id: 'etisalat',    name: 'Etisalat',      logo: require('../../assets/images/etisalat.png'),     colors: ['#10b981','#059669'] as [string,string], dbNames: ['etisalat'] },
-  { id: 'super-live',  name: 'Super Live',    logo: require('../../assets/images/super-live.png'),   colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['super live', 'super li̇ve', 'superlive'] },
-  { id: 'fancy-live',  name: 'Fancy Live',    logo: require('../../assets/images/fancy-live.png'),   colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['fancy live', 'fancylive'] },
-  { id: 'sodfa-chat',  name: 'Sodfa Chat',    logo: require('../../assets/images/sodfa-chat.png'),   colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['sodfa chat', 'sodfachat'] },
-  { id: 'oohla',       name: 'Oohla',         logo: require('../../assets/images/oohla.png'),        colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['oohla'] },
-  { id: 'up-live',     name: 'Up Live',       logo: require('../../assets/images/up-live.png'),      colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['up live', 'up li̇ve', 'uplive'] },
-  { id: 'hawa',        name: 'Hawa',          logo: require('../../assets/images/hawa.png'),         colors: ['#10b981','#059669'] as [string,string], dbNames: ['hawa'] },
-  { id: 'wyak',        name: 'Wyak',          logo: require('../../assets/images/wyak.png'),         colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['wyak'] },
-  { id: 'soulfa',      name: 'Soulfa',        logo: require('../../assets/images/soulfa.png'),       colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['soulfa'] },
-  // dbNames eskiden 'lam' idi — bu, "Salam Chat" gibi başka bir operatörün
-  // adının içinde de geçtiği için (lowercase 'salam chat'.includes('lam') === true)
-  // o oyunun paketlerini de yanlışlıkla bu kategoriye düşürüyordu. Logo/id zaten
-  // "lami" olduğu için dbNames de ona göre daraltıldı.
-  { id: 'lami',        name: 'Lam',           logo: require('../../assets/images/lami.png'),         colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['lami'] },
-  { id: 'itunes',      name: 'iTunes Kart',   logo: require('../../assets/images/itunes.png'),       colors: ['#1e293b','#334155'] as [string,string], dbNames: ['itunes kart', 'i̇tunes kart'] },
-  { id: 'yoyo',        name: 'Yoyo',          logo: require('../../assets/images/yoyo.png'),         colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['yoyo'] },
-  { id: 'tango',       name: 'Tango',         logo: require('../../assets/images/tango.png'),        colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['tango'] },
-  { id: 'layla-chat',  name: 'Layla Chat',    logo: require('../../assets/images/layla-chat.png'),   colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['layla chat', 'laylachat'] },
-  { id: 'ligo-live',   name: 'Ligo Live',     logo: require('../../assets/images/ligo-live.png'),    colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['ligo live', 'li̇go li̇ve', 'ligolive'] },
-  { id: 'tumile',      name: 'Tumile',        logo: require('../../assets/images/tumile.png'),       colors: ['#10b981','#059669'] as [string,string], dbNames: ['tumile'] },
-  { id: 'waho',        name: 'Waho',          logo: require('../../assets/images/waho.png'),         colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['waho'] },
-  { id: 'mr7ba',       name: 'Mr7ba',         logo: require('../../assets/images/mr7ba.png'),        colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['mr7ba'] },
-  { id: 'falla',       name: 'Falla',         logo: require('../../assets/images/falla.png'),        colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['falla'] },
-  { id: 'pota-live',   name: 'Pota Live',     logo: require('../../assets/images/pota-live.png'),    colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['pota live', 'pota li̇ve', 'potalve'] },
-  { id: 'hapi-live',   name: 'Hapi Live',     logo: require('../../assets/images/hapi-live.png'),    colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['hapi live', 'hapi̇ li̇ve'] },
-  { id: 'pep-live',    name: 'Pep Live',      logo: require('../../assets/images/pep-live.png'),     colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['pep live', 'pep li̇ve', 'peplive'] },
-  { id: 'waaw-chat',   name: 'Waaw Chat',     logo: require('../../assets/images/waaw-chat.png'),    colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['waaw chat', 'waawchat'] },
-  { id: 'soyo-chat',   name: 'Soyo Chat',     logo: require('../../assets/images/soyo.png'),          colors: ['#f97316','#ea580c'] as [string,string], dbNames: ['soyo chat', 'soyo'] },
-  { id: 'kiyo-live',   name: 'Kiyo Live',     logo: require('../../assets/images/kiyo-live.png'),     colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['kiyo live', 'kiyo'] },
-  { id: 'junko',       name: 'Junko',         logo: require('../../assets/images/junko.png'),         colors: ['#ec4899','#db2777'] as [string,string], dbNames: ['junko'] },
-  { id: 'yaahlan',     name: 'Yaahlan',       logo: require('../../assets/images/yaahlan.png'),       colors: ['#10b981','#059669'] as [string,string], dbNames: ['yaahlan'] },
-];
+// GAME_OPERATORS sabit listesi kaldırıldı (29 Ağustos 2026) — oyun/sosyal-app
+// kategorisi artık PayStore değil Gunes-Tek tedarikçisinden geliyor, eski
+// PayStore paketleri DB'den silindi. Oyun kartları artık tamamen dinamik:
+// `packages` içindeki type==='game' satırlarının `operator` alanına göre
+// gruplanıp oluşturuluyor (bkz. dynamicGameOperators aşağıda).
 
 const ALL_OPERATORS = [...TURKEY_OPERATORS, ...AFGHAN_OPERATORS, ...IRAN_OPERATORS];
 
@@ -179,8 +108,8 @@ function orderErrorMessage(err: OrderError): string {
 
 export default function ExploreScreen() {
   const { t } = useTranslation();
-  const { token } = useAuth();
-  const { packages, fetchPackages } = useAppStore();
+  const { token, updateUser } = useAuth();
+  const { packages, fetchPackages, fetchOrders } = useAppStore();
   const logoOverrides = useGameLogoOverrides(token);
 
   // Backend zaten role'e göre doğru fiyatı price_try'a yazdı
@@ -209,7 +138,7 @@ export default function ExploreScreen() {
     return (
       <TouchableOpacity
         key={pkg.id}
-        onPress={() => { setSelPkg(pkg); setOrderPhone(isGameOrder ? '' : ('0' + phone.replace(/\D/g, ''))); }}
+        onPress={() => { setSelPkg(pkg); setOrderPhone(isGameOrder ? '' : ('0' + phone.replace(/\D/g, ''))); setAmountQty(''); }}
         activeOpacity={0.8}
         style={s.pkgCard}
       >
@@ -263,6 +192,11 @@ export default function ExploreScreen() {
   const [selPkg, setSelPkg]           = useState<any>(null);
   const [orderPhone, setOrderPhone]   = useState('');
   const [phoneFocused, setPhoneFocused] = useState(false);
+  // Gunes-Tek 'amount' tipi ürünler için (serbest miktar) — kullanıcının girdiği
+  // miktar, qty_min/qty_max aralığında canlı doğrulanıp fiyat anlık hesaplanır.
+  const [amountQty, setAmountQty]     = useState('');
+  const [amountFocused, setAmountFocused] = useState(false);
+  const [gtLoading, setGtLoading]     = useState(false);
   const [appModal, setAppModal] = useState<{ type: 'success' | 'pending' | 'error'; title: string; message: string } | null>(null);
   const [checkingEligible, setCheckingEligible] = useState(false);
   const [eligibleIds, setEligibleIds] = useState<Set<string> | null>(null);
@@ -329,18 +263,14 @@ export default function ExploreScreen() {
     ['#8b5cf6', '#7c3aed'], ['#f97316', '#ea580c'],
   ];
 
-  // PayStore'dan yeni gelip GAME_OPERATORS listesine henüz elle eklenmemiş
-  // oyunlar/dijital ürünler — bayi panelindeki gibi otomatik kart oluşturuluyor,
-  // yeni bir kod deploy'u beklemeden görünsün diye. Admin panelden isim/logo
-  // atanmışsa (game_logos override) onu kullanır, atanmamışsa ham kodu gösterir.
+  // Gunes-Tek'ten gelen 2342 satırlık `packages` tablosu — oyun/sosyal-app kartları
+  // artık sabit bir liste yerine tamamen `operator` alanına göre dinamik oluşturuluyor.
+  // Admin panelden isim/logo atanmışsa (game_logos override) onu kullanır,
+  // atanmamışsa ham operatör kodunu + fallback ikonu (OpLogo) gösterir.
   const dynamicGameOperators = useMemo(() => {
-    const known = [...ALL_OPERATORS, ...GAME_OPERATORS];
     const codes = [...new Set(packages.filter((p: any) => p.type === 'game').map((p: any) => p.operator).filter(Boolean))] as string[];
-    const unmatched = codes.filter(code =>
-      !known.some(op => op.dbNames.some(n => normOpName(code).includes(normOpName(n)) || normOpName(n).includes(normOpName(code))))
-    );
-    return unmatched.map((code, i) => {
-      const override = logoOverrides[code.toLowerCase().replace(/[^a-z0-9-]/g, '')];
+    return codes.map((code, i) => {
+      const override = logoOverrides[toSafeKey(code)];
       return {
         id: 'dyn-' + code.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         name: override?.display_name || code,
@@ -351,7 +281,7 @@ export default function ExploreScreen() {
     });
   }, [packages, logoOverrides]);
 
-  const allGameOperators = [...GAME_OPERATORS, ...dynamicGameOperators];
+  const allGameOperators = dynamicGameOperators;
 
   const activeOpId = opId || detectedOp;
   const activeOp    = [...ALL_OPERATORS, ...allGameOperators].find(o => o.id === activeOpId);
@@ -368,6 +298,63 @@ export default function ExploreScreen() {
 
   const pkgCount = (op: any) =>
     packages.filter(p => op.dbNames.some((n: string) => normOpName(p.operator || '').includes(normOpName(n)))).length;
+
+  // Gunes-Tek 'amount' tipi ürünlerde tüm operatör satırı tek (serbest miktar) —
+  // miktar× birim fiyat canlı hesaplanır, gerçek fiyat siparişte backend'de hesaplanır.
+  const isAmountPkg = !!selPkg && isGameOrder && selPkg.product_type === 'amount';
+  const amountQtyNum = parseFloat(amountQty.replace(',', '.')) || 0;
+  const amountQtyValid = !isAmountPkg || (
+    amountQtyNum > 0 &&
+    amountQtyNum >= (parseFloat(selPkg?.qty_min) || 0) &&
+    amountQtyNum <= (parseFloat(selPkg?.qty_max) || Infinity)
+  );
+  const sheetPrice = isAmountPkg ? (getPkgPrice(selPkg) * amountQtyNum) : getPkgPrice(selPkg || {});
+
+  // ── Gunes-Tek siparişi — yeni tedarikçi, ayrı endpoint (/api/orders/gunestek) ──
+  const confirmGunesTekOrder = async () => {
+    if (!selPkg) return;
+    const playerId = orderPhone.trim();
+    if (playerId.length < 3) {
+      setAppModal({ type: 'error', title: t('common.error'), message: t('explore.invalidGameId') });
+      return;
+    }
+    if (isAmountPkg && !amountQtyValid) {
+      setAppModal({
+        type: 'error',
+        title: t('common.error'),
+        message: t('explore.invalidAmountRange', {
+          min: selPkg.qty_min, max: selPkg.qty_max,
+          defaultValue: `Miktar ${selPkg.qty_min} - ${selPkg.qty_max} arasında olmalı`,
+        }),
+      });
+      return;
+    }
+
+    setGtLoading(true);
+    try {
+      const body: any = { package_id: selPkg.id, player_id: playerId, phone_number: null };
+      if (isAmountPkg) body.qty = amountQtyNum;
+
+      const res: any = await apiFetch(`${API_URL}/api/orders/gunestek`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+
+      const newBalance = res?.data?.new_balance ?? res?.data?.order?.new_balance ?? res?.data?.order?.newBalance;
+      if (newBalance != null) updateUser({ balance: newBalance });
+      if (token) fetchOrders(token).catch(() => {});
+
+      setSelPkg(null);
+      setOrderPhone('');
+      setAmountQty('');
+      setAppModal({ type: 'pending', title: t('explore.orderReceived'), message: t('explore.trackFromOrdersTab') });
+
+    } catch (err: any) {
+      setAppModal({ type: 'error', title: t('explore.orderError'), message: err?.message || t('explore.unexpectedError') });
+    } finally {
+      setGtLoading(false);
+    }
+  };
 
   // ── Sipariş onaylama — sadece hook'u çağırır ──────────────────────────────
   const confirmOrder = async () => {
@@ -400,6 +387,10 @@ export default function ExploreScreen() {
       clearError();
     }
   };
+
+  // isGameOrder (Gunes-Tek) siparişleri ayrı endpoint/akıştan gidiyor, diğerleri
+  // (telefon yükleme) eski useOrderFlow/PayStore akışını kullanmaya devam ediyor.
+  const handleConfirm = () => { if (isGameOrder) confirmGunesTekOrder(); else confirmOrder(); };
 
   // ── Yükleme skeleton ──────────────────────────────────────────────────────
   const SkeletonCard = () => (
@@ -665,6 +656,38 @@ export default function ExploreScreen() {
               <Ionicons name="cube-outline" size={30} color="#cbd5e1" />
               <Text style={s.emptyTxt}>{t('explore.packageNotFoundList')}</Text>
             </View>
+          ) : isGameOrder && pkgs[0]?.product_type === 'amount' ? (
+            // Gunes-Tek 'amount' (serbest miktar) ürünü — tüm operatör tek satır,
+            // kullanıcı ID + miktar sonradan modalda girilecek, burada sadece
+            // birim fiyat + minimum miktar bilgisiyle tek bir kart gösteriliyor.
+            <TouchableOpacity
+              onPress={() => { setSelPkg(pkgs[0]); setOrderPhone(''); setAmountQty(''); }}
+              activeOpacity={0.8}
+              style={s.pkgCard}
+            >
+              <LinearGradient
+                colors={[activeOp.colors[0] + '12', activeOp.colors[1] + '08']}
+                style={s.pkgCardInner}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+              >
+                <View style={s.pkgLeft}>
+                  <View style={[s.pkgLogoCircle, { borderColor: activeOp.colors[0] + '40' }]}>
+                    <OpLogo op={activeOp} overrides={logoOverrides} style={s.pkgLogo} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.pkgName} numberOfLines={2}>{pkgs[0].name_tr || activeOp.name}</Text>
+                    <Text style={s.pkgDetailTxt}>
+                      {t('explore.minAmountHint', { min: pkgs[0].qty_min, defaultValue: `Minimum ${pkgs[0].qty_min} adet` })}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[s.pkgBadge, { backgroundColor: activeOp.colors[0] }]}>
+                  <Text style={s.pkgBadgeLabelSmall}>{t('explore.unitPrice', { defaultValue: 'Birim' })}</Text>
+                  <Text style={s.pkgBadgePrice}>{getPkgPrice(pkgs[0]).toFixed(2)}</Text>
+                  <Text style={s.pkgBadgeCur}>₺</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
           ) : (() => {
             const isTurkish = TURKEY_OPERATORS.some(o => o.id === activeOp.id);
             if (!isTurkish) {
@@ -721,10 +744,36 @@ export default function ExploreScreen() {
                     <Text style={s.sheetPkgOp}>{activeOp.name}</Text>
                   </View>
                   <View style={s.sheetPriceBadge}>
-                    <Text style={s.sheetPkgPrice}>{getPkgPrice(selPkg).toFixed(2)}</Text>
+                    <Text style={s.sheetPkgPrice}>{sheetPrice.toFixed(2)}</Text>
                     <Text style={s.sheetPriceCur}>₺</Text>
                   </View>
                 </LinearGradient>
+
+                {/* Serbest miktar girişi (Gunes-Tek 'amount' tipi ürünler) */}
+                {isAmountPkg && (
+                  <View style={s.inputSection}>
+                    <Text style={s.inputLabel}>{t('explore.amountLabel', { defaultValue: 'Miktar' })}</Text>
+                    <View style={[s.inputRow, !amountQtyValid && amountQty.length > 0 && { borderColor: '#ef4444' }]}>
+                      <View style={s.inputIconWrap}>
+                        <Ionicons name="calculator" size={16} color="#94a3b8" />
+                      </View>
+                      <TextInput
+                        style={s.inputField}
+                        value={amountQty}
+                        onChangeText={setAmountQty}
+                        keyboardType="numeric"
+                        placeholder={String(selPkg.qty_min)}
+                        placeholderTextColor="#b0bec5"
+                      />
+                    </View>
+                    <Text style={[s.inputLabel, { marginTop: 4, fontSize: 11, color: !amountQtyValid && amountQty.length > 0 ? '#ef4444' : '#94a3b8' }]}>
+                      {t('explore.amountRangeHint', {
+                        min: selPkg.qty_min, max: selPkg.qty_max,
+                        defaultValue: `${selPkg.qty_min} - ${selPkg.qty_max} arasında olmalı`,
+                      })}
+                    </Text>
+                  </View>
+                )}
 
                 {/* Telefon / Oyun ID girişi */}
                 <View style={s.inputSection}>
@@ -762,7 +811,7 @@ export default function ExploreScreen() {
                 <View style={s.summaryBox}>
                   <View style={s.summaryRow}>
                     <Text style={s.summaryLabel}>{t('explore.packageAmount')}</Text>
-                    <Text style={s.summaryValue}>{getPkgPrice(selPkg).toFixed(2)} ₺</Text>
+                    <Text style={s.summaryValue}>{sheetPrice.toFixed(2)} ₺</Text>
                   </View>
                   <View style={s.summaryDivider} />
                   <View style={s.summaryRow}>
@@ -784,9 +833,14 @@ export default function ExploreScreen() {
             )}
 
             {/* Onayla butonu */}
-            <TouchableOpacity onPress={confirmOrder} disabled={orderLoading} style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4 }} activeOpacity={0.85}>
+            <TouchableOpacity
+              onPress={handleConfirm}
+              disabled={orderLoading || gtLoading || (isAmountPkg && !amountQtyValid)}
+              style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4, opacity: (isAmountPkg && !amountQtyValid) ? 0.5 : 1 }}
+              activeOpacity={0.85}
+            >
               <LinearGradient colors={activeOp?.colors || ['#6366f1', '#8b5cf6']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                {orderLoading
+                {(orderLoading || gtLoading)
                   ? <ActivityIndicator color="#fff" size="small" />
                   : <><Ionicons name="flash" size={18} color="#fff" /><Text style={s.confirmTxt} numberOfLines={1}>{t('explore.confirmOrder')}</Text></>
                 }
