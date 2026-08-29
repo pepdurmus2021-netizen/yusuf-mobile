@@ -454,7 +454,7 @@ export default function ExploreScreen() {
           <ScrollView style={{ flex: 1 }} contentContainerStyle={s.phoneScreenBody} showsVerticalScrollIndicator={false}>
             <View style={s.gameGrid}>
               {GAME_OPERATORS.map(op => (
-                <TouchableOpacity key={op.id} onPress={() => setOpId(op.id)} activeOpacity={0.82} style={s.gameCell}>
+                <TouchableOpacity key={op.id} onPress={() => { setOpId(op.id); setEligibleIds(null); setEligibleNote(null); setShowAllOverride(false); }} activeOpacity={0.82} style={s.gameCell}>
                   <View style={s.gameCellInner}>
                     <View style={s.gameLogoWrap}>
                       <Image source={op.logo} style={s.gameOpLogo} resizeMode="contain" resizeMethod="resize" />
