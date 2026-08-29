@@ -17,6 +17,21 @@ import i18n from '../../i18n';
 import { API_URL, apiFetch } from '../../lib/config';
 import { useGameLogoOverrides, resolveLogo } from '../../lib/gameLogoOverrides';
 
+// PayStore'dan yeni gelen ama henüz GAME_OPERATORS'e elle eklenmemiş oyunlar için
+// logo bulunamayabiliyor (ne yerel asset ne admin override'ı) — bu durumda
+// bayi panelindekiyle aynı fallback: renkli daire içinde ismin ilk harfi.
+function OpLogo({ op, overrides, style }: { op: { name: string; logo: any; colors: [string, string]; dbNames?: string[] }; overrides: any; style: any }) {
+  const source = resolveLogo(op, overrides);
+  if (!source) {
+    return (
+      <View style={[style, { backgroundColor: op.colors[0], alignItems: 'center', justifyContent: 'center' }]}>
+        <Text style={{ color: '#fff', fontWeight: '900', fontSize: (style?.width || 32) * 0.4 }}>{op.name?.[0]?.toUpperCase()}</Text>
+      </View>
+    );
+  }
+  return <Image source={source} style={style} resizeMode="contain" />;
+}
+
 // PayStore TopUpPackageQuery operatör parametresi — sadece Türkiye operatörleri destekleniyor
 const ELIGIBLE_QUERY_OPERATOR: Record<string, string> = {
   turkcell: 'Turkcell',
@@ -172,7 +187,7 @@ export default function ExploreScreen() {
   const getPkgPrice = (pkg: any): number =>
     parseFloat(pkg.price_try ?? pkg.price ?? pkg.app_price_try ?? 0);
 
-  const renderPkgCard = (pkg: any, op: { colors: [string, string]; logo: any; dbNames?: string[] }) => {
+  const renderPkgCard = (pkg: any, op: { name: string; colors: [string, string]; logo: any; dbNames?: string[] }) => {
     const price = getPkgPrice(pkg);
     const sellPrice = parseFloat(pkg.app_price_try) || 0;
     const details: { icon: string; label: string }[] = [];
@@ -205,7 +220,7 @@ export default function ExploreScreen() {
         >
           <View style={s.pkgLeft}>
             <View style={[s.pkgLogoCircle, { borderColor: op.colors[0] + '40' }]}>
-              <Image source={resolveLogo(op, logoOverrides)} style={s.pkgLogo} resizeMode="contain" />
+              <OpLogo op={op} overrides={logoOverrides} style={s.pkgLogo} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.pkgName} numberOfLines={2}>{pkg.name_tr}</Text>
@@ -300,10 +315,6 @@ export default function ExploreScreen() {
     return () => sub.remove();
   }, [selPkg, opId, detectedOp]));
 
-  const activeOpId = opId || detectedOp;
-  const activeOp    = [...ALL_OPERATORS, ...GAME_OPERATORS].find(o => o.id === activeOpId);
-  const isGameOrder = GAME_OPERATORS.some(o => o.id === activeOpId);
-
   // Excel/DB kaynaklı bazı operatör isimlerinde normal 'i' yerine Türkçe
   // "noktalı büyük İ"nin küçültülmüş hali (i + U+0307 combining dot) geliyor —
   // görsel olarak aynı görünüp string olarak farklı, bu yüzden bazı oyunlar
@@ -311,6 +322,40 @@ export default function ExploreScreen() {
   // (büyük harfli girişler, örn. 'souLchill') olabileceği için HER İKİ tarafı
   // da normalize ediyoruz — tek tek her oyuna varyant eklemek yerine kökten çözüm.
   const normOpName = (s: string) => s.toLowerCase().normalize('NFC').replace(/̇/g, '');
+
+  const DYNAMIC_COLORS: [string, string][] = [
+    ['#6366f1', '#4f46e5'], ['#ec4899', '#db2777'], ['#f59e0b', '#d97706'],
+    ['#10b981', '#059669'], ['#3b82f6', '#2563eb'], ['#ef4444', '#dc2626'],
+    ['#8b5cf6', '#7c3aed'], ['#f97316', '#ea580c'],
+  ];
+
+  // PayStore'dan yeni gelip GAME_OPERATORS listesine henüz elle eklenmemiş
+  // oyunlar/dijital ürünler — bayi panelindeki gibi otomatik kart oluşturuluyor,
+  // yeni bir kod deploy'u beklemeden görünsün diye. Admin panelden isim/logo
+  // atanmışsa (game_logos override) onu kullanır, atanmamışsa ham kodu gösterir.
+  const dynamicGameOperators = useMemo(() => {
+    const known = [...ALL_OPERATORS, ...GAME_OPERATORS];
+    const codes = [...new Set(packages.filter((p: any) => p.type === 'game').map((p: any) => p.operator).filter(Boolean))] as string[];
+    const unmatched = codes.filter(code =>
+      !known.some(op => op.dbNames.some(n => normOpName(code).includes(normOpName(n)) || normOpName(n).includes(normOpName(code))))
+    );
+    return unmatched.map((code, i) => {
+      const override = logoOverrides[code.toLowerCase().replace(/[^a-z0-9-]/g, '')];
+      return {
+        id: 'dyn-' + code.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name: override?.display_name || code,
+        logo: null,
+        colors: DYNAMIC_COLORS[i % DYNAMIC_COLORS.length],
+        dbNames: [code],
+      };
+    });
+  }, [packages, logoOverrides]);
+
+  const allGameOperators = [...GAME_OPERATORS, ...dynamicGameOperators];
+
+  const activeOpId = opId || detectedOp;
+  const activeOp    = [...ALL_OPERATORS, ...allGameOperators].find(o => o.id === activeOpId);
+  const isGameOrder = allGameOperators.some(o => o.id === activeOpId);
 
   const pkgs = useMemo(() => {
     if (!activeOp) return [];
@@ -456,11 +501,11 @@ export default function ExploreScreen() {
         {marketMode === 'game' ? (
           <ScrollView style={{ flex: 1 }} contentContainerStyle={s.phoneScreenBody} showsVerticalScrollIndicator={false}>
             <View style={s.gameGrid}>
-              {GAME_OPERATORS.map(op => (
+              {allGameOperators.map(op => (
                 <TouchableOpacity key={op.id} onPress={() => { setOpId(op.id); setEligibleIds(null); setEligibleNote(null); setShowAllOverride(false); }} activeOpacity={0.82} style={s.gameCell}>
                   <View style={s.gameCellInner}>
                     <View style={s.gameLogoWrap}>
-                      <Image source={resolveLogo(op, logoOverrides)} style={s.gameOpLogo} resizeMode="contain" resizeMethod="resize" />
+                      <OpLogo op={op} overrides={logoOverrides} style={s.gameOpLogo} />
                     </View>
                     <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
                     <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
@@ -586,7 +631,7 @@ export default function ExploreScreen() {
             <Text style={s.hTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{activeOp?.name}</Text>
             {activeOp && <Text style={s.hSub}>{t('explore.packagesAvailable', { count: pkgs.length })}</Text>}
           </View>
-          {activeOp && <Image source={resolveLogo(activeOp, logoOverrides)} style={s.hLogo} resizeMode="contain" />}
+          {activeOp && <OpLogo op={activeOp} overrides={logoOverrides} style={s.hLogo} />}
         </View>
       </LinearGradient>
 
@@ -669,7 +714,7 @@ export default function ExploreScreen() {
                 {/* Paket kartı — gradient */}
                 <LinearGradient colors={activeOp.colors} style={s.sheetPkg} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
                   <View style={s.sheetLogoBox}>
-                    <Image source={resolveLogo(activeOp, logoOverrides)} style={{ width: 34, height: 34 }} resizeMode="contain" />
+                    <OpLogo op={activeOp} overrides={logoOverrides} style={{ width: 34, height: 34 }} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={s.sheetPkgName}>{selPkg.name_tr}</Text>
