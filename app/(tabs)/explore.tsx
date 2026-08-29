@@ -70,6 +70,7 @@ const GAME_OPERATORS = [
   { id: 'azal-live',   name: 'Azal Live',     logo: require('../../assets/images/azal-live.png'),    colors: ['#8b5cf6','#7c3aed'] as [string,string], dbNames: ['azal live', 'azal li̇ve', 'azallive'] },
   { id: 'habi',        name: 'Habi',          logo: require('../../assets/images/habi.png'),         colors: ['#ef4444','#dc2626'] as [string,string], dbNames: ['habi', 'habi̇'] },
   { id: 'hoby',        name: 'Hoby',          logo: require('../../assets/images/hoby.png'),         colors: ['#3b82f6','#2563eb'] as [string,string], dbNames: ['hoby'] },
+  { id: 'habby',       name: 'Habby',         logo: require('../../assets/images/habby.png'),        colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['habby'] },
   { id: 'ayome',       name: 'Ayome',         logo: require('../../assets/images/ayome.png'),        colors: ['#10b981','#059669'] as [string,string], dbNames: ['ayome'] },
   { id: 'yalla-ludo',  name: 'Yalla Ludo',    logo: require('../../assets/images/yalla-ludo.png'),   colors: ['#f59e0b','#d97706'] as [string,string], dbNames: ['yalla ludo', 'yallaludo'] },
   { id: 'paycell',     name: 'Paycell',       logo: require('../../assets/images/paycell.png'),      colors: ['#6366f1','#4f46e5'] as [string,string], dbNames: ['paycell'] },
