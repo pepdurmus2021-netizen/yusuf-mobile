@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, ScrollView, FlatList, TouchableOpacity, StyleSheet,
   TextInput, Alert, Modal, ActivityIndicator, Animated,
   KeyboardAvoidingView, Keyboard, Platform, Image, Dimensions, BackHandler,
 } from 'react-native';
@@ -526,27 +526,39 @@ export default function ExploreScreen() {
         </View>
 
         {marketMode === 'game' ? (
-          <ScrollView style={{ flex: 1 }} contentContainerStyle={s.phoneScreenBody} showsVerticalScrollIndicator={false}>
-            <View style={s.gameGrid}>
-              {allGameOperators.map(op => (
-                <TouchableOpacity key={op.id} onPress={() => selectGameOp(op)} activeOpacity={0.82} style={s.gameCell}>
-                  <View style={s.gameCellInner}>
-                    <View style={s.gameLogoWrap}>
-                      <OpLogo op={op} overrides={logoOverrides} style={s.gameOpLogo} />
-                    </View>
-                    <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
-                    <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
-                      <View style={[s.gameOpDot, { backgroundColor: op.colors[0] }]} />
-                      <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
-                    </View>
-                    <LinearGradient colors={op.colors} style={s.gameArrow} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                      <Ionicons name="chevron-forward" size={10} color="#fff" />
-                    </LinearGradient>
+          // Sanallaştırılmış liste - ~250+ oyun/sosyal-app kartı artık ScrollView'de
+          // hepsi bir anda değil, FlatList ile sadece görünen kısım render ediliyor
+          // (performans: ScrollView+map ile ekran çok yavaşlıyordu, 30 Ağustos 2026).
+          <FlatList
+            data={allGameOperators}
+            keyExtractor={(op) => op.id}
+            numColumns={3}
+            style={{ flex: 1 }}
+            contentContainerStyle={s.phoneScreenBody}
+            columnWrapperStyle={{ gap: 10 }}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={18}
+            maxToRenderPerBatch={18}
+            windowSize={7}
+            removeClippedSubviews
+            renderItem={({ item: op }) => (
+              <TouchableOpacity onPress={() => selectGameOp(op)} activeOpacity={0.82} style={[s.gameCell, { marginBottom: 10 }]}>
+                <View style={s.gameCellInner}>
+                  <View style={s.gameLogoWrap}>
+                    <OpLogo op={op} overrides={logoOverrides} style={s.gameOpLogo} />
                   </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
+                  <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
+                  <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
+                    <View style={[s.gameOpDot, { backgroundColor: op.colors[0] }]} />
+                    <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
+                  </View>
+                  <LinearGradient colors={op.colors} style={s.gameArrow} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                    <Ionicons name="chevron-forward" size={10} color="#fff" />
+                  </LinearGradient>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
         ) : (
           <ScrollView
             style={{ flex: 1 }}
