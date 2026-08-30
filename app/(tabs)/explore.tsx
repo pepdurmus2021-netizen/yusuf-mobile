@@ -312,7 +312,8 @@ export default function ExploreScreen() {
       setModalOp(op);
       setSelPkg(list[0]);
       setOrderPhone('');
-      setAmountQty('');
+      // Miktar alanı minimum değerle önden dolu gelsin, toplam fiyat anında görünsün.
+      setAmountQty(list[0].product_type === 'amount' ? String(list[0].qty_min ?? '') : '');
     } else {
       setOpId(op.id);
       setEligibleIds(null);
@@ -696,7 +697,7 @@ export default function ExploreScreen() {
             // kullanıcı ID + miktar sonradan modalda girilecek, burada sadece
             // birim fiyat + minimum miktar bilgisiyle tek bir kart gösteriliyor.
             <TouchableOpacity
-              onPress={() => { setSelPkg(pkgs[0]); setOrderPhone(''); setAmountQty(''); }}
+              onPress={() => { setSelPkg(pkgs[0]); setOrderPhone(''); setAmountQty(String(pkgs[0].qty_min ?? '')); }}
               activeOpacity={0.8}
               style={s.pkgCard}
             >
