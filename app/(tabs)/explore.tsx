@@ -458,6 +458,141 @@ export default function ExploreScreen() {
     </View>
   );
 
+  // Sipariş onay modalı — hem "opId yok" (ana ızgara) hem "opId var" (oyun/telefon
+  // detay ekranı) dallarında kullanılacak, tek yerde tanımlanıp her ikisine de
+  // eklenir (tek paketli hızlı seçimde selPkg, opId set edilmeden açılabiliyor —
+  // bu yüzden modal her iki return dalında da mount edilmek zorunda).
+  const orderModal = (
+    <Modal visible={!!selPkg} animationType="slide" transparent onRequestClose={() => { setSelPkg(null); setModalOp(null); clearError(); }}>
+      <KeyboardAvoidingView style={s.overlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <View style={s.sheet}>
+          <View style={s.handle} />
+
+          {/* Başlık */}
+          <View style={s.sheetTop}>
+            <Text style={s.sheetTitle} numberOfLines={1}>{t('explore.orderSummary')}</Text>
+            <TouchableOpacity onPress={() => { setSelPkg(null); setModalOp(null); clearError(); }} style={s.closeBtn}>
+              <Ionicons name="close" size={18} color="#64748b" />
+            </TouchableOpacity>
+          </View>
+
+          {selPkg && sheetOp && (
+            <>
+              {/* Paket kartı — gradient */}
+              <LinearGradient colors={sheetOp.colors} style={s.sheetPkg} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+                <View style={s.sheetLogoBox}>
+                  <OpLogo op={sheetOp} overrides={logoOverrides} style={{ width: 34, height: 34 }} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.sheetPkgName}>{selPkg.name_tr}</Text>
+                  <Text style={s.sheetPkgOp}>{sheetOp.name}</Text>
+                </View>
+                <View style={s.sheetPriceBadge}>
+                  <Text style={s.sheetPkgPrice}>{fmtPrice(sheetPrice)}</Text>
+                  <Text style={s.sheetPriceCur}>₺</Text>
+                </View>
+              </LinearGradient>
+
+              {/* Serbest miktar girişi (Gunes-Tek 'amount' tipi ürünler) */}
+              {isAmountPkg && (
+                <View style={s.inputSection}>
+                  <Text style={s.inputLabel}>{t('explore.amountLabel', { defaultValue: 'Miktar' })}</Text>
+                  <View style={[s.inputRow, !amountQtyValid && amountQty.length > 0 && { borderColor: '#ef4444' }]}>
+                    <View style={s.inputIconWrap}>
+                      <Ionicons name="calculator" size={16} color="#94a3b8" />
+                    </View>
+                    <TextInput
+                      style={s.inputField}
+                      value={amountQty}
+                      onChangeText={setAmountQty}
+                      keyboardType="numeric"
+                      placeholder={String(selPkg.qty_min)}
+                      placeholderTextColor="#b0bec5"
+                    />
+                  </View>
+                  <Text style={[s.inputLabel, { marginTop: 4, fontSize: 11, color: !amountQtyValid && amountQty.length > 0 ? '#ef4444' : '#94a3b8' }]}>
+                    {t('explore.amountRangeHint', {
+                      min: fmtNum(selPkg.qty_min), max: fmtNum(selPkg.qty_max),
+                      defaultValue: `${fmtNum(selPkg.qty_min)} - ${fmtNum(selPkg.qty_max)} arasında olmalı`,
+                    })}
+                  </Text>
+                </View>
+              )}
+
+              {/* Telefon / Oyun ID girişi */}
+              <View style={s.inputSection}>
+                <Text style={s.inputLabel}>
+                  {isGameOrder ? t('explore.gameIdLabel') : t('explore.phoneNumberLabel')}
+                </Text>
+                <View style={[s.inputRow, phoneFocused && { borderColor: sheetOp?.colors[0] || '#6366f1', backgroundColor: '#fff' }]}>
+                  <View style={[s.inputIconWrap, phoneFocused && { backgroundColor: (sheetOp?.colors[0] || '#6366f1') + '15' }]}>
+                    <Ionicons
+                      name={isGameOrder ? 'game-controller' : 'call'}
+                      size={16}
+                      color={phoneFocused ? (sheetOp?.colors[0] || '#6366f1') : '#94a3b8'}
+                    />
+                  </View>
+                  <TextInput
+                    style={s.inputField}
+                    value={orderPhone}
+                    onChangeText={setOrderPhone}
+                    keyboardType={isGameOrder ? 'default' : 'phone-pad'}
+                    placeholder={isGameOrder ? t('explore.enterGameId') : '05xx xxx xx xx'}
+                    placeholderTextColor="#b0bec5"
+                    autoFocus={isGameOrder}
+                    onFocus={() => setPhoneFocused(true)}
+                    onBlur={() => setPhoneFocused(false)}
+                  />
+                  {orderPhone.length > 0 && (
+                    <TouchableOpacity onPress={() => setOrderPhone('')} style={{ paddingEnd: 14 }}>
+                      <Ionicons name="close-circle" size={18} color="#cbd5e1" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+
+              {/* İşlem özeti */}
+              <View style={s.summaryBox}>
+                <View style={s.summaryRow}>
+                  <Text style={s.summaryLabel}>{t('explore.packageAmount')}</Text>
+                  <Text style={s.summaryValue}>{fmtPrice(sheetPrice)} ₺</Text>
+                </View>
+              </View>
+            </>
+          )}
+
+          {/* Hata mesajı */}
+          {orderError && (
+            <View style={s.errorBox}>
+              <Ionicons name="alert-circle" size={16} color="#ef4444" />
+              <Text style={s.errorTxt}>{orderErrorMessage(orderError)}</Text>
+            </View>
+          )}
+
+          {/* Onayla butonu */}
+          <TouchableOpacity
+            onPress={handleConfirm}
+            disabled={orderLoading || gtLoading || (isAmountPkg && !amountQtyValid)}
+            style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4, opacity: (isAmountPkg && !amountQtyValid) ? 0.5 : 1 }}
+            activeOpacity={0.85}
+          >
+            <LinearGradient colors={sheetOp?.colors || ['#6366f1', '#8b5cf6']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+              {(orderLoading || gtLoading)
+                ? <ActivityIndicator color="#fff" size="small" />
+                : <><Ionicons name="flash" size={18} color="#fff" /><Text style={s.confirmTxt} numberOfLines={1}>{t('explore.confirmOrder')}</Text></>
+              }
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {/* İptal linki */}
+          <TouchableOpacity onPress={() => { setSelPkg(null); setModalOp(null); clearError(); }} style={s.cancelLink} activeOpacity={0.7}>
+            <Text style={s.cancelTxt}>{t('explore.cancel')}</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+
   // ── Numara ekranı — Telegram tarzı, ülke seçici + numara girişi ─────────────
   if (!opId) {
     const countries: { key: CountryKey; flag: string; name: string; code: string }[] = [
@@ -500,6 +635,7 @@ export default function ExploreScreen() {
     };
 
     return (
+    <>
       <View style={s.phoneScreen}>
         <LinearGradient colors={['#4f46e5', '#7c3aed', '#a855f7']} style={s.phoneHeader} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
           <View style={s.hDecor1} /><View style={s.hDecor2} />
@@ -649,6 +785,16 @@ export default function ExploreScreen() {
           </ScrollView>
         )}
       </View>
+
+      <AppModal
+        visible={!!appModal}
+        type={appModal?.type || 'pending'}
+        title={appModal?.title || ''}
+        message={appModal?.message || ''}
+        onClose={() => setAppModal(null)}
+      />
+      {orderModal}
+    </>
     );
   }
 
@@ -765,136 +911,7 @@ export default function ExploreScreen() {
         message={appModal?.message || ''}
         onClose={() => setAppModal(null)}
       />
-
-      {/* SİPARİŞ ONAY MODALI */}
-      <Modal visible={!!selPkg} animationType="slide" transparent onRequestClose={() => { setSelPkg(null); setModalOp(null); clearError(); }}>
-        <KeyboardAvoidingView style={s.overlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <View style={s.sheet}>
-            <View style={s.handle} />
-
-            {/* Başlık */}
-            <View style={s.sheetTop}>
-              <Text style={s.sheetTitle} numberOfLines={1}>{t('explore.orderSummary')}</Text>
-              <TouchableOpacity onPress={() => { setSelPkg(null); setModalOp(null); clearError(); }} style={s.closeBtn}>
-                <Ionicons name="close" size={18} color="#64748b" />
-              </TouchableOpacity>
-            </View>
-
-            {selPkg && sheetOp && (
-              <>
-                {/* Paket kartı — gradient */}
-                <LinearGradient colors={sheetOp.colors} style={s.sheetPkg} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-                  <View style={s.sheetLogoBox}>
-                    <OpLogo op={sheetOp} overrides={logoOverrides} style={{ width: 34, height: 34 }} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={s.sheetPkgName}>{selPkg.name_tr}</Text>
-                    <Text style={s.sheetPkgOp}>{sheetOp.name}</Text>
-                  </View>
-                  <View style={s.sheetPriceBadge}>
-                    <Text style={s.sheetPkgPrice}>{fmtPrice(sheetPrice)}</Text>
-                    <Text style={s.sheetPriceCur}>₺</Text>
-                  </View>
-                </LinearGradient>
-
-                {/* Serbest miktar girişi (Gunes-Tek 'amount' tipi ürünler) */}
-                {isAmountPkg && (
-                  <View style={s.inputSection}>
-                    <Text style={s.inputLabel}>{t('explore.amountLabel', { defaultValue: 'Miktar' })}</Text>
-                    <View style={[s.inputRow, !amountQtyValid && amountQty.length > 0 && { borderColor: '#ef4444' }]}>
-                      <View style={s.inputIconWrap}>
-                        <Ionicons name="calculator" size={16} color="#94a3b8" />
-                      </View>
-                      <TextInput
-                        style={s.inputField}
-                        value={amountQty}
-                        onChangeText={setAmountQty}
-                        keyboardType="numeric"
-                        placeholder={String(selPkg.qty_min)}
-                        placeholderTextColor="#b0bec5"
-                      />
-                    </View>
-                    <Text style={[s.inputLabel, { marginTop: 4, fontSize: 11, color: !amountQtyValid && amountQty.length > 0 ? '#ef4444' : '#94a3b8' }]}>
-                      {t('explore.amountRangeHint', {
-                        min: fmtNum(selPkg.qty_min), max: fmtNum(selPkg.qty_max),
-                        defaultValue: `${fmtNum(selPkg.qty_min)} - ${fmtNum(selPkg.qty_max)} arasında olmalı`,
-                      })}
-                    </Text>
-                  </View>
-                )}
-
-                {/* Telefon / Oyun ID girişi */}
-                <View style={s.inputSection}>
-                  <Text style={s.inputLabel}>
-                    {isGameOrder ? t('explore.gameIdLabel') : t('explore.phoneNumberLabel')}
-                  </Text>
-                  <View style={[s.inputRow, phoneFocused && { borderColor: sheetOp?.colors[0] || '#6366f1', backgroundColor: '#fff' }]}>
-                    <View style={[s.inputIconWrap, phoneFocused && { backgroundColor: (sheetOp?.colors[0] || '#6366f1') + '15' }]}>
-                      <Ionicons
-                        name={isGameOrder ? 'game-controller' : 'call'}
-                        size={16}
-                        color={phoneFocused ? (sheetOp?.colors[0] || '#6366f1') : '#94a3b8'}
-                      />
-                    </View>
-                    <TextInput
-                      style={s.inputField}
-                      value={orderPhone}
-                      onChangeText={setOrderPhone}
-                      keyboardType={isGameOrder ? 'default' : 'phone-pad'}
-                      placeholder={isGameOrder ? t('explore.enterGameId') : '05xx xxx xx xx'}
-                      placeholderTextColor="#b0bec5"
-                      autoFocus={isGameOrder}
-                      onFocus={() => setPhoneFocused(true)}
-                      onBlur={() => setPhoneFocused(false)}
-                    />
-                    {orderPhone.length > 0 && (
-                      <TouchableOpacity onPress={() => setOrderPhone('')} style={{ paddingEnd: 14 }}>
-                        <Ionicons name="close-circle" size={18} color="#cbd5e1" />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-
-                {/* İşlem özeti */}
-                <View style={s.summaryBox}>
-                  <View style={s.summaryRow}>
-                    <Text style={s.summaryLabel}>{t('explore.packageAmount')}</Text>
-                    <Text style={s.summaryValue}>{fmtPrice(sheetPrice)} ₺</Text>
-                  </View>
-                </View>
-              </>
-            )}
-
-            {/* Hata mesajı */}
-            {orderError && (
-              <View style={s.errorBox}>
-                <Ionicons name="alert-circle" size={16} color="#ef4444" />
-                <Text style={s.errorTxt}>{orderErrorMessage(orderError)}</Text>
-              </View>
-            )}
-
-            {/* Onayla butonu */}
-            <TouchableOpacity
-              onPress={handleConfirm}
-              disabled={orderLoading || gtLoading || (isAmountPkg && !amountQtyValid)}
-              style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4, opacity: (isAmountPkg && !amountQtyValid) ? 0.5 : 1 }}
-              activeOpacity={0.85}
-            >
-              <LinearGradient colors={sheetOp?.colors || ['#6366f1', '#8b5cf6']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                {(orderLoading || gtLoading)
-                  ? <ActivityIndicator color="#fff" size="small" />
-                  : <><Ionicons name="flash" size={18} color="#fff" /><Text style={s.confirmTxt} numberOfLines={1}>{t('explore.confirmOrder')}</Text></>
-                }
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {/* İptal linki */}
-            <TouchableOpacity onPress={() => { setSelPkg(null); setModalOp(null); clearError(); }} style={s.cancelLink} activeOpacity={0.7}>
-              <Text style={s.cancelTxt}>{t('explore.cancel')}</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+      {orderModal}
     </View>
   );
 }
