@@ -281,13 +281,17 @@ export default function ExploreScreen() {
   // Admin panelden isim/logo atanmışsa (game_logos override) onu kullanır,
   // atanmamışsa ham operatör kodunu + fallback ikonu (OpLogo) gösterir.
   const dynamicGameOperators = useMemo(() => {
-    const codes = [...new Set(packages.filter((p: any) => p.type === 'game').map((p: any) => p.operator).filter(Boolean))] as string[];
+    const gamePkgs = packages.filter((p: any) => p.type === 'game');
+    const codes = [...new Set(gamePkgs.map((p: any) => p.operator).filter(Boolean))] as string[];
     return codes.map((code, i) => {
       const override = logoOverrides[toSafeKey(code)];
+      // Gunes-Tek'in kendi sagladigi urun gorseli (category_img) - elle logo
+      // yuklemeye gerek kalmadan admin override yoksa bunu fallback olarak kullan.
+      const categoryImg = gamePkgs.find((p: any) => p.operator === code && p.category_img)?.category_img;
       return {
         id: 'dyn-' + code.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         name: override?.display_name || code,
-        logo: null,
+        logo: categoryImg ? { uri: categoryImg } : null,
         colors: DYNAMIC_COLORS[i % DYNAMIC_COLORS.length],
         dbNames: [code],
       };
