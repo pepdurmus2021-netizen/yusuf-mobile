@@ -283,11 +283,21 @@ export default function ExploreScreen() {
   const dynamicGameOperators = useMemo(() => {
     const gamePkgs = packages.filter((p: any) => p.type === 'game');
     const codes = [...new Set(gamePkgs.map((p: any) => p.operator).filter(Boolean))] as string[];
+    // Gunes-Tek'in category_img'i cogu zaman urune ozel degil, ayni gorsel birden
+    // fazla farkli oyunda tekrar ediyor (jenerik kategori placeholder'i) - yanlis
+    // logo gostermek hic logo gostermemekten kotu. Sadece TEK operatorde kullanilan
+    // (gercekten benzersiz) gorselleri fallback olarak al.
+    const rawImgByCode: Record<string, string> = {};
+    codes.forEach((code) => {
+      const img = gamePkgs.find((p: any) => p.operator === code && p.category_img)?.category_img;
+      if (img) rawImgByCode[code] = img;
+    });
+    const urlUsageCount: Record<string, number> = {};
+    Object.values(rawImgByCode).forEach((url) => { urlUsageCount[url] = (urlUsageCount[url] || 0) + 1; });
+
     return codes.map((code, i) => {
       const override = logoOverrides[toSafeKey(code)];
-      // Gunes-Tek'in kendi sagladigi urun gorseli (category_img) - elle logo
-      // yuklemeye gerek kalmadan admin override yoksa bunu fallback olarak kullan.
-      const categoryImg = gamePkgs.find((p: any) => p.operator === code && p.category_img)?.category_img;
+      const categoryImg = urlUsageCount[rawImgByCode[code]] === 1 ? rawImgByCode[code] : null;
       return {
         id: 'dyn-' + code.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         name: override?.display_name || code,
