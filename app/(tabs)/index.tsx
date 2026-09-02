@@ -542,6 +542,11 @@ const styles = StyleSheet.create({
   todayDivider: { width: 1, height: 30, backgroundColor: '#e2e8f0' },
   todaySplit: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 10 },
 
+  dealersBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 20, marginTop: 14, backgroundColor: '#fff', borderRadius: 18, padding: 14, elevation: 3, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
+  dealersBannerIcon: { width: 42, height: 42, borderRadius: 13, justifyContent: 'center', alignItems: 'center' },
+  dealersBannerTitle: { fontSize: 14, fontWeight: '800', color: '#1e293b' },
+  dealersBannerSub: { fontSize: 12, color: '#94a3b8', fontWeight: '600', marginTop: 1 },
+
   quickRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 24, gap: 8 },
   quickBtn: { flex: 1, alignItems: 'center', gap: 8 },
   quickIcon: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
