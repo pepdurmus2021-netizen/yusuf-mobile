@@ -234,16 +234,10 @@ export default function DealersScreen() {
             <Text style={styles.headerTitle}>{t('dealers.title')}</Text>
             <Text style={styles.headerSub}>{t('dealers.subDealerCount', { count: myDealers.length })}</Text>
           </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity style={styles.addBtn} onPress={openPriceModal} activeOpacity={0.85}>
-              <Ionicons name="pricetag" size={16} color="#f97316" />
-              <Text style={styles.addBtnText}>{t('dealers.prices')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.addBtn} onPress={() => setAddModal(true)} activeOpacity={0.85}>
-              <Ionicons name="person-add" size={16} color="#f97316" />
-              <Text style={styles.addBtnText}>{t('dealers.addDealer')}</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.addBtn} onPress={openPriceModal} activeOpacity={0.85}>
+            <Ionicons name="pricetag" size={16} color="#f97316" />
+            <Text style={styles.addBtnText}>{t('dealers.prices')}</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
 
