@@ -228,6 +228,7 @@
     "ruleFormHint": "Operatör veya kategori seçin. Boş bırakırsanız tüm paketlere uygulanır.",
     "toDealer": "adlı bayiye",
     "available": "Kullanılabilir",
+    "searchPlaceholder": "Ad, e-posta veya telefon ara...",
     "transfer": "Aktar",
     "transferBalance": "Bakiye Aktar",
     "giveDebt": "Borç Ver",
