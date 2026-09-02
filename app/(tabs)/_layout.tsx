@@ -104,6 +104,8 @@ export default function TabsLayout() {
             left: '50%',
             marginLeft: -31,
             bottom: 6,
+            width: 62,
+            height: 62,
           },
         }}
       />
