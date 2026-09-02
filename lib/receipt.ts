@@ -106,7 +106,26 @@ export function generateReceiptHtml(order: any, forPrint = false): string {
 </body></html>`;
 }
 
+// Web'de expo-print'in printToFileAsync/expo-sharing'i desteklenmiyor — tarayıcının
+// kendi yazdırma diyaloğunu (orada "PDF olarak kaydet" seçilebilir) yeni bir sekmede açıyoruz.
+function openReceiptInBrowserTab(order: any, autoPrint: boolean) {
+  const html = generateReceiptHtml(order, true);
+  const win = window.open('', '_blank');
+  if (!win) {
+    Alert.alert(i18n.t('common.error'), i18n.t('orders.receiptGenerationFailed'));
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  if (autoPrint) {
+    win.onload = () => win.print();
+    setTimeout(() => { try { win.print(); } catch {} }, 400);
+  }
+}
+
 export async function downloadReceipt(order: any) {
+  if (Platform.OS === 'web') { openReceiptInBrowserTab(order, true); return; }
   try {
     const html = generateReceiptHtml(order, true);
     const { uri } = await Print.printToFileAsync({ html, base64: false });
@@ -117,6 +136,7 @@ export async function downloadReceipt(order: any) {
 }
 
 export async function printReceipt(order: any) {
+  if (Platform.OS === 'web') { openReceiptInBrowserTab(order, true); return; }
   try {
     const html = generateReceiptHtml(order, true);
     await Print.printAsync({ html });
