@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { safeDateFull } from './config';
