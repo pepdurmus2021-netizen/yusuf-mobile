@@ -348,6 +348,17 @@ export default function ExploreScreen() {
   const pkgCount = (op: any) =>
     packages.filter(p => op.dbNames.some((n: string) => normOpName(p.operator || '').includes(normOpName(n)))).length;
 
+  // Serbest miktarli (amount) oyunlarda tek satir var ama bu bir "paket" degil -
+  // "1 paket" yazmak yanlis/kafa karistirici. Bu durumda rozette "Serbest Miktar"
+  // gibi uygun bir etiket goster, paket sayisi gostermeyi atla.
+  const gameGridBadgeLabel = (op: any) => {
+    const opPkgs = packages.filter(p => op.dbNames.some((n: string) => normOpName(p.operator || '').includes(normOpName(n))));
+    if (opPkgs.length === 1 && opPkgs[0].product_type === 'amount') {
+      return t('explore.freeAmount', { defaultValue: 'Serbest Miktar' });
+    }
+    return t('explore.packageCount', { count: opPkgs.length });
+  };
+
   // Gunes-Tek 'amount' tipi ürünlerde tüm operatör satırı tek (serbest miktar) —
   // miktar× birim fiyat canlı hesaplanır, gerçek fiyat siparişte backend'de hesaplanır.
   const isAmountPkg = !!selPkg && isGameOrder && selPkg.product_type === 'amount';
