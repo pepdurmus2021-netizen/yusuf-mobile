@@ -5,6 +5,16 @@ import { safeDateFull } from './config';
 import { BRAND } from '../config/brand';
 import i18n from '../i18n';
 
+function getReceiptStatus(status: string) {
+  if (status === 'completed') {
+    return { label: 'Tamamlandı', icon: '✓', color: '#10b981', chipBg: '#ede9fe', chipBorder: '#c4b5fd', chipText: '#6d28d9', amountLabel: 'Ödenen Tutar', amountBg: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', amountBorder: '#86efac', amountLabelColor: '#16a34a', amountValueColor: '#15803d' };
+  }
+  if (status === 'pending' || status === 'processing') {
+    return { label: 'Bekliyor', icon: '⏱', color: '#f59e0b', chipBg: '#fffbeb', chipBorder: '#fde68a', chipText: '#b45309', amountLabel: 'Sipariş Tutarı', amountBg: 'linear-gradient(135deg, #fffbeb, #fef3c7)', amountBorder: '#fde68a', amountLabelColor: '#b45309', amountValueColor: '#92400e' };
+  }
+  return { label: 'İptal Edildi', icon: '✕', color: '#ef4444', chipBg: '#fef2f2', chipBorder: '#fecaca', chipText: '#b91c1c', amountLabel: 'İptal Edilen Tutar', amountBg: 'linear-gradient(135deg, #fef2f2, #fee2e2)', amountBorder: '#fecaca', amountLabelColor: '#b91c1c', amountValueColor: '#991b1b' };
+}
+
 export function generateReceiptHtml(order: any, forPrint = false): string {
   const orderId = (order.id || '').toString().toUpperCase().slice(-10);
   const date = safeDateFull(order.created_at);
@@ -12,6 +22,7 @@ export function generateReceiptHtml(order: any, forPrint = false): string {
   const pkg = order.package_name_tr || order.package?.name_tr || 'Paket';
   const operator = order.package_operator || order.package?.operator || '—';
   const amount = parseFloat(order.satis_fiyati || order.amount || 0).toFixed(2);
+  const st = getReceiptStatus(order.status);
 
   return `<!DOCTYPE html>
 <html lang="tr">
