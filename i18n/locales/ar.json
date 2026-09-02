@@ -229,6 +229,7 @@
     "toDealer": "إلى الموزّع",
     "available": "المتاح",
     "searchPlaceholder": "ابحث بالاسم أو البريد أو الهاتف...",
+    "dealerNotFound": "لم يتم العثور على موزّع",
     "transfer": "تحويل",
     "transferBalance": "تحويل الرصيد",
     "giveDebt": "منح دين",
