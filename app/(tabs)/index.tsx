@@ -241,6 +241,32 @@ export default function HomeScreen() {
               <Text style={styles.todayLbl}>{t('home.todayPending')}</Text>
             </View>
           </View>
+
+          {isDealerParent && anaBayiStats && (
+            <>
+              <View style={styles.todaySplit} />
+              <View style={styles.todayRow}>
+                <View style={styles.todayStat}>
+                  <Text style={styles.todayVal}>{anaBayiStats.todayOrders ?? 0}</Text>
+                  <Text style={styles.todayLbl}>{t('home.todayDealerOrders')}</Text>
+                </View>
+                <View style={styles.todayDivider} />
+                <View style={styles.todayStat}>
+                  <Text style={[styles.todayVal, { color: '#10b981' }]}>
+                    {isBalanceVisible ? anaBayiStats.todayEarnings ?? '0.00' : '****'} ₺
+                  </Text>
+                  <Text style={styles.todayLbl}>{t('home.todayDealerProfit')}</Text>
+                </View>
+                <View style={styles.todayDivider} />
+                <View style={styles.todayStat}>
+                  <Text style={[styles.todayVal, (anaBayiStats.todayPendingOrders ?? 0) > 0 && { color: '#f59e0b' }]}>
+                    {anaBayiStats.todayPendingOrders ?? 0}
+                  </Text>
+                  <Text style={styles.todayLbl}>{t('home.todayDealerPending')}</Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
 
         {/* HIZLI İŞLEM BUTONLARI */}
