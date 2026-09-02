@@ -304,7 +304,7 @@ export default function DealersScreen() {
             ? myDealers.filter(d => (d.name || '').toLowerCase().includes(q) || (d.email || '').toLowerCase().includes(q) || (d.phone || '').includes(q))
             : myDealers;
           if (filteredDealers.length === 0) {
-            return <Text style={styles.emptyTabText}>{t('orders.notFound')}</Text>;
+            return <Text style={styles.emptyTabText}>{t('dealers.dealerNotFound')}</Text>;
           }
           return filteredDealers.map(dealer => (
             <TouchableOpacity key={dealer.id} style={styles.dealerCard} onPress={() => openDetail(dealer)} activeOpacity={0.8}>
