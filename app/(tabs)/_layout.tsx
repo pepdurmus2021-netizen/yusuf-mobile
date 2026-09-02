@@ -3,7 +3,6 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 function TabIcon({ name, focused }: { name: any; focused: boolean }) {
