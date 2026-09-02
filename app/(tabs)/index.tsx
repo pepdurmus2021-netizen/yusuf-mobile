@@ -102,19 +102,23 @@ export default function HomeScreen() {
   const fetchData = useCallback(async () => {
     if (!user?.id || !token) { setLoading(false); setRefreshing(false); return; }
     try {
-      const [, , userRes] = await Promise.all([
+      const results = await Promise.allSettled([
         fetchOrders(token),
         fetchBalanceRequests(token),
         supabase.from('users').select('balance').eq('id', user.id).single(),
+        isDealerParent ? fetchAnaBayiStats(token) : Promise.resolve(),
       ]);
-      if (userRes.data) updateUser({ balance: userRes.data.balance });
+      const userRes = results[2];
+      if (userRes.status === 'fulfilled' && (userRes.value as any)?.data) {
+        updateUser({ balance: (userRes.value as any).data.balance });
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id]);
+  }, [user?.id, isDealerParent]);
 
   useEffect(() => { if (user?.id) fetchData(); }, [user?.id]);
 
