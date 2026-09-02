@@ -217,6 +217,27 @@ export default function HomeScreen() {
           </View>
         </LinearGradient>
 
+        {/* BUGÜN ÖZET KARTI */}
+        <View style={styles.todayCard}>
+          <Text style={styles.todayTitle}>{t('home.today')}</Text>
+          <View style={styles.todayRow}>
+            <View style={styles.todayStat}>
+              <Text style={styles.todayVal}>{todayCount}</Text>
+              <Text style={styles.todayLbl}>{t('home.todayOrders')}</Text>
+            </View>
+            <View style={styles.todayDivider} />
+            <View style={styles.todayStat}>
+              <Text style={styles.todayVal}>{isBalanceVisible ? todaySpent.toFixed(2) : '****'} ₺</Text>
+              <Text style={styles.todayLbl}>{t('home.todaySpent')}</Text>
+            </View>
+            <View style={styles.todayDivider} />
+            <View style={styles.todayStat}>
+              <Text style={[styles.todayVal, todayPending > 0 && { color: '#f59e0b' }]}>{todayPending}</Text>
+              <Text style={styles.todayLbl}>{t('home.todayPending')}</Text>
+            </View>
+          </View>
+        </View>
+
         {/* HIZLI İŞLEM BUTONLARI */}
         <View style={styles.quickRow}>
           {quickActions.map((a, i) => (
