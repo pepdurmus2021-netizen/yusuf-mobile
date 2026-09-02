@@ -85,8 +85,10 @@ export default function TabsLayout() {
         name="dealers"
         options={{
           title: t('dealers.title'),
-          tabBarIcon: ({ focused }) => <TabIcon name="people" focused={focused} />,
-          tabBarItemStyle: isAnaBayi ? {} : { display: 'none' },
+          // Alt barda her zaman tam 2 sekme + ortada şimşek + 2 sekme simetrisi
+          // korunsun diye Bayilerim artık ayrı bir sekme değil — ana ekrandaki
+          // banner'dan açılıyor (bkz. index.tsx). Rota hâlâ var, sadece bardan gizli.
+          tabBarButton: () => null,
         }}
       />
       <Tabs.Screen
