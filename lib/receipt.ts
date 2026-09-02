@@ -94,12 +94,12 @@ export function generateReceiptHtml(order: any, forPrint = false): string {
       </div>
     </div>
     <div class="footer">
-      <div style="display:inline-flex;align-items:center;gap:9px;background:#ede9fe;border:2px solid #c4b5fd;border-radius:30px;padding:10px 24px;">
-        <span style="display:inline-block;width:24px;height:24px;background:#10b981;border-radius:50%;color:#fff;font-size:14px;line-height:24px;text-align:center;font-weight:900;">✓</span>
-        <span style="color:#6d28d9;font-size:16px;font-weight:800;">Tamamlandı</span>
+      <div style="display:inline-flex;align-items:center;gap:9px;background:${st.chipBg};border:2px solid ${st.chipBorder};border-radius:30px;padding:10px 24px;">
+        <span style="display:inline-block;width:24px;height:24px;background:${st.color};border-radius:50%;color:#fff;font-size:14px;line-height:24px;text-align:center;font-weight:900;">${st.icon}</span>
+        <span style="color:${st.chipText};font-size:16px;font-weight:800;">${st.label}</span>
       </div>
       <div class="divider" style="margin-top:14px;"></div>
-      <div class="footer-line1" style="margin-top:10px;">Bu belge geçerli bir ödeme kanıtıdır.</div>
+      <div class="footer-line1" style="margin-top:10px;">${order.status === 'completed' ? 'Bu belge geçerli bir ödeme kanıtıdır.' : order.status === 'pending' || order.status === 'processing' ? 'Bu sipariş henüz işlem sürecindedir, tutar bilgilendirme amaçlıdır.' : 'Bu sipariş iptal edilmiştir, tutar tahsil edilmemiştir/iade edilmiştir.'}</div>
     </div>
   </div>
 </div>
