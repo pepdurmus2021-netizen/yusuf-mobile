@@ -374,6 +374,14 @@ const styles = StyleSheet.create({
   debtBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fef2f2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, marginTop: 8, alignSelf: 'flex-start' },
   debtText: { color: '#ef4444', fontSize: 12, fontWeight: '700' },
 
+  todayCard: { marginHorizontal: 20, marginTop: -16, backgroundColor: '#fff', borderRadius: 20, paddingVertical: 14, paddingHorizontal: 16, elevation: 6, shadowColor: '#1e293b', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
+  todayTitle: { fontSize: 11, fontWeight: '800', color: '#94a3b8', letterSpacing: 0.4, marginBottom: 8, textTransform: 'uppercase' },
+  todayRow: { flexDirection: 'row', alignItems: 'center' },
+  todayStat: { flex: 1, alignItems: 'center', gap: 2 },
+  todayVal: { fontSize: 16, fontWeight: '900', color: '#1e293b' },
+  todayLbl: { fontSize: 10, fontWeight: '700', color: '#94a3b8', marginTop: 2, textAlign: 'center' },
+  todayDivider: { width: 1, height: 30, backgroundColor: '#e2e8f0' },
+
   quickRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 24, gap: 8 },
   quickBtn: { flex: 1, alignItems: 'center', gap: 8 },
   quickIcon: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
