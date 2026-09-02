@@ -412,6 +412,7 @@ const styles = StyleSheet.create({
   todayVal: { fontSize: 16, fontWeight: '900', color: '#1e293b' },
   todayLbl: { fontSize: 10, fontWeight: '700', color: '#94a3b8', marginTop: 2, textAlign: 'center' },
   todayDivider: { width: 1, height: 30, backgroundColor: '#e2e8f0' },
+  todaySplit: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 10 },
 
   quickRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 24, gap: 8 },
   quickBtn: { flex: 1, alignItems: 'center', gap: 8 },
