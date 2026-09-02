@@ -51,8 +51,13 @@ const ALL_OPERATORS = [
   { dbNames: ['falla'],                                        logo: require('../../assets/images/falla.png') },
 ];
 
-function getOperatorLogo(operatorName?: string) {
+// Admin panelden atanmis override (ozellikle Gunes-Tek oyunlari icin Play Store'dan
+// cekilen gercek logolar) varsa onu kullan, yoksa eski yerel GSM/oyun haritasina
+// (ALL_OPERATORS) dus, o da yoksa fallback ikon gosterilir (bkz. renderItem).
+function getOperatorLogo(operatorName: string | undefined, overrides: Record<string, any>) {
   if (!operatorName) return null;
+  const override = overrides[toSafeKey(operatorName)];
+  if (override) return { uri: `${require('../../lib/config').API_URL}${override.logo_url}` };
   const lower = operatorName.toLowerCase();
   const match = ALL_OPERATORS.find(op => op.dbNames.some(n => lower.includes(n)));
   return match?.logo || null;
