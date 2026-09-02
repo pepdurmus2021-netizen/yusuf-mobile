@@ -278,6 +278,19 @@ export default function HomeScreen() {
           )}
         </View>
 
+        {isDealerParent && (
+          <TouchableOpacity style={styles.dealersBanner} onPress={() => router.push('/(tabs)/dealers')} activeOpacity={0.85}>
+            <LinearGradient colors={['#f97316', '#ea580c']} style={styles.dealersBannerIcon}>
+              <Ionicons name="people" size={20} color="#fff" />
+            </LinearGradient>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.dealersBannerTitle}>{t('dealers.title')}</Text>
+              <Text style={styles.dealersBannerSub}>{t('dealers.subDealerCount', { count: anaBayiStats?.dealerCount ?? 0 })}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#f97316" />
+          </TouchableOpacity>
+        )}
+
         {/* HIZLI İŞLEM BUTONLARI */}
         <View style={styles.quickRow}>
           {quickActions.map((a, i) => (
