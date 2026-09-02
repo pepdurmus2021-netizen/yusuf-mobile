@@ -382,7 +382,7 @@ export default function DealersScreen() {
               <Text style={styles.cancelText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
 
       {/* ── Bayi Ekle Modal ── */}
