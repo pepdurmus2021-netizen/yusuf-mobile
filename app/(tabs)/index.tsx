@@ -428,7 +428,6 @@ export default function HomeScreen() {
               const statusIcon = selectedOrder.status === 'completed' ? 'checkmark-circle' : selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? 'time' : 'close-circle';
               const statusLabel = selectedOrder.status === 'completed' ? t('home.completed') : selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? t('home.pending') : t('home.cancelled');
               const gradColors: [string, string] = selectedOrder.status === 'completed' ? ['#10b981', '#059669'] : selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? ['#f59e0b', '#d97706'] : ['#ef4444', '#dc2626'];
-              const orderId = (selectedOrder.id || '').toString().toUpperCase().slice(-10);
               return (
                 <>
                   <LinearGradient colors={gradColors} style={styles.sheetBadge} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
