@@ -711,7 +711,7 @@ export default function ExploreScreen() {
                   <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
                   <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
                     <View style={[s.gameOpDot, { backgroundColor: op.colors[0] }]} />
-                    <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{t('explore.packageCount', { count: pkgCount(op) })}</Text>
+                    <Text style={[s.gameOpBadgeTxt, { color: op.colors[0] }]}>{gameGridBadgeLabel(op)}</Text>
                   </View>
                   <LinearGradient colors={op.colors} style={s.gameArrow} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                     <Ionicons name="chevron-forward" size={10} color="#fff" />
