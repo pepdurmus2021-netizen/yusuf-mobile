@@ -37,9 +37,6 @@ function CenterIcon() {
 export default function TabsLayout() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
-  const isAnaBayi = user?.role === 'ana_bayi';
-
   return (
     <Tabs
       screenOptions={{
