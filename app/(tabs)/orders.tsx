@@ -7,7 +7,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { safeDate, safeDateFull } from '../../lib/config';
+import { safeDate, safeDateFull, API_URL } from '../../lib/config';
 import { useAppStore } from '../../store/useAppStore';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
