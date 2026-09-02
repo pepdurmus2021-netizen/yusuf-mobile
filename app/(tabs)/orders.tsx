@@ -290,7 +290,10 @@ export default function OrdersScreen() {
                         <Text style={s.receiptBtnTxt}>{t('orders.share')}</Text>
                       </LinearGradient>
                     </TouchableOpacity>
-                    <TouchableOpacity style={s.receiptBtnOutline} onPress={() => { setSelected(null); setReceiptOrder(selected); }}>
+                    <TouchableOpacity style={s.receiptBtnOutline} onPress={() => {
+                      if (Platform.OS === 'web') { viewReceiptOnWeb(selected); return; }
+                      setSelected(null); setReceiptOrder(selected);
+                    }}>
                       <Ionicons name="eye-outline" size={17} color="#6366f1" />
                       <Text style={s.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
                     </TouchableOpacity>
