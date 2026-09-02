@@ -229,6 +229,7 @@
     "toDealer": "adlı bayiye",
     "available": "Kullanılabilir",
     "searchPlaceholder": "Ad, e-posta veya telefon ara...",
+    "dealerNotFound": "Bayi bulunamadı",
     "transfer": "Aktar",
     "transferBalance": "Bakiye Aktar",
     "giveDebt": "Borç Ver",
