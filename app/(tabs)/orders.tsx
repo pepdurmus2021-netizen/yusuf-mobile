@@ -283,24 +283,22 @@ export default function OrdersScreen() {
                     })()}
                   </View>
 
-                  {selected.status === 'completed' && (
-                    <View style={s.receiptRow}>
-                      <TouchableOpacity style={s.receiptBtn} onPress={() => downloadReceipt(selected)}>
-                        <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.receiptBtnInner} start={{x:0,y:0}} end={{x:1,y:0}}>
-                          <Ionicons name="share-outline" size={17} color="#fff" />
-                          <Text style={s.receiptBtnTxt}>{t('orders.share')}</Text>
-                        </LinearGradient>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={s.receiptBtnOutline} onPress={() => { setSelected(null); setReceiptOrder(selected); }}>
-                        <Ionicons name="eye-outline" size={17} color="#6366f1" />
-                        <Text style={s.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={s.receiptBtnOutline} onPress={() => printReceipt(selected)}>
-                        <Ionicons name="print-outline" size={17} color="#6366f1" />
-                        <Text style={s.receiptBtnOutlineTxt}>{t('orders.print')}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                  <View style={s.receiptRow}>
+                    <TouchableOpacity style={s.receiptBtn} onPress={() => downloadReceipt(selected)}>
+                      <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.receiptBtnInner} start={{x:0,y:0}} end={{x:1,y:0}}>
+                        <Ionicons name="share-outline" size={17} color="#fff" />
+                        <Text style={s.receiptBtnTxt}>{t('orders.share')}</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={s.receiptBtnOutline} onPress={() => { setSelected(null); setReceiptOrder(selected); }}>
+                      <Ionicons name="eye-outline" size={17} color="#6366f1" />
+                      <Text style={s.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={s.receiptBtnOutline} onPress={() => printReceipt(selected)}>
+                      <Ionicons name="print-outline" size={17} color="#6366f1" />
+                      <Text style={s.receiptBtnOutlineTxt}>{t('orders.print')}</Text>
+                    </TouchableOpacity>
+                  </View>
                 </>
               );
             })()}
