@@ -448,7 +448,7 @@ export default function HomeScreen() {
                     <DetailRow icon="pricetag-outline" label={t('orders.salePrice')} value={`${parseFloat(selectedOrder.satis_fiyati || selectedOrder.amount || 0).toFixed(2)} ₺`} />
                   </View>
 
-                  {selectedOrder.status === 'completed' && (
+                  {(
                     <View style={styles.receiptRow}>
                       <TouchableOpacity style={styles.receiptBtn} onPress={() => downloadReceipt(selectedOrder)}>
                         <LinearGradient colors={['#4f46e5', '#7c3aed']} style={styles.receiptBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
