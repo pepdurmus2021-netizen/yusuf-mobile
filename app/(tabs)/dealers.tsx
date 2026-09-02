@@ -342,6 +342,48 @@ export default function DealersScreen() {
         })()}
       </ScrollView>
 
+      {/* ── Hızlı Aksiyon Modal (satır-içi "..." menüsü) ── */}
+      <Modal visible={!!actionDealer} transparent animationType="fade" onRequestClose={() => setActionDealer(null)}>
+        <TouchableOpacity style={styles.actionOverlay} activeOpacity={1} onPress={() => setActionDealer(null)}>
+          <View style={styles.actionSheet}>
+            <View style={styles.actionHead}>
+              <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.actionAvatar}>
+                <Text style={styles.dealerAvatarText}>{actionDealer?.name?.[0]?.toUpperCase() || '?'}</Text>
+              </LinearGradient>
+              <Text style={styles.actionName} numberOfLines={1}>{actionDealer?.name}</Text>
+            </View>
+
+            <TouchableOpacity style={styles.actionRow} onPress={() => { setTransferModal(actionDealer); setTransferAmount(''); setActionDealer(null); }}>
+              <View style={[styles.actionIconWrap, { backgroundColor: '#ecfdf5' }]}>
+                <Ionicons name="swap-horizontal" size={18} color="#10b981" />
+              </View>
+              <Text style={styles.actionRowText}>{t('dealers.transferBalance')}</Text>
+              <Ionicons name="chevron-forward" size={16} color="#cbd5e1" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionRow} onPress={() => { setDebtModal(actionDealer); setDebtAmount(''); setActionDealer(null); }}>
+              <View style={[styles.actionIconWrap, { backgroundColor: '#fffbeb' }]}>
+                <Ionicons name="card" size={18} color="#f59e0b" />
+              </View>
+              <Text style={styles.actionRowText}>{t('dealers.giveDebt')}</Text>
+              <Ionicons name="chevron-forward" size={16} color="#cbd5e1" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionRow} onPress={() => { const d = actionDealer; setActionDealer(null); openDetail(d); }}>
+              <View style={[styles.actionIconWrap, { backgroundColor: '#eef2ff' }]}>
+                <Ionicons name="person-circle-outline" size={18} color="#6366f1" />
+              </View>
+              <Text style={styles.actionRowText}>{t('dealers.info')}</Text>
+              <Ionicons name="chevron-forward" size={16} color="#cbd5e1" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.actionCancel} onPress={() => setActionDealer(null)}>
+              <Text style={styles.cancelText}>{t('common.cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       {/* ── Bayi Ekle Modal ── */}
       <Modal visible={addModal} transparent animationType="slide" onRequestClose={() => setAddModal(false)}>
         <View style={styles.modalOverlay}>
