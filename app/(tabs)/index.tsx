@@ -382,6 +382,109 @@ export default function HomeScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* DEKONT ÖNİZLEME MODAL */}
+      <Modal visible={!!receiptOrder} transparent animationType="slide">
+        <View style={styles.receiptModalWrap}>
+          <View style={styles.receiptModalHeader}>
+            <Text style={styles.receiptModalTitle}>{t('orders.receiptPreview')}</Text>
+            <View style={styles.receiptModalActions}>
+              <TouchableOpacity onPress={() => { if (receiptOrder) downloadReceipt(receiptOrder); }} style={styles.receiptModalBtn}>
+                <Ionicons name="share-outline" size={20} color="#6366f1" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { if (receiptOrder) printReceipt(receiptOrder); }} style={styles.receiptModalBtn}>
+                <Ionicons name="print-outline" size={20} color="#6366f1" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setReceiptOrder(null)} style={styles.receiptModalClose}>
+                <Ionicons name="close" size={20} color="#64748b" />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <WebView
+            source={{ html: receiptOrder ? generateReceiptHtml(receiptOrder) : '' }}
+            style={styles.receiptWebView}
+            scrollEnabled
+          />
+        </View>
+      </Modal>
+
+      {/* SİPARİŞ DETAY MODAL */}
+      <Modal visible={!!selectedOrder} transparent animationType="slide">
+        <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <TouchableOpacity style={styles.overlayBg} activeOpacity={1} onPress={() => setSelectedOrder(null)} />
+          <View style={styles.sheet}>
+            <View style={styles.handle} />
+            <View style={styles.sheetHead}>
+              <Text style={styles.sheetTitle}>{t('orders.orderDetail')}</Text>
+              <TouchableOpacity onPress={() => setSelectedOrder(null)} style={styles.closeBtn}>
+                <Ionicons name="close" size={18} color="#64748b" />
+              </TouchableOpacity>
+            </View>
+
+            {selectedOrder && (() => {
+              const op = selectedOrder.package_operator || selectedOrder.package?.operator;
+              const pkgName = selectedOrder.package_name_tr || selectedOrder.package?.name_tr || t('orders.defaultPackage');
+              const statusColor = selectedOrder.status === 'completed' ? '#10b981' : selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? '#f59e0b' : '#ef4444';
+              const statusIcon = selectedOrder.status === 'completed' ? 'checkmark-circle' : selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? 'time' : 'close-circle';
+              const statusLabel = selectedOrder.status === 'completed' ? t('home.completed') : selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? t('home.pending') : t('home.cancelled');
+              const gradColors: [string, string] = selectedOrder.status === 'completed' ? ['#10b981', '#059669'] : selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? ['#f59e0b', '#d97706'] : ['#ef4444', '#dc2626'];
+              const orderId = (selectedOrder.id || '').toString().toUpperCase().slice(-10);
+              return (
+                <>
+                  <LinearGradient colors={gradColors} style={styles.sheetBadge} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                    <LinearGradient colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']} style={styles.sheetBadgeIcon}>
+                      <Ionicons name={statusIcon as any} size={22} color="#fff" />
+                    </LinearGradient>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.sheetBadgePkg} numberOfLines={1}>{pkgName}</Text>
+                      <Text style={styles.sheetBadgeOp}>{op || '—'}</Text>
+                    </View>
+                    <Text style={styles.sheetBadgeAmt}>{parseFloat(selectedOrder.amount || 0).toFixed(2)} ₺</Text>
+                  </LinearGradient>
+
+                  <View style={styles.detailList}>
+                    <DetailRow icon="pricetag-outline" label={t('orders.number')} value={orderId} />
+                    <DetailRow icon="call-outline" label={t('orders.number')} value={selectedOrder.phone_number || '—'} />
+                    <DetailRow icon="layers-outline" label={t('orders.status')} value={statusLabel} valueColor={statusColor} />
+                    <DetailRow icon="calendar-outline" label={t('orders.date')} value={safeDateFull(selectedOrder.created_at)} />
+                  </View>
+
+                  {selectedOrder.status === 'completed' && (
+                    <View style={styles.receiptRow}>
+                      <TouchableOpacity style={styles.receiptBtn} onPress={() => downloadReceipt(selectedOrder)}>
+                        <LinearGradient colors={['#4f46e5', '#7c3aed']} style={styles.receiptBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                          <Ionicons name="share-outline" size={17} color="#fff" />
+                          <Text style={styles.receiptBtnTxt}>{t('orders.share')}</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => { setSelectedOrder(null); setReceiptOrder(selectedOrder); }}>
+                        <Ionicons name="eye-outline" size={17} color="#6366f1" />
+                        <Text style={styles.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => printReceipt(selectedOrder)}>
+                        <Ionicons name="print-outline" size={17} color="#6366f1" />
+                        <Text style={styles.receiptBtnOutlineTxt}>{t('orders.print')}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </>
+              );
+            })()}
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    </View>
+  );
+}
+
+function DetailRow({ icon, label, value, valueColor }: { icon: string; label: string; value: string; valueColor?: string }) {
+  return (
+    <View style={styles.detailRow}>
+      <View style={styles.detailIconWrap}>
+        <Ionicons name={icon as any} size={16} color="#6366f1" />
+      </View>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={[styles.detailValue, valueColor ? { color: valueColor, fontWeight: '800' } : {}]}>{value}</Text>
     </View>
   );
 }
