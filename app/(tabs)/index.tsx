@@ -448,24 +448,22 @@ export default function HomeScreen() {
                     <DetailRow icon="pricetag-outline" label={t('orders.salePrice')} value={`${parseFloat(selectedOrder.satis_fiyati || selectedOrder.amount || 0).toFixed(2)} ₺`} />
                   </View>
 
-                  {(
-                    <View style={styles.receiptRow}>
-                      <TouchableOpacity style={styles.receiptBtn} onPress={() => downloadReceipt(selectedOrder)}>
-                        <LinearGradient colors={['#4f46e5', '#7c3aed']} style={styles.receiptBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                          <Ionicons name="share-outline" size={17} color="#fff" />
-                          <Text style={styles.receiptBtnTxt}>{t('orders.share')}</Text>
-                        </LinearGradient>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => { setSelectedOrder(null); setReceiptOrder(selectedOrder); }}>
-                        <Ionicons name="eye-outline" size={17} color="#6366f1" />
-                        <Text style={styles.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => printReceipt(selectedOrder)}>
-                        <Ionicons name="print-outline" size={17} color="#6366f1" />
-                        <Text style={styles.receiptBtnOutlineTxt}>{t('orders.print')}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                  <View style={styles.receiptRow}>
+                    <TouchableOpacity style={styles.receiptBtn} onPress={() => downloadReceipt(selectedOrder)}>
+                      <LinearGradient colors={['#4f46e5', '#7c3aed']} style={styles.receiptBtnInner} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                        <Ionicons name="share-outline" size={17} color="#fff" />
+                        <Text style={styles.receiptBtnTxt}>{t('orders.share')}</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => { setSelectedOrder(null); setReceiptOrder(selectedOrder); }}>
+                      <Ionicons name="eye-outline" size={17} color="#6366f1" />
+                      <Text style={styles.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => printReceipt(selectedOrder)}>
+                      <Ionicons name="print-outline" size={17} color="#6366f1" />
+                      <Text style={styles.receiptBtnOutlineTxt}>{t('orders.print')}</Text>
+                    </TouchableOpacity>
+                  </View>
                 </>
               );
             })()}
