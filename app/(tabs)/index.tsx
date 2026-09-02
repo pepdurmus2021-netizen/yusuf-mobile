@@ -60,7 +60,7 @@ export default function HomeScreen() {
   const { token, user, updateUser } = useAuth();
   const router = useRouter();
   const { orders: recentOrders, balanceRequests, fetchOrders, fetchBalanceRequests, anaBayiStats, fetchAnaBayiStats } = useAppStore();
-  const isDealerParent = user?.role === 'ana_bayi' || user?.role === 'sistem_bayisi';
+  const isDealerParent = user?.role === 'ana_bayi';
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
