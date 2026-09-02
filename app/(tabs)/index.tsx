@@ -67,10 +67,13 @@ export default function HomeScreen() {
   const router = useRouter();
   const { orders: recentOrders, balanceRequests, fetchOrders, fetchBalanceRequests, anaBayiStats, fetchAnaBayiStats } = useAppStore();
   const isDealerParent = user?.role === 'ana_bayi';
+  const logoOverrides = useGameLogoOverrides(token);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [receiptOrder, setReceiptOrder] = useState<any>(null);
 
   useEffect(() => {
     AsyncStorage.getItem('isBalanceVisible').then(val => {
