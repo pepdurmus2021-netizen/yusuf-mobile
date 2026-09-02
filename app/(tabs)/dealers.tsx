@@ -344,7 +344,8 @@ export default function DealersScreen() {
 
       {/* ── Hızlı Aksiyon Modal (satır-içi "..." menüsü) ── */}
       <Modal visible={!!actionDealer} transparent animationType="fade" onRequestClose={() => setActionDealer(null)}>
-        <TouchableOpacity style={styles.actionOverlay} activeOpacity={1} onPress={() => setActionDealer(null)}>
+        <View style={styles.actionOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject as any} activeOpacity={1} onPress={() => setActionDealer(null)} />
           <View style={styles.actionSheet}>
             <View style={styles.actionHead}>
               <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.actionAvatar}>
