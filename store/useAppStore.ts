@@ -26,6 +26,15 @@ interface AppStore {
   reset: () => void;
 }
 
+// Modül seviyesinde (store dışında) tutulan durum — her ekran odaklandığında
+// (useFocusEffect) tekrar tekrar tüm ~330 satırlık katalog çekilip "Oyunlar"
+// sekmesine her girişte fark edilir bir gecikme/donma hissi yaratıyordu.
+// Son başarılı çekimden 20sn geçmediyse tekrar istek atma (force:true ile
+// zorlanabilir, ör. pull-to-refresh).
+let lastPackagesFetchAt = 0;
+let packagesFetchInFlight: Promise<void> | null = null;
+const PACKAGES_CACHE_MS = 20000;
+
 export const useAppStore = create<AppStore>((set) => ({
   orders: [],
   balanceRequests: [],
