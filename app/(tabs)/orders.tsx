@@ -9,13 +9,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { safeDate, safeDateFull, API_URL } from '../../lib/config';
 import { useAppStore } from '../../store/useAppStore';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 import { WebView } from 'react-native-webview';
 import { useTranslation } from 'react-i18next';
-import { BRAND } from '../../config/brand';
 import i18n from '../../i18n';
 import { useGameLogoOverrides, toSafeKey } from '../../lib/gameLogoOverrides';
+import { generateReceiptHtml, downloadReceipt, printReceipt } from '../../lib/receipt';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                          logo: require('../../assets/images/turkcell.png') },
