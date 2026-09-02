@@ -61,16 +61,28 @@ export const useAppStore = create<AppStore>((set) => ({
     set({ balanceRequests: res.data || [] });
   },
 
-  fetchPackages: async () => {
-    try {
-      const token = await (await import('@react-native-async-storage/async-storage')).default.getItem('token');
-      if (!token) { console.warn('[fetchPackages] token yok, istek atlanıyor'); return; }
-      const res = await apiFetch(`${API_URL}/api/packages`, token);
-      console.log('[fetchPackages] gelen paket sayısı:', (res.data || []).length);
-      set({ packages: res.data || [] });
-    } catch (err: any) {
-      console.error('[fetchPackages] Hata:', err?.message || err);
+  fetchPackages: async (force = false) => {
+    const now = Date.now();
+    if (!force && now - lastPackagesFetchAt < PACKAGES_CACHE_MS) {
+      return; // yakın zamanda çekildi, tekrar istek atma - donma hissini azaltir
     }
+    if (packagesFetchInFlight) return packagesFetchInFlight; // zaten devam eden istege binis
+
+    packagesFetchInFlight = (async () => {
+      try {
+        const token = await (await import('@react-native-async-storage/async-storage')).default.getItem('token');
+        if (!token) { console.warn('[fetchPackages] token yok, istek atlanıyor'); return; }
+        const res = await apiFetch(`${API_URL}/api/packages`, token);
+        console.log('[fetchPackages] gelen paket sayısı:', (res.data || []).length);
+        set({ packages: res.data || [] });
+        lastPackagesFetchAt = Date.now();
+      } catch (err: any) {
+        console.error('[fetchPackages] Hata:', err?.message || err);
+      } finally {
+        packagesFetchInFlight = null;
+      }
+    })();
+    return packagesFetchInFlight;
   },
 
   sendBalanceRequest: async (userId, amount, bank, currency) => {
