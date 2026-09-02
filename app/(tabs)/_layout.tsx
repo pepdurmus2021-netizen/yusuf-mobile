@@ -95,6 +95,16 @@ export default function TabsLayout() {
           title: '',
           tabBarIcon: () => <CenterIcon />,
           tabBarLabel: () => null,
+          // Diğer sekmeler tek/çift sayıda olabildiği için (Bayilerim rol'e göre
+          // gizlenip gösteriliyor) bu düğme flex akışına bırakılırsa sağa/sola kayıyor.
+          // position:'absolute' ile akıştan tamamen çıkarıp bar genişliğinin tam
+          // ortasına sabitliyoruz — geri kalan sekmeler kendi aralarında eşit dağılır.
+          tabBarItemStyle: {
+            position: 'absolute',
+            left: '50%',
+            marginLeft: -31,
+            bottom: 6,
+          },
         }}
       />
       <Tabs.Screen
