@@ -66,9 +66,9 @@ export function generateReceiptHtml(order: any, forPrint = false): string {
     <div class="brand-sub">Yükleme Dekontu</div>
   </div>
   <div class="body">
-    <div class="amount-card">
-      <div class="amount-label">Ödenen Tutar</div>
-      <div class="amount-value">${amount} ₺</div>
+    <div class="amount-card" style="background:${st.amountBg}; border-color:${st.amountBorder};">
+      <div class="amount-label" style="color:${st.amountLabelColor};">${st.amountLabel}</div>
+      <div class="amount-value" style="color:${st.amountValueColor};">${amount} ₺</div>
     </div>
     <div class="section-title">İşlem Bilgileri</div>
     <div class="detail-list">
