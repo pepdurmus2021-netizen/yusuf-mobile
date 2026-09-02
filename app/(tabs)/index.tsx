@@ -129,6 +129,12 @@ export default function HomeScreen() {
   const cancelled = recentOrders.filter(o => o.status === 'cancelled' || o.status === 'failed').length;
   const totalSpent = recentOrders.filter(o => o.status === 'completed').reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
 
+  const todayStr = new Date().toDateString();
+  const todaysOrders = recentOrders.filter(o => o.created_at && new Date(o.created_at).toDateString() === todayStr);
+  const todayCount = todaysOrders.length;
+  const todaySpent = todaysOrders.filter(o => o.status === 'completed').reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
+  const todayPending = todaysOrders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+
   const pendingBalance = balanceRequests.filter(r => r.status === 'pending').length;
   const approvedBalance = balanceRequests.filter(r => r.status === 'approved').length;
 
