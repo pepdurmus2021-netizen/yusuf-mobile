@@ -46,6 +46,8 @@ export default function DealersScreen() {
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState('');
+  const [actionDealer, setActionDealer] = useState<any>(null);
 
   // Modaller
   const [transferModal, setTransferModal] = useState<any>(null);
