@@ -270,7 +270,31 @@ export default function DealersScreen() {
         </View>
 
         {/* Bayi Listesi */}
-        <Text style={styles.sectionTitle}>{t('dealers.subDealers')}</Text>
+        <View style={styles.listHeadRow}>
+          <Text style={styles.sectionTitle}>{t('dealers.subDealers')}</Text>
+          <TouchableOpacity style={styles.inlineAddBtn} onPress={() => setAddModal(true)} activeOpacity={0.85}>
+            <Ionicons name="add" size={15} color="#f97316" />
+            <Text style={styles.inlineAddText}>{t('dealers.addDealer')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {myDealers.length > 0 && (
+          <View style={styles.searchBox}>
+            <Ionicons name="search-outline" size={16} color="#9ca3af" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('dealers.searchPlaceholder')}
+              placeholderTextColor="#cbd5e1"
+              value={search}
+              onChangeText={setSearch}
+            />
+            {search.length > 0 && (
+              <TouchableOpacity onPress={() => setSearch('')}>
+                <Ionicons name="close-circle" size={16} color="#cbd5e1" />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
         {myDealers.length === 0 ? (
           <View style={styles.emptyBox}>
@@ -280,31 +304,48 @@ export default function DealersScreen() {
               <Text style={styles.emptyAddText}>+ {t('dealers.addDealer')}</Text>
             </TouchableOpacity>
           </View>
-        ) : myDealers.map(dealer => (
-          <TouchableOpacity key={dealer.id} style={styles.dealerCard} onPress={() => openDetail(dealer)} activeOpacity={0.8}>
-            <View style={styles.dealerLeft}>
-              <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.dealerAvatar}>
-                <Text style={styles.dealerAvatarText}>{dealer.name?.[0]?.toUpperCase() || '?'}</Text>
-              </LinearGradient>
-              <View>
-                <Text style={styles.dealerName}>{dealer.name}</Text>
-                <Text style={styles.dealerEmail}>{dealer.email}</Text>
-                {dealer.phone ? <Text style={styles.dealerPhone}>{dealer.phone}</Text> : null}
+        ) : (() => {
+          const q = search.trim().toLowerCase();
+          const filteredDealers = q
+            ? myDealers.filter(d => (d.name || '').toLowerCase().includes(q) || (d.email || '').toLowerCase().includes(q) || (d.phone || '').includes(q))
+            : myDealers;
+          if (filteredDealers.length === 0) {
+            return <Text style={styles.emptyTabText}>{t('orders.notFound')}</Text>;
+          }
+          return filteredDealers.map(dealer => (
+            <TouchableOpacity key={dealer.id} style={styles.dealerCard} onPress={() => openDetail(dealer)} activeOpacity={0.8}>
+              <View style={styles.dealerLeft}>
+                <LinearGradient colors={['#6366f1', '#8b5cf6']} style={styles.dealerAvatar}>
+                  <Text style={styles.dealerAvatarText}>{dealer.name?.[0]?.toUpperCase() || '?'}</Text>
+                </LinearGradient>
+                <View>
+                  <Text style={styles.dealerName}>{dealer.name}</Text>
+                  <Text style={styles.dealerEmail}>{dealer.email}</Text>
+                  {dealer.phone ? <Text style={styles.dealerPhone}>{dealer.phone}</Text> : null}
+                </View>
               </View>
-            </View>
-            <View style={styles.dealerRight}>
-              <Text style={styles.dealerBalance}>
-                {parseFloat(dealer.balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
-              </Text>
-              <Text style={styles.dealerCurrency}>{dealer.currency || 'TRY'}</Text>
-              <View style={[styles.statusBadge, { backgroundColor: dealer.is_active ? '#d1fae5' : '#fee2e2' }]}>
-                <Text style={[styles.statusText, { color: dealer.is_active ? '#065f46' : '#991b1b' }]}>
-                  {dealer.is_active ? t('dealers.active') : t('dealers.inactive')}
-                </Text>
+              <View style={styles.dealerRight}>
+                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                  <Text style={styles.dealerBalance}>
+                    {parseFloat(dealer.balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                  </Text>
+                  <Text style={styles.dealerCurrency}>{dealer.currency || 'TRY'}</Text>
+                  <View style={[styles.statusBadge, { backgroundColor: dealer.is_active ? '#d1fae5' : '#fee2e2' }]}>
+                    <Text style={[styles.statusText, { color: dealer.is_active ? '#065f46' : '#991b1b' }]}>
+                      {dealer.is_active ? t('dealers.active') : t('dealers.inactive')}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  onPress={(e) => { e.stopPropagation(); setActionDealer(dealer); }}
+                >
+                  <Ionicons name="ellipsis-horizontal" size={18} color="#6b7280" />
+                </TouchableOpacity>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ));
+        })()}
       </ScrollView>
 
       {/* ── Bayi Ekle Modal ── */}
