@@ -442,10 +442,10 @@ export default function HomeScreen() {
                   </LinearGradient>
 
                   <View style={styles.detailList}>
-                    <DetailRow icon="pricetag-outline" label={t('orders.number')} value={orderId} />
                     <DetailRow icon="call-outline" label={t('orders.number')} value={selectedOrder.phone_number || '—'} />
                     <DetailRow icon="layers-outline" label={t('orders.status')} value={statusLabel} valueColor={statusColor} />
                     <DetailRow icon="calendar-outline" label={t('orders.date')} value={safeDateFull(selectedOrder.created_at)} />
+                    <DetailRow icon="pricetag-outline" label={t('orders.salePrice')} value={`${parseFloat(selectedOrder.satis_fiyati || selectedOrder.amount || 0).toFixed(2)} ₺`} />
                   </View>
 
                   {selectedOrder.status === 'completed' && (
