@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  ActivityIndicator, Dimensions, RefreshControl, Image, Linking
+  ActivityIndicator, Dimensions, RefreshControl, Image, Linking,
+  Modal, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useFocusEffect , useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -9,10 +10,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { safeDate, safeDateFull } from '../../lib/config';
+import { safeDate, safeDateFull, API_URL } from '../../lib/config';
 import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { WebView } from 'react-native-webview';
+import { useGameLogoOverrides, toSafeKey } from '../../lib/gameLogoOverrides';
+import { generateReceiptHtml, downloadReceipt, printReceipt } from '../../lib/receipt';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                       logo: require('../../assets/images/turkcell.png') },
