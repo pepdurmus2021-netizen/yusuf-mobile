@@ -13,7 +13,7 @@ import { WebView } from 'react-native-webview';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { useGameLogoOverrides, toSafeKey } from '../../lib/gameLogoOverrides';
-import { generateReceiptHtml, downloadReceipt, printReceipt } from '../../lib/receipt';
+import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } from '../../lib/receipt';
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                          logo: require('../../assets/images/turkcell.png') },
