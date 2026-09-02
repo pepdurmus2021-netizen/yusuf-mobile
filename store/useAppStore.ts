@@ -15,7 +15,7 @@ interface AppStore {
   savePriceRule: (token: string, packageId: string, marginType: string, marginValue: number) => Promise<void>;
   fetchOrders: (token: string) => Promise<void>;
   fetchBalanceRequests: (token: string) => Promise<void>;
-  fetchPackages: () => Promise<void>;
+  fetchPackages: (force?: boolean) => Promise<void>;
   sendBalanceRequest: (userId: string, amount: number, bank: any, currency: string) => Promise<void>;
   fetchMyDealers: (token: string) => Promise<void>;
   fetchAnaBayiStats: (token: string) => Promise<void>;
