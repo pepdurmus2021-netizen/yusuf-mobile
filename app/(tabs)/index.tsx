@@ -338,11 +338,13 @@ export default function HomeScreen() {
           </View>
 
           {recentOrders.slice(0, 5).map((order, i) => {
-            const logo = getOperatorLogo(order.package?.operator);
+            const operatorName = order.package_operator || order.package?.operator;
+            const logo = getOperatorLogo(operatorName, logoOverrides);
+            const pkgName = order.package_name_tr || order.package?.name_tr || t('orders.defaultPackage');
             const statusColor = order.status === 'completed' ? '#10b981' : order.status === 'pending' || order.status === 'processing' ? '#f59e0b' : '#ef4444';
             const statusIcon = order.status === 'completed' ? 'checkmark-circle' : order.status === 'pending' || order.status === 'processing' ? 'time' : 'close-circle';
             return (
-              <View key={i} style={styles.orderCard}>
+              <TouchableOpacity key={i} style={styles.orderCard} activeOpacity={0.82} onPress={() => setSelectedOrder(order)}>
                 {logo ? (
                   <View style={styles.orderLogoWrap}>
                     <Image source={logo} style={styles.orderLogo} resizeMode="contain" />
@@ -356,6 +358,7 @@ export default function HomeScreen() {
                   </LinearGradient>
                 )}
                 <View style={{ flex: 1 }}>
+                  <Text style={styles.orderPkg} numberOfLines={1}>{pkgName}</Text>
                   <Text style={styles.orderPhone}>{order.phone_number || '—'}</Text>
                   <Text style={styles.orderTime}>{safeDateFull(order.created_at)}</Text>
                 </View>
@@ -365,7 +368,7 @@ export default function HomeScreen() {
                   </Text>
                   <Ionicons name={statusIcon as any} size={16} color={statusColor} />
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
 
