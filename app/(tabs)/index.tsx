@@ -455,7 +455,10 @@ export default function HomeScreen() {
                         <Text style={styles.receiptBtnTxt}>{t('orders.share')}</Text>
                       </LinearGradient>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => { setSelectedOrder(null); setReceiptOrder(selectedOrder); }}>
+                    <TouchableOpacity style={styles.receiptBtnOutline} onPress={() => {
+                      if (Platform.OS === 'web') { viewReceiptOnWeb(selectedOrder); return; }
+                      setSelectedOrder(null); setReceiptOrder(selectedOrder);
+                    }}>
                       <Ionicons name="eye-outline" size={17} color="#6366f1" />
                       <Text style={styles.receiptBtnOutlineTxt}>{t('orders.viewReceipt')}</Text>
                     </TouchableOpacity>
