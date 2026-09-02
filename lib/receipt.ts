@@ -135,6 +135,12 @@ export async function downloadReceipt(order: any) {
   }
 }
 
+// Web'de dekont önizleme modalı (react-native-webview desteklenmiyor) yerine
+// direkt yeni bir sekmede gösterilir.
+export function viewReceiptOnWeb(order: any) {
+  openReceiptInBrowserTab(order, false);
+}
+
 export async function printReceipt(order: any) {
   if (Platform.OS === 'web') { openReceiptInBrowserTab(order, true); return; }
   try {
