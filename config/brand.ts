@@ -1,61 +1,49 @@
-// TEK MARKA AYAR DOSYASI — bu yazılım farklı müşterilere farklı isimlerle
-// satılacağı için (bugün Hasip Tech, yarın Hakan Tech vb.) tüm marka bilgisi
-// buraya toplandı. Yeni bir müşteri için rebrand yaparken SADECE bu dosyayı
-// (+ aşağıdaki "app.json'da elle değiştir" notundaki alanları) değiştirmen yeterli.
+import Constants from 'expo-constants';
+import type { BrandConfig } from '../brands/types';
+import hasiptech from '../brands/hasiptech';
+
+// ÇOKLU MARKA SİSTEMİ — bu dosya artık markayı KENDİSİ TAŞIMIYOR, build zamanında
+// app.config.js'in seçtiği markayı (APP_BRAND ortam değişkenine göre, bkz.
+// brands/index.ts) Constants.expoConfig.extra.brand üzerinden okuyor. Yani bu
+// dosyada elle değişiklik yapmana GEREK YOK — yeni marka eklemek için
+// brands/<marka>.ts oluşturup brands/index.ts'e ekle (bkz. oradaki adımlar).
+// Constants.expoConfig boş gelebileceği ("expo start" ilk açılış anı gibi) tek
+// bir kod yolunu tutmak için fallback olarak hasiptech kullanılıyor.
+const fromExtra = (Constants.expoConfig?.extra?.brand as BrandConfig | undefined) ?? hasiptech;
+
 export const BRAND = {
-  // Uygulama içinde görünen isim (splash, giriş logosu, profil footer, dekont başlığı)
-  displayName: 'Hasip Tech',
-  // Splash ekranındaki rozette görünen kısaltma (2 harf öneri — uzun isimler sığmaz)
-  shortInitials: 'HT',
-  // Giriş ekranındaki büyük logo yazısı (boşluk/büyük harf serbest, Orbitron fontuyla basılıyor)
-  logoText: 'HASIP TECH',
-  // Şirketin resmi/yasal adı — dekont gibi resmi belgelerde ayrıca gösteriliyor, marka adından FARKLI olabilir
-  legalCompanyName: 'TECH TELEKOMUNIKASYON YAZILIM',
-  supportWhatsapp: '905069690724', // ülke koduyla, başında + veya 00 olmadan
-  supportEmail: 'destek@yusufmobile.com',
+  displayName: fromExtra.displayName,
+  shortInitials: fromExtra.shortInitials,
+  logoText: fromExtra.logoText,
+  legalCompanyName: fromExtra.legalCompanyName,
+  supportWhatsapp: fromExtra.supportWhatsapp,
+  supportEmail: fromExtra.supportEmail,
   appVersion: '1.0.0',
-  // Bu build'de kayıt olan kullanıcıların hangi organizasyona (bkz. backend
-  // organizations tablosu, çok markalı sistem) atanacağı — build-time sabit.
-  // Tech Telekom'un kendi app'i için boş bırakılır (DB'deki DEFAULT zaten
-  // Tech Telekom'un organizasyonuna düşürür). Yeni marka rebrand'inde
-  // backend'de organizations tablosuna satır eklenip UUID'si buraya yazılır
-  // (bkz. backend/supabase/migrations/027_hasip_tech_organization.sql).
-  organizationId: '00000000-0000-0000-0000-000000000002',
+  organizationId: fromExtra.organizationId,
 };
 
 // ============================================================
-// REBRAND CHECKLIST — bu dosyayı değiştirdikten sonra AYRICA elle
-// değiştirilmesi gereken yerler (bunlar platform seviyesinde statik
-// olduğu için kod içinden otomatik okunamıyor):
+// YENİ MARKA EKLEME SÜRECİ (artık tamamen dosya bazlı, elle app.json
+// değiştirmek YOK):
 //
-// 1. app.json → "name" (telefonda görünen uygulama adı), "slug"
-// 2. app.json → android.package / ios.bundleIdentifier — SADECE henüz
-//    Play Store/App Store'a hiç yayınlanmadıysa değiştir. Yayınlandıktan
-//    sonra bunu değiştirmek yeni bir uygulama olarak sayılır (eski
-//    kullanıcılar güncelleme alamaz, sıfırdan kurulum gerekir).
-//    ŞEMA (SABİT, HER MARKADA AYNI KALSIN): com.bayiwebpanel.<MarkaAdıPascalCase>
-//    — Hasip Tech için zaten com.bayiwebpanel.YusufMobile kullanılıyor, prefix
-//    "bayiwebpanel" bizim platform markamız (bkz. CLAUDE.md), sondaki kısım
-//    değişen marka adı. Rakip analizinde (Woosat) 3 farklı markada 3 farklı
-//    paket-adı deseni görüldü (com.woosat.pamirtelecom / com.teknurpayapp.woosat /
-//    com.mahwaratelecomapp.woosat) — belli ki hiç kural konmadan büyümüşler.
-//    Yeni marka açarken bu şemadan SAPMA, aksi halde N. markada Woosat'ın
-//    düştüğü karışıklığa (hangi paket hangi markaya ait, Play Store yönetim
-//    zorluğu) biz de düşeriz.
-// 3. app.json → "scheme" — BİLİNÇLİ OLARAK MARKA ADINDAN BAĞIMSIZ TUTULUYOR
-//    ("bwpauth", sabit). Google OAuth redirect'i buna bağlı olduğu için
-//    her rebrand'de değiştirilirse Supabase Dashboard'daki Redirect URL
-//    listesini de güncellemek gerekirdi — bu tekrarlayan baş ağrısını
-//    önlemek için scheme marka adından ayrıldı. REBRAND'DE BU SATIRA
-//    DOKUNMA, hep "bwpauth" kalsın.
-// 4. assets/images/icon.png, android-icon-foreground.png, splash-icon.png,
-//    favicon.png — uygulama ikonu/splash görseli (grafik dosyalar, kod değil)
+// 1. brands/<marka-key>.ts oluştur — brands/hasiptech.ts'i kopyala, tüm
+//    alanları (displayName, androidPackage, organizationId, renkler vb.)
+//    yeni markaya göre doldur. androidPackage şeması: com.bayiwebpanel.<Marka>
+// 2. brands/index.ts → BRANDS listesine ekle
+// 3. assets/brands/<marka-key>/ klasörü aç → icon.png, android-icon-foreground.png,
+//    splash-icon.png, favicon.png koy (grafik dosyalar)
+// 4. backend/supabase/migrations altına yeni bir organizations satırı migration'ı
+//    ekle (bkz. 027_hasip_tech_organization.sql örneği), oradaki UUID'yi
+//    brands/<marka-key>.ts içindeki organizationId'ye yaz
+// 5. eas.json → build.<marka-key> profili ekle: { "env": { "APP_BRAND": "<marka-key>" } }
+// 6. Build al: `eas build --profile <marka-key> --platform android`
 //
-// NOT (2. MARKA AÇILIRKEN OKU): Renkler (#4f46e5/#7c3aed/#a855f7 gradient vb.)
-// şu an bu dosyada DEĞİL, her ekranın kendi StyleSheet'inde ayrı ayrı sabit
-// yazılı. Tek marka olduğu sürece sorun değil. Ama ikinci marka farklı bir
-// renk isterse, önce bu renkleri buraya (BRAND.colors gibi) taşıyıp her
-// ekranı oradan okuyacak şekilde REFAKTÖR ETMEK gerekir — o zamana kadar
-// ertelenebilir, ama unutulmamalı (bkz. rakip analizi Bölüm 5.6, 3 katmanlı
-// token modeli: primitive → semantic → component).
+// SABİT KALAN, MARKA BAĞIMSIZ ŞEYLER (app.config.js'te elle korunuyor):
+// - scheme: "bwpauth" — Google OAuth redirect'i buna bağlı, ASLA marka bazlı değiştirme
+// - EAS projectId — tüm markalar aynı Expo/EAS projesinde, ayrı proje AÇMA
+//
+// Renk/tipografi token'ları henüz merkezi değil (bkz. eski not, her ekranın
+// kendi StyleSheet'inde sabit) — birden fazla marka gerçekten farklı renk
+// isteyince bu dosyaya taşınıp ekranlar oradan okuyacak şekilde refaktör
+// edilmesi gerekecek.
 // ============================================================
