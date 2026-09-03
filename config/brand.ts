@@ -39,7 +39,7 @@ export const BRAND = {
 //    splash-icon.png, favicon.png koy (grafik dosyalar)
 // 4. backend/supabase/migrations altına yeni bir organizations satırı migration'ı
 //    ekle (bkz. 027_hasip_tech_organization.sql örneği), oradaki UUID'yi
-//    brands/<marka-key>.ts içindeki organizationId'ye yaz
+//    brands/<marka-key>.js içindeki organizationId'ye yaz
 // 5. eas.json → build.<marka-key> profili ekle: { "env": { "APP_BRAND": "<marka-key>" } }
 // 6. Build al: `eas build --profile <marka-key> --platform android`
 //
