@@ -13,14 +13,16 @@
 - Play Store hesabı: müşterinin kendi Google Play Developer hesabı mı, yoksa bizim hesabımızdan mı yayınlanacak
 
 ## Teknik adımlar
-1. `brands/hakanonline.ts` oluştur — `brands/hasiptech.ts`'i kopyala, tüm alanları doldur.
+1. `brands/hakanonline.js` oluştur — `brands/hasiptech.js`'i kopyala, tüm alanları doldur.
    `androidPackage: 'com.bayiwebpanel.HakanOnline'` (sabit şema, sapma).
-2. `brands/index.ts` → `BRANDS` listesine `hakanonline` ekle.
+   NOT: `.js` (TypeScript değil) — Expo'nun `app.config.js` yükleyicisi sadece
+   düz JS require edebiliyor, `.ts` verirsen build config okunamaz (denendi, hata verdi).
+2. `brands/index.js` → `BRANDS` listesine `hakanonline` ekle.
 3. `assets/brands/hakanonline/` klasörü aç: `icon.png`, `android-icon-foreground.png`,
    `splash-icon.png`, `favicon.png`.
 4. `backend/supabase/migrations/0XX_hakan_online_organization.sql` ekle
    (bkz. `027_hasip_tech_organization.sql` örneği), sabit bir UUID üret ve
-   `brands/hakanonline.ts`'teki `organizationId`'ye aynısını yaz.
+   `brands/hakanonline.js`'teki `organizationId`'ye aynısını yaz.
 5. `eas.json` → `build.hakanonline` profili ekle:
    ```json
    "hakanonline": { "extends": "production", "env": { "APP_BRAND": "hakanonline" } }
