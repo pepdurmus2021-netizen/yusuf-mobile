@@ -1,6 +1,11 @@
 import Constants from 'expo-constants';
-import type { BrandConfig } from '../brands/types';
+// @ts-ignore — brands/*.js düz JS (Expo config-loader .ts require edemiyor, bkz. brands/index.js)
 import hasiptech from '../brands/hasiptech';
+
+type BrandConfig = {
+  displayName: string; shortInitials: string; logoText: string; legalCompanyName: string;
+  supportWhatsapp: string; supportEmail: string; organizationId: string;
+};
 
 // ÇOKLU MARKA SİSTEMİ — bu dosya artık markayı KENDİSİ TAŞIMIYOR, build zamanında
 // app.config.js'in seçtiği markayı (APP_BRAND ortam değişkenine göre, bkz.
