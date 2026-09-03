@@ -18,7 +18,12 @@ function fetchOverrides(token: string | null): Promise<Record<string, GameLogoOv
         cache = map;
         return map;
       })
-      .catch(() => { cache = {}; return {}; });
+      .catch(() => {
+        // Basarisiz istegi kalici olarak cache'leme (orn. soguk baslangicta token/ag
+        // henuz hazir degilken atilan istek) - bir sonraki mount tekrar denesin.
+        inFlight = null;
+        return {};
+      });
   }
   return inFlight;
 }
