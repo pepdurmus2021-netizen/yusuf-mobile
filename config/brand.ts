@@ -33,6 +33,15 @@ export const BRAND = {
 //    Play Store/App Store'a hiç yayınlanmadıysa değiştir. Yayınlandıktan
 //    sonra bunu değiştirmek yeni bir uygulama olarak sayılır (eski
 //    kullanıcılar güncelleme alamaz, sıfırdan kurulum gerekir).
+//    ŞEMA (SABİT, HER MARKADA AYNI KALSIN): com.bayiwebpanel.<MarkaAdıPascalCase>
+//    — Hasip Tech için zaten com.bayiwebpanel.YusufMobile kullanılıyor, prefix
+//    "bayiwebpanel" bizim platform markamız (bkz. CLAUDE.md), sondaki kısım
+//    değişen marka adı. Rakip analizinde (Woosat) 3 farklı markada 3 farklı
+//    paket-adı deseni görüldü (com.woosat.pamirtelecom / com.teknurpayapp.woosat /
+//    com.mahwaratelecomapp.woosat) — belli ki hiç kural konmadan büyümüşler.
+//    Yeni marka açarken bu şemadan SAPMA, aksi halde N. markada Woosat'ın
+//    düştüğü karışıklığa (hangi paket hangi markaya ait, Play Store yönetim
+//    zorluğu) biz de düşeriz.
 // 3. app.json → "scheme" — BİLİNÇLİ OLARAK MARKA ADINDAN BAĞIMSIZ TUTULUYOR
 //    ("bwpauth", sabit). Google OAuth redirect'i buna bağlı olduğu için
 //    her rebrand'de değiştirilirse Supabase Dashboard'daki Redirect URL
