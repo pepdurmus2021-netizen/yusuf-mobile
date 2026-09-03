@@ -31,7 +31,7 @@ export const BRAND = {
 // YENİ MARKA EKLEME SÜRECİ (artık tamamen dosya bazlı, elle app.json
 // değiştirmek YOK):
 //
-// 1. brands/<marka-key>.ts oluştur — brands/hasiptech.ts'i kopyala, tüm
+// 1. brands/<marka-key>.js oluştur — brands/hasiptech.js'i kopyala, tüm
 //    alanları (displayName, androidPackage, organizationId, renkler vb.)
 //    yeni markaya göre doldur. androidPackage şeması: com.bayiwebpanel.<Marka>
 // 2. brands/index.js → BRANDS listesine ekle
