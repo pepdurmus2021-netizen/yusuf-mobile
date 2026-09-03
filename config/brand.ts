@@ -11,7 +11,7 @@ type BrandConfig = {
 // app.config.js'in seçtiği markayı (APP_BRAND ortam değişkenine göre, bkz.
 // brands/index.js) Constants.expoConfig.extra.brand üzerinden okuyor. Yani bu
 // dosyada elle değişiklik yapmana GEREK YOK — yeni marka eklemek için
-// brands/<marka>.ts oluşturup brands/index.js'e ekle (bkz. oradaki adımlar).
+// brands/<marka>.js oluşturup brands/index.js'e ekle (bkz. oradaki adımlar).
 // Constants.expoConfig boş gelebileceği ("expo start" ilk açılış anı gibi) tek
 // bir kod yolunu tutmak için fallback olarak hasiptech kullanılıyor.
 const fromExtra = (Constants.expoConfig?.extra?.brand as BrandConfig | undefined) ?? hasiptech;
