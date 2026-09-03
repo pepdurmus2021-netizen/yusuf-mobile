@@ -9,9 +9,9 @@ type BrandConfig = {
 
 // ÇOKLU MARKA SİSTEMİ — bu dosya artık markayı KENDİSİ TAŞIMIYOR, build zamanında
 // app.config.js'in seçtiği markayı (APP_BRAND ortam değişkenine göre, bkz.
-// brands/index.ts) Constants.expoConfig.extra.brand üzerinden okuyor. Yani bu
+// brands/index.js) Constants.expoConfig.extra.brand üzerinden okuyor. Yani bu
 // dosyada elle değişiklik yapmana GEREK YOK — yeni marka eklemek için
-// brands/<marka>.ts oluşturup brands/index.ts'e ekle (bkz. oradaki adımlar).
+// brands/<marka>.ts oluşturup brands/index.js'e ekle (bkz. oradaki adımlar).
 // Constants.expoConfig boş gelebileceği ("expo start" ilk açılış anı gibi) tek
 // bir kod yolunu tutmak için fallback olarak hasiptech kullanılıyor.
 const fromExtra = (Constants.expoConfig?.extra?.brand as BrandConfig | undefined) ?? hasiptech;
@@ -34,7 +34,7 @@ export const BRAND = {
 // 1. brands/<marka-key>.ts oluştur — brands/hasiptech.ts'i kopyala, tüm
 //    alanları (displayName, androidPackage, organizationId, renkler vb.)
 //    yeni markaya göre doldur. androidPackage şeması: com.bayiwebpanel.<Marka>
-// 2. brands/index.ts → BRANDS listesine ekle
+// 2. brands/index.js → BRANDS listesine ekle
 // 3. assets/brands/<marka-key>/ klasörü aç → icon.png, android-icon-foreground.png,
 //    splash-icon.png, favicon.png koy (grafik dosyalar)
 // 4. backend/supabase/migrations altına yeni bir organizations satırı migration'ı
