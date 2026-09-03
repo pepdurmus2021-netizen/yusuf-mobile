@@ -6,16 +6,23 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": { "APP_BRAND": "hasiptech" }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      }
+      },
+      "env": { "APP_BRAND": "hasiptech" }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": { "APP_BRAND": "hasiptech" }
+    },
+    "hasiptech": {
+      "extends": "production",
+      "env": { "APP_BRAND": "hasiptech" }
     }
   },
   "submit": {
