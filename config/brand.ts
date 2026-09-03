@@ -50,4 +50,12 @@ export const BRAND = {
 //    DOKUNMA, hep "bwpauth" kalsın.
 // 4. assets/images/icon.png, android-icon-foreground.png, splash-icon.png,
 //    favicon.png — uygulama ikonu/splash görseli (grafik dosyalar, kod değil)
+//
+// NOT (2. MARKA AÇILIRKEN OKU): Renkler (#4f46e5/#7c3aed/#a855f7 gradient vb.)
+// şu an bu dosyada DEĞİL, her ekranın kendi StyleSheet'inde ayrı ayrı sabit
+// yazılı. Tek marka olduğu sürece sorun değil. Ama ikinci marka farklı bir
+// renk isterse, önce bu renkleri buraya (BRAND.colors gibi) taşıyıp her
+// ekranı oradan okuyacak şekilde REFAKTÖR ETMEK gerekir — o zamana kadar
+// ertelenebilir, ama unutulmamalı (bkz. rakip analizi Bölüm 5.6, 3 katmanlı
+// token modeli: primitive → semantic → component).
 // ============================================================
