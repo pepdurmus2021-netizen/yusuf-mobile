@@ -81,7 +81,6 @@ export default function OrdersScreen() {
   const FILTERS = getFilters();
   const { user, token } = useAuth();
   const { orders, fetchOrders } = useAppStore();
-  const logoOverrides = useGameLogoOverrides(token);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState('all');
