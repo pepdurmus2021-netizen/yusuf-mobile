@@ -348,7 +348,7 @@ export default function HomeScreen() {
 
           {recentOrders.slice(0, 5).map((order, i) => {
             const operatorName = order.package_operator || order.package?.operator;
-            const logo = getOperatorLogo(operatorName, logoOverrides);
+            const logo = getOperatorLogo(operatorName);
             const pkgName = order.package_name_tr || order.package?.name_tr || t('orders.defaultPackage');
             const statusColor = order.status === 'completed' ? '#10b981' : order.status === 'pending' || order.status === 'processing' ? '#f59e0b' : '#ef4444';
             const statusIcon = order.status === 'completed' ? 'checkmark-circle' : order.status === 'pending' || order.status === 'processing' ? 'time' : 'close-circle';
