@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { API_URL, apiFetch } from '../../lib/config';
 import { useGameLogoOverrides, resolveLogo, toSafeKey } from '../../lib/gameLogoOverrides';
+import { GAME_LOGOS_STATIC } from '../../lib/gameLogosStatic';
 
 // PayStore'dan yeni gelen ama henüz GAME_OPERATORS'e elle eklenmemiş oyunlar için
 // logo bulunamayabiliyor (ne yerel asset ne admin override'ı) — bu durumda
