@@ -30,7 +30,7 @@ const ALL_OPERATORS = [
   { dbNames: ['valorant'],                                  logo: null },
   { dbNames: ['free fire'],                                 logo: null },
   { dbNames: ['google play kart','google play'],            logo: null },
-  { dbNames: ['clash'],                                     logo: require('../../assets/images/clash-royale.png') },
+  { dbNames: ['clash'],                                     logo: null },
   { dbNames: ['ahlan'],                                     logo: require('../../assets/images/ahlan.png') },
   { dbNames: ['soulchill','souLchill'],                     logo: require('../../assets/images/soulchill.png') },
   { dbNames: ['hiya','hi̇ya'],                               logo: require('../../assets/images/hiya.png') },
