@@ -19,7 +19,7 @@ import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } 
 
 const ALL_OPERATORS = [
   { dbNames: ['turkcell','türkcell'],                       logo: null },
-  { dbNames: ['vodafone'],                                  logo: require('../../assets/images/vodafone.png') },
+  { dbNames: ['vodafone'],                                  logo: null },
   { dbNames: ['turk telekom','türk telekom','turktelekom'], logo: require('../../assets/images/turktelekom.png') },
   { dbNames: ['roshan'],                                    logo: require('../../assets/images/roshan.png') },
   { dbNames: ['mtn'],                                       logo: require('../../assets/images/mtn.png') },
