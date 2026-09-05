@@ -308,17 +308,25 @@ export default function HomeScreen() {
           </View>
 
           {recentOrders.slice(0, 5).map((order, i) => {
+            const operatorName = order.package_operator || order.package?.operator;
+            const logo = logoOverrides[toSafeKey(operatorName)];
             const pkgName = order.package_name_tr || order.package?.name_tr || t('orders.defaultPackage');
             const statusColor = order.status === 'completed' ? '#10b981' : order.status === 'pending' || order.status === 'processing' ? '#f59e0b' : '#ef4444';
             const statusIcon = order.status === 'completed' ? 'checkmark-circle' : order.status === 'pending' || order.status === 'processing' ? 'time' : 'close-circle';
             return (
               <TouchableOpacity key={i} style={styles.orderCard} activeOpacity={0.82} onPress={() => setSelectedOrder(order)}>
-                <LinearGradient
-                  colors={order.status === 'completed' ? ['#10b981', '#06b6d4'] : order.status === 'pending' ? ['#f59e0b', '#f97316'] : ['#ef4444', '#dc2626']}
-                  style={styles.orderIcon}
-                >
-                  <Ionicons name={statusIcon as any} size={16} color="#fff" />
-                </LinearGradient>
+                {logo ? (
+                  <View style={styles.orderLogoWrap}>
+                    <Image source={{ uri: logo.logo_url }} style={styles.orderLogo} resizeMode="contain" />
+                  </View>
+                ) : (
+                  <LinearGradient
+                    colors={order.status === 'completed' ? ['#10b981', '#06b6d4'] : order.status === 'pending' ? ['#f59e0b', '#f97316'] : ['#ef4444', '#dc2626']}
+                    style={styles.orderIcon}
+                  >
+                    <Ionicons name={statusIcon as any} size={16} color="#fff" />
+                  </LinearGradient>
+                )}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.orderPkg} numberOfLines={1}>{pkgName}</Text>
                   <Text style={styles.orderPhone}>{order.phone_number || '—'}</Text>
