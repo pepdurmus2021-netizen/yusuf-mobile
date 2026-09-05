@@ -51,10 +51,8 @@ const ALL_OPERATORS = [
   { dbNames: ['falla'],                                     logo: require('../../assets/images/falla.png') },
 ];
 
-function getOperatorLogo(operatorName: string | undefined, overrides: Record<string, any>) {
+function getOperatorLogo(operatorName: string | undefined) {
   if (!operatorName) return null;
-  const override = overrides[toSafeKey(operatorName)];
-  if (override) return { uri: override.logo_url };
   const lower = operatorName.toLowerCase();
   return ALL_OPERATORS.find(op => op.dbNames.some(n => lower.includes(n)))?.logo || null;
 }
