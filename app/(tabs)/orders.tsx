@@ -13,6 +13,7 @@ import { WebView } from 'react-native-webview';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } from '../../lib/receipt';
+import { useLogos, toSafeKey } from '../../lib/logoOverrides';
 
 function getStatusMap(): Record<string, { label: string; icon: string; colors: [string,string]; bg: string; text: string }> {
   return {
