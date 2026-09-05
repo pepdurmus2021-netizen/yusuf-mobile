@@ -30,7 +30,7 @@ function OpLogo({ op, overrides, style }: { op: { name: string; logo: any; color
       </View>
     );
   }
-  return <Image source={source} style={style} resizeMode="contain" />;
+  return <Image source={source} style={style} contentFit="contain" />;
 }
 
 // PayStore TopUpPackageQuery operatör parametresi — sadece Türkiye operatörleri destekleniyor
