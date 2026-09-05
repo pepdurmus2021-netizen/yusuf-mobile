@@ -23,7 +23,7 @@ const ALL_OPERATORS = [
   { dbNames: ['turk telekom','türk telekom','turktelekom'], logo: null },
   { dbNames: ['roshan'],                                    logo: null },
   { dbNames: ['mtn'],                                       logo: null },
-  { dbNames: ['awcc'],                                      logo: require('../../assets/images/awcc.png') },
+  { dbNames: ['awcc'],                                      logo: null },
   { dbNames: ['salaam'],                                    logo: require('../../assets/images/salaam.png') },
   { dbNames: ['etisalat'],                                  logo: require('../../assets/images/etisalat.png') },
   { dbNames: ['pubg'],                                      logo: require('../../assets/images/pubg.png') },
