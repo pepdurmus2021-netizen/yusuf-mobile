@@ -34,7 +34,7 @@ const ALL_OPERATORS = [
   { dbNames: ['ahlan'],                                     logo: null },
   { dbNames: ['soulchill','souLchill'],                     logo: null },
   { dbNames: ['hiya','hi̇ya'],                               logo: null },
-  { dbNames: ['sugo'],                                      logo: require('../../assets/images/sugo.png') },
+  { dbNames: ['sugo'],                                      logo: null },
   { dbNames: ['yoho'],                                      logo: require('../../assets/images/yoho.png') },
   { dbNames: ['ditto'],                                     logo: require('../../assets/images/ditto.png') },
   { dbNames: ['jawaker'],                                   logo: require('../../assets/images/jawaker.png') },
