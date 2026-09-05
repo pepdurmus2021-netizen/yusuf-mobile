@@ -39,6 +39,7 @@ export default function OrdersScreen() {
   const STATUS = getStatusMap();
   const FILTERS = getFilters();
   const { user, token } = useAuth();
+  const logoOverrides = useLogos('operator', token);
   const { orders, fetchOrders } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
