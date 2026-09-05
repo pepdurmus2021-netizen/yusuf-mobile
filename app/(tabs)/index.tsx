@@ -41,7 +41,7 @@ const ALL_OPERATORS = [
   { dbNames: ['haki'],                                      logo: null },
   { dbNames: ['haza'],                                      logo: null },
   { dbNames: ['bigo'],                                      logo: null },
-  { dbNames: ['tiktok','ti̇ktok'],                           logo: require('../../assets/images/tiktok.png') },
+  { dbNames: ['tiktok','ti̇ktok'],                           logo: null },
   { dbNames: ['tango'],                                     logo: require('../../assets/images/tango.png') },
   { dbNames: ['likee','li̇kee'],                             logo: require('../../assets/images/likee.png') },
   { dbNames: ['itunes kart','i̇tunes kart'],                 logo: require('../../assets/images/itunes.png') },
