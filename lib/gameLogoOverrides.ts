@@ -45,7 +45,7 @@ export function resolveLogo(op: { logo: any; dbNames?: string[] }, overrides: Re
   if (op.dbNames) {
     for (const name of op.dbNames) {
       const override = overrides[toSafeKey(name)];
-      if (override) return { uri: `${API_URL}${override.logo_url}` };
+      if (override) return { uri: override.logo_url };
     }
   }
   return op.logo;
