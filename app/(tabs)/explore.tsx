@@ -691,7 +691,7 @@ export default function ExploreScreen() {
               <TouchableOpacity onPress={() => selectGameOp(op)} activeOpacity={0.82} style={[s.gameCell, { marginBottom: 10 }]}>
                 <View style={s.gameCellInner}>
                   <View style={s.gameLogoWrap}>
-                    <OpLogo op={op} style={s.gameOpLogo} />
+                    <OpLogo op={op} overrides={logoOverrides} style={s.gameOpLogo} />
                   </View>
                   <Text style={s.gameOpName} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{op.name}</Text>
                   <View style={[s.gameOpBadge, { backgroundColor: op.colors[0] + '18' }]}>
