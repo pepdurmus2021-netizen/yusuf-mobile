@@ -25,7 +25,7 @@ const ALL_OPERATORS = [
   { dbNames: ['mtn'],                                       logo: null },
   { dbNames: ['awcc'],                                      logo: null },
   { dbNames: ['salaam'],                                    logo: null },
-  { dbNames: ['etisalat'],                                  logo: require('../../assets/images/etisalat.png') },
+  { dbNames: ['etisalat'],                                  logo: null },
   { dbNames: ['pubg'],                                      logo: require('../../assets/images/pubg.png') },
   { dbNames: ['valorant'],                                  logo: require('../../assets/images/valorant.png') },
   { dbNames: ['free fire'],                                 logo: require('../../assets/images/free-fire.png') },
