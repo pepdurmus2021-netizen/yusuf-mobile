@@ -14,48 +14,6 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } from '../../lib/receipt';
 
-const ALL_OPERATORS = [
-  { dbNames: ['turkcell','türkcell'],                          logo: null },
-  { dbNames: ['vodafone'],                                     logo: null },
-  { dbNames: ['turk telekom','türk telekom','turktelekom'],    logo: null },
-  { dbNames: ['roshan'],                                       logo: null },
-  { dbNames: ['mtn'],                                          logo: null },
-  { dbNames: ['awcc'],                                         logo: null },
-  { dbNames: ['salaam'],                                       logo: null },
-  { dbNames: ['etisalat'],                                     logo: null },
-  { dbNames: ['pubg'],                                         logo: null },
-  { dbNames: ['valorant'],                                     logo: null },
-  { dbNames: ['free fire'],                                    logo: null },
-  { dbNames: ['google play kart','google play'],               logo: null },
-  { dbNames: ['clash'],                                        logo: null },
-  { dbNames: ['ahlan'],                                        logo: null },
-  { dbNames: ['soulchill','souLchill'],                        logo: null },
-  { dbNames: ['hiya','hi̇ya'],                                  logo: null },
-  { dbNames: ['sugo'],                                         logo: null },
-  { dbNames: ['yoho'],                                         logo: null },
-  { dbNames: ['ditto'],                                        logo: null },
-  { dbNames: ['jawaker'],                                      logo: null },
-  { dbNames: ['haki'],                                         logo: null },
-  { dbNames: ['haza'],                                         logo: null },
-  { dbNames: ['bigo'],                                         logo: null },
-  { dbNames: ['tiktok','ti̇ktok'],                              logo: null },
-  { dbNames: ['tango'],                                        logo: null },
-  { dbNames: ['likee','li̇kee'],                                logo: null },
-  { dbNames: ['itunes kart','i̇tunes kart'],                    logo: null },
-  { dbNames: ['paycell'],                                      logo: null },
-  { dbNames: ['yalla ludo'],                                   logo: null },
-  { dbNames: ['tumile'],                                       logo: null },
-  { dbNames: ['falla'],                                        logo: null },
-];
-
-// Yerel GSM/oyun haritasina (ALL_OPERATORS) bakar, yoksa fallback ikon gosterilir (bkz. renderItem).
-function getOperatorLogo(operatorName: string | undefined) {
-  if (!operatorName) return null;
-  const lower = operatorName.toLowerCase();
-  const match = ALL_OPERATORS.find(op => op.dbNames.some(n => lower.includes(n)));
-  return match?.logo || null;
-}
-
 function getStatusMap(): Record<string, { label: string; icon: string; colors: [string,string]; bg: string; text: string }> {
   return {
     completed:  { label: i18n.t('home.completed'), icon: 'checkmark-circle', colors: ['#10b981','#059669'], bg: '#f0fdf4', text: '#10b981' },
@@ -181,18 +139,11 @@ export default function OrdersScreen() {
         }
         renderItem={({ item }) => {
           const cfg = STATUS[item.status] || STATUS.failed;
-          const logo = getOperatorLogo(item.package_operator || item.package?.operator);
           return (
             <TouchableOpacity style={s.card} onPress={() => setSelected(item)} activeOpacity={0.82}>
-              {logo ? (
-                <View style={s.cardLogoWrap}>
-                  <Image source={logo} style={s.cardLogo} resizeMode="contain" />
-                </View>
-              ) : (
-                <LinearGradient colors={cfg.colors} style={s.cardIcon}>
-                  <Ionicons name="storefront-outline" size={18} color="#fff" />
-                </LinearGradient>
-              )}
+              <LinearGradient colors={cfg.colors} style={s.cardIcon}>
+                <Ionicons name="storefront-outline" size={18} color="#fff" />
+              </LinearGradient>
               <View style={s.cardBody}>
                 <Text style={s.cardPkg} numberOfLines={1}>{item.package_name_tr || item.package?.name_tr || t('orders.defaultPackage')}</Text>
                 <Text style={s.cardPhone}>{item.phone_number || '—'}</Text>
