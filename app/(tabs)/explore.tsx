@@ -298,14 +298,10 @@ export default function ExploreScreen() {
     return codes.map((code, i) => {
       const override = logoOverrides[toSafeKey(code)];
       const categoryImg = urlUsageCount[rawImgByCode[code]] === 1 ? rawImgByCode[code] : null;
-      // Statik gomulu logo (5 Eylul 2026, Play Store'dan toplu cekildi) DB
-      // override'indan bagimsiz calisir - admin panel/Supabase sorunlarindan
-      // etkilenmez. Once buna bakilir, yoksa DB override/category_img'e duser.
-      const staticLogo = GAME_LOGOS_STATIC[toSafeKey(code)];
       return {
         id: 'dyn-' + code.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         name: override?.display_name || code,
-        logo: staticLogo || (categoryImg ? { uri: categoryImg } : null),
+        logo: categoryImg ? { uri: categoryImg } : null,
         colors: DYNAMIC_COLORS[i % DYNAMIC_COLORS.length],
         dbNames: [code],
       };
