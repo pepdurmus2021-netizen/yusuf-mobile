@@ -16,20 +16,21 @@ import { groupPackagesBySubCategory, getSubCategoryOrder, getSubCategoryLabel } 
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { API_URL, apiFetch } from '../../lib/config';
+import { useLogos, toSafeKey } from '../../lib/logoOverrides';
 
-// PayStore'dan yeni gelen ama henüz GAME_OPERATORS'e elle eklenmemiş oyunlar için
-// logo bulunamayabiliyor (yerel asset yok) — bu durumda bayi panelindekiyle aynı
-// fallback: renkli daire içinde ismin ilk harfi.
-function OpLogo({ op, style }: { op: { name: string; logo: any; colors: [string, string]; dbNames?: string[] }; style: any }) {
-  const source = op.logo;
-  if (!source) {
+// Once admin panelden yuklenen logoya (tek kaynak) bakar, yoksa renkli daire
+// icinde ismin ilk harfi fallback'ine duser.
+function OpLogo({ op, overrides, style }: { op: { name: string; logo: any; colors: [string, string]; dbNames?: string[] }; overrides: Record<string, { logo_url: string }>; style: any }) {
+  const candidates = [...(op.dbNames || []), op.name].filter(Boolean);
+  const logo = candidates.map((c) => overrides[toSafeKey(c)]).find(Boolean);
+  if (!logo) {
     return (
       <View style={[style, { backgroundColor: op.colors[0], alignItems: 'center', justifyContent: 'center' }]}>
         <Text style={{ color: '#fff', fontWeight: '900', fontSize: (style?.width || 32) * 0.4 }}>{op.name?.[0]?.toUpperCase()}</Text>
       </View>
     );
   }
-  return <Image source={source} style={style} contentFit="contain" />;
+  return <Image source={{ uri: logo.logo_url }} style={style} contentFit="contain" />;
 }
 
 // PayStore TopUpPackageQuery operatör parametresi — sadece Türkiye operatörleri destekleniyor
