@@ -48,7 +48,7 @@ const ALL_OPERATORS = [
   { dbNames: ['paycell'],                                   logo: null },
   { dbNames: ['yalla ludo'],                                logo: null },
   { dbNames: ['tumile'],                                    logo: null },
-  { dbNames: ['falla'],                                     logo: require('../../assets/images/falla.png') },
+  { dbNames: ['falla'],                                     logo: null },
 ];
 
 function getOperatorLogo(operatorName: string | undefined) {
