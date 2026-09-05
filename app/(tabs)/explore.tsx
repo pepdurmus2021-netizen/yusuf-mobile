@@ -876,7 +876,7 @@ export default function ExploreScreen() {
               >
                 <View style={s.pkgLeft}>
                   <View style={[s.pkgLogoCircle, { borderColor: activeOp.colors[0] + '40' }]}>
-                    <OpLogo op={activeOp} style={s.pkgLogo} />
+                    <OpLogo op={activeOp} overrides={logoOverrides} style={s.pkgLogo} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={s.pkgName} numberOfLines={2}>{pkgs[0].name_tr || activeOp.name}</Text>
