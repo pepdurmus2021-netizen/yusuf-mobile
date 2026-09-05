@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   View, Text, ScrollView, FlatList, TouchableOpacity, StyleSheet,
   TextInput, Alert, Modal, ActivityIndicator, Animated,
-  KeyboardAvoidingView, Keyboard, Platform, Image, Dimensions, BackHandler,
+  KeyboardAvoidingView, Keyboard, Platform, Dimensions, BackHandler,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
