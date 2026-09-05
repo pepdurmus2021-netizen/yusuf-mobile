@@ -838,7 +838,7 @@ export default function ExploreScreen() {
             <Text style={s.hTitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{activeOp?.name}</Text>
             {activeOp && <Text style={s.hSub}>{t('explore.packagesAvailable', { count: pkgs.length })}</Text>}
           </View>
-          {activeOp && <OpLogo op={activeOp} overrides={logoOverrides} style={s.hLogo} />}
+          {activeOp && <OpLogo op={activeOp} style={s.hLogo} />}
         </View>
       </LinearGradient>
 
