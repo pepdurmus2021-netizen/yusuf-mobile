@@ -28,7 +28,7 @@ const ALL_OPERATORS = [
   { dbNames: ['etisalat'],                                  logo: null },
   { dbNames: ['pubg'],                                      logo: null },
   { dbNames: ['valorant'],                                  logo: null },
-  { dbNames: ['free fire'],                                 logo: require('../../assets/images/free-fire.png') },
+  { dbNames: ['free fire'],                                 logo: null },
   { dbNames: ['google play kart','google play'],            logo: require('../../assets/images/google-play.png') },
   { dbNames: ['clash'],                                     logo: require('../../assets/images/clash-royale.png') },
   { dbNames: ['ahlan'],                                     logo: require('../../assets/images/ahlan.png') },
