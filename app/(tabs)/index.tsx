@@ -15,7 +15,6 @@ import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { WebView } from 'react-native-webview';
-import { useGameLogoOverrides, toSafeKey } from '../../lib/gameLogoOverrides';
 import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } from '../../lib/receipt';
 
 const ALL_OPERATORS = [
