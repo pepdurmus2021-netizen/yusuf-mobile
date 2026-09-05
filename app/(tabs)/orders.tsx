@@ -55,7 +55,7 @@ const ALL_OPERATORS = [
 function getOperatorLogo(operatorName: string | undefined, overrides: Record<string, any>) {
   if (!operatorName) return null;
   const override = overrides[toSafeKey(operatorName)];
-  if (override) return { uri: `${API_URL}${override.logo_url}` };
+  if (override) return { uri: override.logo_url };
   const lower = operatorName.toLowerCase();
   const match = ALL_OPERATORS.find(op => op.dbNames.some(n => lower.includes(n)));
   return match?.logo || null;
