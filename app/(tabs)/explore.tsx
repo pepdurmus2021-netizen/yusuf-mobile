@@ -110,6 +110,7 @@ function orderErrorMessage(err: OrderError): string {
 export default function ExploreScreen() {
   const { t } = useTranslation();
   const { token, updateUser } = useAuth();
+  const logoOverrides = useLogos('operator', token);
   const { packages, fetchPackages, fetchOrders } = useAppStore();
 
   // Backend zaten role'e göre doğru fiyatı price_try'a yazdı
