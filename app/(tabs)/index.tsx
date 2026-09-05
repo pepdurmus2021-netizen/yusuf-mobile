@@ -22,7 +22,7 @@ const ALL_OPERATORS = [
   { dbNames: ['vodafone'],                                  logo: null },
   { dbNames: ['turk telekom','türk telekom','turktelekom'], logo: null },
   { dbNames: ['roshan'],                                    logo: null },
-  { dbNames: ['mtn'],                                       logo: require('../../assets/images/mtn.png') },
+  { dbNames: ['mtn'],                                       logo: null },
   { dbNames: ['awcc'],                                      logo: require('../../assets/images/awcc.png') },
   { dbNames: ['salaam'],                                    logo: require('../../assets/images/salaam.png') },
   { dbNames: ['etisalat'],                                  logo: require('../../assets/images/etisalat.png') },
