@@ -51,11 +51,6 @@ const ALL_OPERATORS = [
   { dbNames: ['falla'],                                     logo: null },
 ];
 
-function getOperatorLogo(operatorName: string | undefined) {
-  if (!operatorName) return null;
-  const lower = operatorName.toLowerCase();
-  return ALL_OPERATORS.find(op => op.dbNames.some(n => lower.includes(n)))?.logo || null;
-}
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
