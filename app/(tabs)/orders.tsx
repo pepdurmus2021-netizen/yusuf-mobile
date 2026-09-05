@@ -141,11 +141,18 @@ export default function OrdersScreen() {
         }
         renderItem={({ item }) => {
           const cfg = STATUS[item.status] || STATUS.failed;
+          const logo = logoOverrides[toSafeKey(item.package_operator || item.package?.operator)];
           return (
             <TouchableOpacity style={s.card} onPress={() => setSelected(item)} activeOpacity={0.82}>
-              <LinearGradient colors={cfg.colors} style={s.cardIcon}>
-                <Ionicons name="storefront-outline" size={18} color="#fff" />
-              </LinearGradient>
+              {logo ? (
+                <View style={s.cardLogoWrap}>
+                  <Image source={{ uri: logo.logo_url }} style={s.cardLogo} resizeMode="contain" />
+                </View>
+              ) : (
+                <LinearGradient colors={cfg.colors} style={s.cardIcon}>
+                  <Ionicons name="storefront-outline" size={18} color="#fff" />
+                </LinearGradient>
+              )}
               <View style={s.cardBody}>
                 <Text style={s.cardPkg} numberOfLines={1}>{item.package_name_tr || item.package?.name_tr || t('orders.defaultPackage')}</Text>
                 <Text style={s.cardPhone}>{item.phone_number || '—'}</Text>
