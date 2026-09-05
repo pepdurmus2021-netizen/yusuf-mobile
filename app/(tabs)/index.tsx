@@ -17,40 +17,6 @@ import { useTranslation } from 'react-i18next';
 import { WebView } from 'react-native-webview';
 import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } from '../../lib/receipt';
 
-const ALL_OPERATORS = [
-  { dbNames: ['turkcell','türkcell'],                       logo: null },
-  { dbNames: ['vodafone'],                                  logo: null },
-  { dbNames: ['turk telekom','türk telekom','turktelekom'], logo: null },
-  { dbNames: ['roshan'],                                    logo: null },
-  { dbNames: ['mtn'],                                       logo: null },
-  { dbNames: ['awcc'],                                      logo: null },
-  { dbNames: ['salaam'],                                    logo: null },
-  { dbNames: ['etisalat'],                                  logo: null },
-  { dbNames: ['pubg'],                                      logo: null },
-  { dbNames: ['valorant'],                                  logo: null },
-  { dbNames: ['free fire'],                                 logo: null },
-  { dbNames: ['google play kart','google play'],            logo: null },
-  { dbNames: ['clash'],                                     logo: null },
-  { dbNames: ['ahlan'],                                     logo: null },
-  { dbNames: ['soulchill','souLchill'],                     logo: null },
-  { dbNames: ['hiya','hi̇ya'],                               logo: null },
-  { dbNames: ['sugo'],                                      logo: null },
-  { dbNames: ['yoho'],                                      logo: null },
-  { dbNames: ['ditto'],                                     logo: null },
-  { dbNames: ['jawaker'],                                   logo: null },
-  { dbNames: ['haki'],                                      logo: null },
-  { dbNames: ['haza'],                                      logo: null },
-  { dbNames: ['bigo'],                                      logo: null },
-  { dbNames: ['tiktok','ti̇ktok'],                           logo: null },
-  { dbNames: ['tango'],                                     logo: null },
-  { dbNames: ['likee','li̇kee'],                             logo: null },
-  { dbNames: ['itunes kart','i̇tunes kart'],                 logo: null },
-  { dbNames: ['paycell'],                                   logo: null },
-  { dbNames: ['yalla ludo'],                                logo: null },
-  { dbNames: ['tumile'],                                    logo: null },
-  { dbNames: ['falla'],                                     logo: null },
-];
-
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
@@ -342,25 +308,17 @@ export default function HomeScreen() {
           </View>
 
           {recentOrders.slice(0, 5).map((order, i) => {
-            const operatorName = order.package_operator || order.package?.operator;
-            const logo = getOperatorLogo(operatorName);
             const pkgName = order.package_name_tr || order.package?.name_tr || t('orders.defaultPackage');
             const statusColor = order.status === 'completed' ? '#10b981' : order.status === 'pending' || order.status === 'processing' ? '#f59e0b' : '#ef4444';
             const statusIcon = order.status === 'completed' ? 'checkmark-circle' : order.status === 'pending' || order.status === 'processing' ? 'time' : 'close-circle';
             return (
               <TouchableOpacity key={i} style={styles.orderCard} activeOpacity={0.82} onPress={() => setSelectedOrder(order)}>
-                {logo ? (
-                  <View style={styles.orderLogoWrap}>
-                    <Image source={logo} style={styles.orderLogo} resizeMode="contain" />
-                  </View>
-                ) : (
-                  <LinearGradient
-                    colors={order.status === 'completed' ? ['#10b981', '#06b6d4'] : order.status === 'pending' ? ['#f59e0b', '#f97316'] : ['#ef4444', '#dc2626']}
-                    style={styles.orderIcon}
-                  >
-                    <Ionicons name={statusIcon as any} size={16} color="#fff" />
-                  </LinearGradient>
-                )}
+                <LinearGradient
+                  colors={order.status === 'completed' ? ['#10b981', '#06b6d4'] : order.status === 'pending' ? ['#f59e0b', '#f97316'] : ['#ef4444', '#dc2626']}
+                  style={styles.orderIcon}
+                >
+                  <Ionicons name={statusIcon as any} size={16} color="#fff" />
+                </LinearGradient>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.orderPkg} numberOfLines={1}>{pkgName}</Text>
                   <Text style={styles.orderPhone}>{order.phone_number || '—'}</Text>
