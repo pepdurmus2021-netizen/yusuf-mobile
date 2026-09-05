@@ -23,6 +23,7 @@ const { width } = Dimensions.get('window');
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { token, user, updateUser } = useAuth();
+  const logoOverrides = useLogos('operator', token);
   const router = useRouter();
   const { orders: recentOrders, balanceRequests, fetchOrders, fetchBalanceRequests, anaBayiStats, fetchAnaBayiStats } = useAppStore();
   const isDealerParent = user?.role === 'ana_bayi';
