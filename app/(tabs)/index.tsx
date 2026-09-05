@@ -16,6 +16,7 @@ import { supabase } from '../../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { WebView } from 'react-native-webview';
 import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } from '../../lib/receipt';
+import { useLogos, toSafeKey } from '../../lib/logoOverrides';
 
 const { width } = Dimensions.get('window');
 
