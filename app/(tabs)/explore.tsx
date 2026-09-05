@@ -46,23 +46,23 @@ const PAD = 16;
 // Bu veriler sadece UI gösterimi için; iş mantığına karışmıyor.
 
 const TURKEY_OPERATORS = [
-  { id: 'turkcell',    name: 'Turkcell',     logo: require('../../assets/images/turkcell.png'),     colors: ['#f59e0b','#d97706'] as [string,string], prefixes: ['530','531','532','533','534','535','536','537','538','539','501','505','506','507'], dbNames: ['turkcell','türkcell'] },
-  { id: 'vodafone',    name: 'Vodafone',     logo: require('../../assets/images/vodafone.png'),     colors: ['#ef4444','#dc2626'] as [string,string], prefixes: ['541','542','543','544','545','546','547','548','549','502','555','556','557','558','559'], dbNames: ['vodafone'] },
-  { id: 'turktelekom', name: 'Türk Telekom', logo: require('../../assets/images/turktelekom.png'),  colors: ['#3b82f6','#1d4ed8'] as [string,string], prefixes: ['551','552','553','554','561','562','563','564','565','566','500'], dbNames: ['turk telekom','türk telekom','turktelekom'] },
+  { id: 'turkcell',    name: 'Turkcell',     logo: null, colors: ['#f59e0b','#d97706'] as [string,string], prefixes: ['530','531','532','533','534','535','536','537','538','539','501','505','506','507'], dbNames: ['turkcell','türkcell'] },
+  { id: 'vodafone',    name: 'Vodafone',     logo: null, colors: ['#ef4444','#dc2626'] as [string,string], prefixes: ['541','542','543','544','545','546','547','548','549','502','555','556','557','558','559'], dbNames: ['vodafone'] },
+  { id: 'turktelekom', name: 'Türk Telekom', logo: null, colors: ['#3b82f6','#1d4ed8'] as [string,string], prefixes: ['551','552','553','554','561','562','563','564','565','566','500'], dbNames: ['turk telekom','türk telekom','turktelekom'] },
 ];
 
 const AFGHAN_OPERATORS = [
-  { id: 'roshan',   name: 'Roshan',   logo: require('../../assets/images/roshan.png'),   colors: ['#ef4444','#dc2626'] as [string,string], prefixes: ['79','72'], dbNames: ['roshan'] },
-  { id: 'mtn',      name: 'MTN',      logo: require('../../assets/images/mtn.png'),      colors: ['#f59e0b','#d97706'] as [string,string], prefixes: ['77','76'], dbNames: ['mtn'] },
-  { id: 'awcc',     name: 'AWCC',     logo: require('../../assets/images/awcc.png'),     colors: ['#10b981','#059669'] as [string,string], prefixes: ['70','71'], dbNames: ['awcc'] },
-  { id: 'salaam',   name: 'Salaam',   logo: require('../../assets/images/salaam.png'),   colors: ['#6366f1','#4f46e5'] as [string,string], prefixes: ['74'],      dbNames: ['salaam'] },
-  { id: 'etisalat', name: 'Etisalat', logo: require('../../assets/images/etisalat.png'), colors: ['#10b981','#059669'] as [string,string], prefixes: ['78','73'], dbNames: ['etisalat'] },
+  { id: 'roshan',   name: 'Roshan',   logo: null, colors: ['#ef4444','#dc2626'] as [string,string], prefixes: ['79','72'], dbNames: ['roshan'] },
+  { id: 'mtn',      name: 'MTN',      logo: null, colors: ['#f59e0b','#d97706'] as [string,string], prefixes: ['77','76'], dbNames: ['mtn'] },
+  { id: 'awcc',     name: 'AWCC',     logo: null, colors: ['#10b981','#059669'] as [string,string], prefixes: ['70','71'], dbNames: ['awcc'] },
+  { id: 'salaam',   name: 'Salaam',   logo: null, colors: ['#6366f1','#4f46e5'] as [string,string], prefixes: ['74'],      dbNames: ['salaam'] },
+  { id: 'etisalat', name: 'Etisalat', logo: null, colors: ['#10b981','#059669'] as [string,string], prefixes: ['78','73'], dbNames: ['etisalat'] },
 ];
 
 const IRAN_OPERATORS = [
-  { id: 'irancell', name: 'Irancell',      logo: require('../../assets/images/iran.jpg'), colors: ['#fbbf24','#f59e0b'] as [string,string], prefixes: ['93','90'], dbNames: ['irancell'] },
-  { id: 'mci',      name: 'Hamrah-e Avval', logo: require('../../assets/images/iran.jpg'), colors: ['#10b981','#059669'] as [string,string], prefixes: ['91'],      dbNames: ['mci','hamrah'] },
-  { id: 'rightel',  name: 'Rightel',        logo: require('../../assets/images/iran.jpg'), colors: ['#8b5cf6','#7c3aed'] as [string,string], prefixes: ['92'],      dbNames: ['rightel'] },
+  { id: 'irancell', name: 'Irancell',      logo: null, colors: ['#fbbf24','#f59e0b'] as [string,string], prefixes: ['93','90'], dbNames: ['irancell'] },
+  { id: 'mci',      name: 'Hamrah-e Avval', logo: null, colors: ['#10b981','#059669'] as [string,string], prefixes: ['91'],      dbNames: ['mci','hamrah'] },
+  { id: 'rightel',  name: 'Rightel',        logo: null, colors: ['#8b5cf6','#7c3aed'] as [string,string], prefixes: ['92'],      dbNames: ['rightel'] },
 ];
 
 // GAME_OPERATORS sabit listesi kaldırıldı (29 Ağustos 2026) — oyun/sosyal-app
