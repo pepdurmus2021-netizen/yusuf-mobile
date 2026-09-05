@@ -294,17 +294,16 @@ export default function ExploreScreen() {
     Object.values(rawImgByCode).forEach((url) => { urlUsageCount[url] = (urlUsageCount[url] || 0) + 1; });
 
     return codes.map((code, i) => {
-      const override = logoOverrides[toSafeKey(code)];
       const categoryImg = urlUsageCount[rawImgByCode[code]] === 1 ? rawImgByCode[code] : null;
       return {
         id: 'dyn-' + code.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        name: override?.display_name || code,
+        name: code,
         logo: categoryImg ? { uri: categoryImg } : null,
         colors: DYNAMIC_COLORS[i % DYNAMIC_COLORS.length],
         dbNames: [code],
       };
     });
-  }, [packages, logoOverrides]);
+  }, [packages]);
 
   const allGameOperators = dynamicGameOperators;
 
