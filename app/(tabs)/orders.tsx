@@ -181,7 +181,7 @@ export default function OrdersScreen() {
         }
         renderItem={({ item }) => {
           const cfg = STATUS[item.status] || STATUS.failed;
-          const logo = getOperatorLogo(item.package_operator || item.package?.operator, logoOverrides);
+          const logo = getOperatorLogo(item.package_operator || item.package?.operator);
           return (
             <TouchableOpacity style={s.card} onPress={() => setSelected(item)} activeOpacity={0.82}>
               {logo ? (
