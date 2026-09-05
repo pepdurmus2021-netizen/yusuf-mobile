@@ -18,7 +18,7 @@ import { WebView } from 'react-native-webview';
 import { generateReceiptHtml, downloadReceipt, printReceipt, viewReceiptOnWeb } from '../../lib/receipt';
 
 const ALL_OPERATORS = [
-  { dbNames: ['turkcell','türkcell'],                       logo: require('../../assets/images/turkcell.png') },
+  { dbNames: ['turkcell','türkcell'],                       logo: null },
   { dbNames: ['vodafone'],                                  logo: require('../../assets/images/vodafone.png') },
   { dbNames: ['turk telekom','türk telekom','turktelekom'], logo: require('../../assets/images/turktelekom.png') },
   { dbNames: ['roshan'],                                    logo: require('../../assets/images/roshan.png') },
