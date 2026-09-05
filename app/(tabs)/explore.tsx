@@ -16,13 +16,12 @@ import { groupPackagesBySubCategory, getSubCategoryOrder, getSubCategoryLabel } 
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { API_URL, apiFetch } from '../../lib/config';
-import { useGameLogoOverrides, resolveLogo, toSafeKey } from '../../lib/gameLogoOverrides';
 
 // PayStore'dan yeni gelen ama henüz GAME_OPERATORS'e elle eklenmemiş oyunlar için
-// logo bulunamayabiliyor (ne yerel asset ne admin override'ı) — bu durumda
-// bayi panelindekiyle aynı fallback: renkli daire içinde ismin ilk harfi.
-function OpLogo({ op, overrides, style }: { op: { name: string; logo: any; colors: [string, string]; dbNames?: string[] }; overrides: any; style: any }) {
-  const source = resolveLogo(op, overrides);
+// logo bulunamayabiliyor (yerel asset yok) — bu durumda bayi panelindekiyle aynı
+// fallback: renkli daire içinde ismin ilk harfi.
+function OpLogo({ op, style }: { op: { name: string; logo: any; colors: [string, string]; dbNames?: string[] }; style: any }) {
+  const source = op.logo;
   if (!source) {
     return (
       <View style={[style, { backgroundColor: op.colors[0], alignItems: 'center', justifyContent: 'center' }]}>
