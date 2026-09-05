@@ -110,7 +110,6 @@ export default function ExploreScreen() {
   const { t } = useTranslation();
   const { token, updateUser } = useAuth();
   const { packages, fetchPackages, fetchOrders } = useAppStore();
-  const logoOverrides = useGameLogoOverrides(token);
 
   // Backend zaten role'e göre doğru fiyatı price_try'a yazdı
   const getPkgPrice = (pkg: any): number =>
