@@ -503,7 +503,7 @@ export default function ExploreScreen() {
               {/* Paket kartı — gradient */}
               <LinearGradient colors={sheetOp.colors} style={s.sheetPkg} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
                 <View style={s.sheetLogoBox}>
-                  <OpLogo op={sheetOp} overrides={logoOverrides} style={{ width: 34, height: 34 }} />
+                  <OpLogo op={sheetOp} style={{ width: 34, height: 34 }} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={s.sheetPkgName}>{selPkg.name_tr}</Text>
