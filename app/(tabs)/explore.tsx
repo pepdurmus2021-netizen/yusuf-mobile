@@ -277,8 +277,7 @@ export default function ExploreScreen() {
 
   // Gunes-Tek'ten gelen 2342 satırlık `packages` tablosu — oyun/sosyal-app kartları
   // artık sabit bir liste yerine tamamen `operator` alanına göre dinamik oluşturuluyor.
-  // Admin panelden isim/logo atanmışsa (game_logos override) onu kullanır,
-  // atanmamışsa ham operatör kodunu + fallback ikonu (OpLogo) gösterir.
+  // Ham operatör kodunu + fallback ikonunu (OpLogo) gösterir.
   const dynamicGameOperators = useMemo(() => {
     const gamePkgs = packages.filter((p: any) => p.type === 'game');
     const codes = [...new Set(gamePkgs.map((p: any) => p.operator).filter(Boolean))] as string[];
