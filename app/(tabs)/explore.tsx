@@ -356,6 +356,14 @@ export default function ExploreScreen() {
   );
   const sheetPrice = isAmountPkg ? (getPkgPrice(selPkg) * amountQtyNum) : getPkgPrice(selPkg || {});
 
+  // Gunes-Tek urunu 2+ alan istiyorsa (orn. Mobile Legends: Player ID + Zone ID)
+  // her etiket icin ayri bir kutu gosterilir; tek alanli urunlerde eski davranis
+  // (tek "Oyun ID" kutusu, orderPhone state'i) aynen korunur.
+  const multiFieldLabels: string[] | null =
+    isGameOrder && Array.isArray(selPkg?.gunestek_params) && selPkg.gunestek_params.length > 1
+      ? selPkg.gunestek_params
+      : null;
+
   // ── Gunes-Tek siparişi — yeni tedarikçi, ayrı endpoint (/api/orders/gunestek) ──
   const confirmGunesTekOrder = async () => {
     if (!selPkg) return;
