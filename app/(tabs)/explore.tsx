@@ -415,6 +415,7 @@ export default function ExploreScreen() {
       setModalOp(null);
       setOrderPhone('');
       setAmountQty('');
+      setExtraFields({});
       setAppModal({ type: 'pending', title: t('explore.orderReceived'), message: t('explore.trackFromOrdersTab') });
 
     } catch (err: any) {
