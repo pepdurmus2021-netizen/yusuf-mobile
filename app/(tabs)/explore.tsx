@@ -552,37 +552,63 @@ export default function ExploreScreen() {
                 </View>
               )}
 
-              {/* Telefon / Oyun ID girişi */}
-              <View style={s.inputSection}>
-                <Text style={s.inputLabel}>
-                  {isGameOrder ? t('explore.gameIdLabel') : t('explore.phoneNumberLabel')}
-                </Text>
-                <View style={[s.inputRow, phoneFocused && { borderColor: sheetOp?.colors[0] || '#6366f1', backgroundColor: '#fff' }]}>
-                  <View style={[s.inputIconWrap, phoneFocused && { backgroundColor: (sheetOp?.colors[0] || '#6366f1') + '15' }]}>
-                    <Ionicons
-                      name={isGameOrder ? 'game-controller' : 'call'}
-                      size={16}
-                      color={phoneFocused ? (sheetOp?.colors[0] || '#6366f1') : '#94a3b8'}
-                    />
+              {/* Telefon / Oyun ID girişi — urun 2+ alan istiyorsa (orn. Player ID + Zone ID) her biri icin ayri kutu */}
+              {multiFieldLabels ? (
+                multiFieldLabels.map((label, i) => (
+                  <View key={label} style={s.inputSection}>
+                    <Text style={s.inputLabel}>{label}</Text>
+                    <View style={[s.inputRow, { borderColor: '#e2e8f0', backgroundColor: '#fff' }]}>
+                      <View style={s.inputIconWrap}>
+                        <Ionicons name="game-controller" size={16} color="#94a3b8" />
+                      </View>
+                      <TextInput
+                        style={s.inputField}
+                        value={extraFields[label] || ''}
+                        onChangeText={(v) => setExtraFields((prev) => ({ ...prev, [label]: v }))}
+                        placeholder={label}
+                        placeholderTextColor="#b0bec5"
+                        autoFocus={i === 0}
+                      />
+                      {(extraFields[label]?.length || 0) > 0 && (
+                        <TouchableOpacity onPress={() => setExtraFields((prev) => ({ ...prev, [label]: '' }))} style={{ paddingEnd: 14 }}>
+                          <Ionicons name="close-circle" size={18} color="#cbd5e1" />
+                        </TouchableOpacity>
+                      )}
+                    </View>
                   </View>
-                  <TextInput
-                    style={s.inputField}
-                    value={orderPhone}
-                    onChangeText={setOrderPhone}
-                    keyboardType={isGameOrder ? 'default' : 'phone-pad'}
-                    placeholder={isGameOrder ? t('explore.enterGameId') : '05xx xxx xx xx'}
-                    placeholderTextColor="#b0bec5"
-                    autoFocus={isGameOrder}
-                    onFocus={() => setPhoneFocused(true)}
-                    onBlur={() => setPhoneFocused(false)}
-                  />
-                  {orderPhone.length > 0 && (
-                    <TouchableOpacity onPress={() => setOrderPhone('')} style={{ paddingEnd: 14 }}>
-                      <Ionicons name="close-circle" size={18} color="#cbd5e1" />
-                    </TouchableOpacity>
-                  )}
+                ))
+              ) : (
+                <View style={s.inputSection}>
+                  <Text style={s.inputLabel}>
+                    {isGameOrder ? t('explore.gameIdLabel') : t('explore.phoneNumberLabel')}
+                  </Text>
+                  <View style={[s.inputRow, phoneFocused && { borderColor: sheetOp?.colors[0] || '#6366f1', backgroundColor: '#fff' }]}>
+                    <View style={[s.inputIconWrap, phoneFocused && { backgroundColor: (sheetOp?.colors[0] || '#6366f1') + '15' }]}>
+                      <Ionicons
+                        name={isGameOrder ? 'game-controller' : 'call'}
+                        size={16}
+                        color={phoneFocused ? (sheetOp?.colors[0] || '#6366f1') : '#94a3b8'}
+                      />
+                    </View>
+                    <TextInput
+                      style={s.inputField}
+                      value={orderPhone}
+                      onChangeText={setOrderPhone}
+                      keyboardType={isGameOrder ? 'default' : 'phone-pad'}
+                      placeholder={isGameOrder ? t('explore.enterGameId') : '05xx xxx xx xx'}
+                      placeholderTextColor="#b0bec5"
+                      autoFocus={isGameOrder}
+                      onFocus={() => setPhoneFocused(true)}
+                      onBlur={() => setPhoneFocused(false)}
+                    />
+                    {orderPhone.length > 0 && (
+                      <TouchableOpacity onPress={() => setOrderPhone('')} style={{ paddingEnd: 14 }}>
+                        <Ionicons name="close-circle" size={18} color="#cbd5e1" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
-              </View>
+              )}
 
               {/* İşlem özeti */}
               <View style={s.summaryBox}>
