@@ -354,7 +354,12 @@ export default function ExploreScreen() {
     amountQtyNum >= (parseFloat(selPkg?.qty_min) || 0) &&
     amountQtyNum <= (parseFloat(selPkg?.qty_max) || Infinity)
   );
-  const sheetPrice = isAmountPkg ? (getPkgPrice(selPkg) * amountQtyNum) : getPkgPrice(selPkg || {});
+  // ÖNEMLİ: getPkgPrice() 'amount' tipi paketlerde qty_min miktarı İÇİN TOPLAM
+  // fiyatı döndürür (app_price_try), birim fiyat değil — qty ile çarpmadan önce
+  // qty_min'e bölüp gerçek birim fiyata indirgemek gerekiyor (bölmeden çarpmak
+  // fiyatı qty_min kati kadar büyütüyordu, örn. 50.000 birim siparişte 50.000 kat).
+  const unitPrice = isAmountPkg ? getPkgPrice(selPkg) / (parseFloat(selPkg?.qty_min) || 1) : 0;
+  const sheetPrice = isAmountPkg ? (unitPrice * amountQtyNum) : getPkgPrice(selPkg || {});
 
   // Gunes-Tek urunu 2+ alan istiyorsa (orn. Mobile Legends: Player ID + Zone ID)
   // her etiket icin ayri bir kutu gosterilir; tek alanli urunlerde eski davranis
