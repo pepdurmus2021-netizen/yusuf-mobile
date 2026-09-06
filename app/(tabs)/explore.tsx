@@ -148,7 +148,7 @@ export default function ExploreScreen() {
     return (
       <TouchableOpacity
         key={pkg.id}
-        onPress={() => { setSelPkg(pkg); setOrderPhone(isGameOrder ? '' : ('0' + phone.replace(/\D/g, ''))); setAmountQty(''); }}
+        onPress={() => { setSelPkg(pkg); setOrderPhone(isGameOrder ? '' : ('0' + phone.replace(/\D/g, ''))); setAmountQty(''); setExtraFields({}); }}
         activeOpacity={0.8}
         style={s.pkgCard}
       >
