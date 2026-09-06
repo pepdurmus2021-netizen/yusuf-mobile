@@ -368,7 +368,14 @@ export default function ExploreScreen() {
   const confirmGunesTekOrder = async () => {
     if (!selPkg) return;
     const playerId = orderPhone.trim();
-    if (playerId.length < 3) {
+
+    if (multiFieldLabels) {
+      const missing = multiFieldLabels.some((label) => !extraFields[label]?.trim());
+      if (missing) {
+        setAppModal({ type: 'error', title: t('common.error'), message: t('explore.invalidGameId') });
+        return;
+      }
+    } else if (playerId.length < 3) {
       setAppModal({ type: 'error', title: t('common.error'), message: t('explore.invalidGameId') });
       return;
     }
