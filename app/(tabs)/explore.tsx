@@ -393,7 +393,13 @@ export default function ExploreScreen() {
 
     setGtLoading(true);
     try {
-      const body: any = { package_id: selPkg.id, player_id: playerId, phone_number: null };
+      const body: any = { package_id: selPkg.id, phone_number: null };
+      if (multiFieldLabels) {
+        body.fields = { ...extraFields };
+        body.player_id = extraFields[multiFieldLabels[0]] || null;
+      } else {
+        body.player_id = playerId;
+      }
       if (isAmountPkg) body.qty = amountQtyNum;
 
       const res: any = await apiFetch(`${API_URL}/api/orders/gunestek`, token, {
