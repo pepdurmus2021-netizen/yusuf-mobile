@@ -209,6 +209,7 @@ export default function ExploreScreen() {
   // Gunes-Tek 'amount' tipi ürünler için (serbest miktar) — kullanıcının girdiği
   // miktar, qty_min/qty_max aralığında canlı doğrulanıp fiyat anlık hesaplanır.
   const [amountQty, setAmountQty]     = useState('');
+  const [extraFields, setExtraFields] = useState<Record<string, string>>({});
   const [amountFocused, setAmountFocused] = useState(false);
   const [gtLoading, setGtLoading]     = useState(false);
   const [appModal, setAppModal] = useState<{ type: 'success' | 'pending' | 'error'; title: string; message: string } | null>(null);
