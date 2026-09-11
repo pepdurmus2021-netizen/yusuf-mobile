@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   View, Text, ScrollView, FlatList, TouchableOpacity, StyleSheet,
   TextInput, Alert, Modal, ActivityIndicator, Animated,
-  KeyboardAvoidingView, Keyboard, Platform, Dimensions, BackHandler,
+  KeyboardAvoidingView, Keyboard, Platform, Dimensions, BackHandler, useWindowDimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect } from 'expo-router';
