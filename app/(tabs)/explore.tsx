@@ -406,7 +406,7 @@ export default function ExploreScreen() {
         setAppModal({ type: 'error', title: t('common.error'), message: t('explore.invalidGameId') });
         return;
       }
-    } else if (playerId.length < 3) {
+    } else if (playerId.length < 3 || isPlaceholderId(playerId)) {
       setAppModal({ type: 'error', title: t('common.error'), message: t('explore.invalidGameId') });
       return;
     }
