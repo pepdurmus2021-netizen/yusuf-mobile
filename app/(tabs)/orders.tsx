@@ -83,15 +83,6 @@ export default function OrdersScreen() {
     return true;
   }), [orders, filter, search]);
 
-  const total     = orders.length;
-  const completed = orders.filter(o => o.status === 'completed').length;
-  const pending   = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
-  const totalSpent = orders.filter(o => o.status === 'completed').reduce((a, b) => {
-    const satis = parseFloat(b.amount || 0);
-    const maliyet = parseFloat(b.dist_price || b.cost_price || 0);
-    return a + Math.max(0, satis - maliyet);
-  }, 0);
-
   if (loading) return (
     <LinearGradient colors={['#4f46e5','#7c3aed']} style={s.loadWrap}>
       <ActivityIndicator size="large" color="#fff" />
