@@ -738,9 +738,10 @@ export default function ExploreScreen() {
           // hepsi bir anda değil, FlatList ile sadece görünen kısım render ediliyor
           // (performans: ScrollView+map ile ekran çok yavaşlıyordu, 30 Ağustos 2026).
           <FlatList
+            key={gameNumColumns}
             data={allGameOperators}
             keyExtractor={(op) => op.id}
-            numColumns={3}
+            numColumns={gameNumColumns}
             style={{ flex: 1 }}
             contentContainerStyle={s.phoneScreenBody}
             columnWrapperStyle={{ gap: 10 }}
@@ -750,7 +751,7 @@ export default function ExploreScreen() {
             windowSize={7}
             removeClippedSubviews
             renderItem={({ item: op }) => (
-              <TouchableOpacity onPress={() => selectGameOp(op)} activeOpacity={0.82} style={[s.gameCell, { marginBottom: 10 }]}>
+              <TouchableOpacity onPress={() => selectGameOp(op)} activeOpacity={0.82} style={[s.gameCell, { width: gameCellWidth, marginBottom: 10 }]}>
                 <View style={s.gameCellInner}>
                   <View style={s.gameLogoWrap}>
                     <OpLogo op={op} overrides={logoOverrides} style={s.gameOpLogo} />
