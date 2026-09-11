@@ -127,19 +127,31 @@ export function generateReceiptHtml(order: any, forPrint = false): string {
 
 // Web'de expo-print'in printToFileAsync/expo-sharing'i desteklenmiyor — tarayıcının
 // kendi yazdırma diyaloğunu (orada "PDF olarak kaydet" seçilebilir) yeni bir sekmede açıyoruz.
+//
+// NOT: Önceden `window.open('', '_blank')` ile boş bir pencere açılıp içine
+// `document.write()` ile HTML yazılıyordu. Bazı tarayıcı/güvenlik konfigürasyonlarında
+// (ör. Cross-Origin-Opener-Policy izolasyonu) yeni sekmenin `document`'ına erişim
+// engellenip `write()` sessizce/hata fırlatarak başarısız olabiliyor — sonuç: kalıcı
+// olarak boş (about:blank) kalan bir sekme. Bunun yerine HTML'i bir Blob URL'e çevirip
+// `window.open` çağrısını DOĞRUDAN o adrese yapıyoruz; böylece yeni sekme kendi kendine
+// gerçek bir URL'e navigate oluyor, `document.write`'a hiç ihtiyaç kalmıyor.
 function openReceiptInBrowserTab(order: any, autoPrint: boolean) {
-  const html = generateReceiptHtml(order, true);
-  const win = window.open('', '_blank');
-  if (!win) {
-    Alert.alert(i18n.t('common.error'), i18n.t('orders.receiptGenerationFailed'));
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  if (autoPrint) {
-    win.onload = () => win.print();
-    setTimeout(() => { try { win.print(); } catch {} }, 400);
+  try {
+    const html = generateReceiptHtml(order, true);
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (!win) {
+      URL.revokeObjectURL(url);
+      Alert.alert(i18n.t('common.error'), i18n.t('orders.receiptGenerationFailed'));
+      return;
+    }
+    if (autoPrint) {
+      win.addEventListener('load', () => { try { win.print(); } catch {} });
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e: any) {
+    Alert.alert(i18n.t('common.error'), e?.message || i18n.t('orders.receiptGenerationFailed'));
   }
 }
 
