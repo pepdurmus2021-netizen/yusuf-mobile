@@ -1059,7 +1059,7 @@ const s = StyleSheet.create({
   detectedSub: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600', marginTop: 1 },
   orLabel: { fontSize: 11, fontWeight: '700', color: '#94a3b8', textAlign: 'center', marginVertical: 14 },
   gameGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  gameCell: { width: (width - PAD * 2 - 10 * 2) / 3, borderRadius: 16, elevation: 3, shadowColor: '#6366f1', shadowOpacity: 0.07, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+  gameCell: { borderRadius: 16, elevation: 3, shadowColor: '#6366f1', shadowOpacity: 0.07, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
   gameCellInner: { backgroundColor: '#fff', borderRadius: 16, paddingVertical: 12, paddingHorizontal: 8, alignItems: 'center', gap: 7, borderWidth: 1, borderColor: '#f1f5f9' },
   gameLogoWrap: { width: '100%', height: 52, borderRadius: 12, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 4, backgroundColor: '#fff' },
   gameOpLogo: { width: '100%', height: 44 },
