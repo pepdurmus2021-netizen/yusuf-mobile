@@ -47,8 +47,23 @@ export default function OrdersScreen() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<any>(null);
   const [receiptOrder, setReceiptOrder] = useState<any>(null);
+  const [reportSummary, setReportSummary] = useState({ totalOrders: 0, totalRevenue: 0 });
 
   useEffect(() => { fetchOrdersData(); }, [token]);
+
+  // Son 30 günün özeti (admin/bayi panelindeki Raporlar sayfasıyla aynı
+  // backend endpoint'i) — üstteki başlıkta kompakt 2 istatistik olarak gösteriliyor.
+  useEffect(() => {
+    if (!token) return;
+    const to = new Date();
+    const from = new Date(); from.setDate(from.getDate() - 30);
+    fetch(`${API_URL}/api/reports/summary?from=${from.toISOString()}&to=${to.toISOString()}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.json())
+      .then(d => { if (d?.data) setReportSummary(d.data); })
+      .catch(() => {});
+  }, [token]);
 
   const fetchOrdersData = async () => {
     if (!token) { setLoading(false); setRefreshing(false); return; }
