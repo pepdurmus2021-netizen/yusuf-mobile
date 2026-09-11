@@ -105,6 +105,17 @@ export default function OrdersScreen() {
       <LinearGradient colors={['#4f46e5','#7c3aed','#a855f7']} style={s.header} start={{ x:0, y:0 }} end={{ x:1, y:1 }}>
         <View style={s.dec1} /><View style={s.dec2} />
         <Text style={s.hTitle}>{t('orders.title')}</Text>
+        <View style={s.statRow}>
+          <View style={s.statPill}>
+            <Text style={s.statPillVal}>{reportSummary.totalOrders}</Text>
+            <Text style={s.statPillLbl}>{t('reports.orderCount')}</Text>
+          </View>
+          <View style={s.statDivider} />
+          <View style={s.statPill}>
+            <Text style={s.statPillVal}>{reportSummary.totalRevenue.toFixed(0)} ₺</Text>
+            <Text style={s.statPillLbl}>{t('reports.totalRevenue')}</Text>
+          </View>
+        </View>
         <View style={s.searchBox}>
           <Ionicons name="search-outline" size={17} color="rgba(255,255,255,0.7)" />
           <TextInput
