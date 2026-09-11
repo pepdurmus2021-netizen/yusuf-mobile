@@ -655,8 +655,8 @@ export default function ExploreScreen() {
           {/* Onayla butonu */}
           <TouchableOpacity
             onPress={handleConfirm}
-            disabled={orderLoading || gtLoading || (isAmountPkg && !amountQtyValid)}
-            style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4, opacity: (isAmountPkg && !amountQtyValid) ? 0.5 : 1 }}
+            disabled={orderLoading || gtLoading || (isAmountPkg && !amountQtyValid) || !gameIdValid}
+            style={{ borderRadius: 16, overflow: 'hidden', marginTop: 4, opacity: ((isAmountPkg && !amountQtyValid) || !gameIdValid) ? 0.5 : 1 }}
             activeOpacity={0.85}
           >
             <LinearGradient colors={sheetOp?.colors || ['#6366f1', '#8b5cf6']} style={s.confirmBtn} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
