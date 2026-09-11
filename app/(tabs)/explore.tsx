@@ -113,6 +113,14 @@ export default function ExploreScreen() {
   const logoOverrides = useLogos('operator', token);
   const { packages, fetchPackages, fetchOrders } = useAppStore();
 
+  // `Dimensions.get('window')` (modül seviyesinde, dosya en üstünde) sadece bir kez
+  // okunuyordu — web'de pencere/side-panel yeniden boyutlandığında güncellenmiyordu,
+  // bu da oyun/dijital ızgarasında üçüncü sütunun konteynerden taşıp yatay kaydırma
+  // gerektirmesine yol açıyordu. `useWindowDimensions` her resize'da yeniden render tetikler.
+  const { width: winWidth } = useWindowDimensions();
+  const gameNumColumns = winWidth < 380 ? 2 : 3;
+  const gameCellWidth = (winWidth - PAD * 2 - 10 * (gameNumColumns - 1)) / gameNumColumns;
+
   // Backend zaten role'e göre doğru fiyatı price_try'a yazdı
   const getPkgPrice = (pkg: any): number =>
     parseFloat(pkg.price_try ?? pkg.price ?? pkg.app_price_try ?? 0);
