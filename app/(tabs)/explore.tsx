@@ -490,7 +490,21 @@ export default function ExploreScreen() {
 
   // isGameOrder (Gunes-Tek) siparişleri ayrı endpoint/akıştan gidiyor, diğerleri
   // (telefon yükleme) eski useOrderFlow/PayStore akışını kullanmaya devam ediyor.
-  const handleConfirm = () => { if (isGameOrder) confirmGunesTekOrder(); else confirmOrder(); };
+  //
+  // Çift-tıklama koruması: butonun `disabled={orderLoading || gtLoading || ...}`
+  // koşulu tek başına yeterli değil — state güncellemesi asenkron olduğu için çok
+  // hızlı art arda iki tıklama, ikinci render henüz "disabled" olmadan ikinci
+  // çağrıyı da tetikleyebiliyordu (mükerrer sipariş şüphesi — aynı gün aynı paket
+  // aynı tutarla 2 kez oluşmuş kayıt buradan kaynaklanmış olabilir). JS tek
+  // thread'li olduğu için senkron bir ref kilidi, aynı state güncellemesini
+  // beklemeden ikinci çağrıyı anında engeller.
+  const submittingRef = useRef(false);
+  const handleConfirm = () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    Promise.resolve(isGameOrder ? confirmGunesTekOrder() : confirmOrder())
+      .finally(() => { submittingRef.current = false; });
+  };
 
   // ── Yükleme skeleton ──────────────────────────────────────────────────────
   const SkeletonCard = () => (
