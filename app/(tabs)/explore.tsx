@@ -377,15 +377,22 @@ export default function ExploreScreen() {
       ? selPkg.gunestek_params
       : null;
 
+  // "00000" gibi tek karakterin tekrarından oluşan değerler hiçbir platformda
+  // geçerli bir hesap/oyun ID'si olamaz (ör. bir "Best Live" siparişinde görüldü,
+  // tedarikçi reddedip iade etti ama boşuna bir sipariş+iptal döngüsüydü) — asıl
+  // doğrulama zaten tedarikçide (Gunes-Tek) yapılıyor, bu sadece bariz hatalı
+  // girişleri client tarafında erkenden eleyen bir ek kontrol.
+  const isPlaceholderId = (v: string) => /^(.)\1*$/.test(v.trim());
+
   // Oyun ID/Player ID alanları boşken de "Siparişi Onayla" butonu tıklanabilir
   // kalıyordu (telefon yükleme ekranındaki "Devam Et"in aksine) — buton confirmGunesTekOrder'ın
   // kendi validasyonuna güveniyordu, ama kullanıcı önce boş/geçersiz ID ile denemeyi
-  // deneyebiliyordu. Aynı kuralı (multi-alan: her biri dolu, tek alan: en az 3 karakter) butonun
-  // disabled durumuna da taşıyoruz.
+  // deneyebiliyordu. Aynı kuralı (multi-alan: her biri dolu, tek alan: en az 3 karakter ve
+  // tekrar eden tek karakter olmayacak) butonun disabled durumuna da taşıyoruz.
   const gameIdValid = !isGameOrder || (
     multiFieldLabels
       ? multiFieldLabels.every((label) => (extraFields[label] || '').trim().length > 0)
-      : orderPhone.trim().length >= 3
+      : orderPhone.trim().length >= 3 && !isPlaceholderId(orderPhone)
   );
 
   // ── Gunes-Tek siparişi — yeni tedarikçi, ayrı endpoint (/api/orders/gunestek) ──
