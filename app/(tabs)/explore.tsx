@@ -377,6 +377,17 @@ export default function ExploreScreen() {
       ? selPkg.gunestek_params
       : null;
 
+  // Oyun ID/Player ID alanları boşken de "Siparişi Onayla" butonu tıklanabilir
+  // kalıyordu (telefon yükleme ekranındaki "Devam Et"in aksine) — buton confirmGunesTekOrder'ın
+  // kendi validasyonuna güveniyordu, ama kullanıcı önce boş/geçersiz ID ile denemeyi
+  // deneyebiliyordu. Aynı kuralı (multi-alan: her biri dolu, tek alan: en az 3 karakter) butonun
+  // disabled durumuna da taşıyoruz.
+  const gameIdValid = !isGameOrder || (
+    multiFieldLabels
+      ? multiFieldLabels.every((label) => (extraFields[label] || '').trim().length > 0)
+      : orderPhone.trim().length >= 3
+  );
+
   // ── Gunes-Tek siparişi — yeni tedarikçi, ayrı endpoint (/api/orders/gunestek) ──
   const confirmGunesTekOrder = async () => {
     if (!selPkg) return;
