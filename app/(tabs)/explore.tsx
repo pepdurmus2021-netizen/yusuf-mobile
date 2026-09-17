@@ -191,7 +191,7 @@ export default function ExploreScreen() {
           </View>
           <View style={[s.pkgBadge, { backgroundColor: op.colors[0] }]}>
             <Text style={s.pkgBadgeLabelSmall}>{t('explore.purchase')}</Text>
-            <Text style={s.pkgBadgePrice}>{price.toFixed(0)}</Text>
+            <Text style={s.pkgBadgePrice}>{fmtPrice(price)}</Text>
             <Text style={s.pkgBadgeCur}>₺</Text>
           </View>
         </LinearGradient>
