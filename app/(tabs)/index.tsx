@@ -526,6 +526,11 @@ const styles = StyleSheet.create({
   dealersBannerIcon: { width: 42, height: 42, borderRadius: 13, justifyContent: 'center', alignItems: 'center' },
   dealersBannerTitle: { fontSize: 14, fontWeight: '800', color: '#1e293b' },
   dealersBannerSub: { fontSize: 12, color: '#94a3b8', fontWeight: '600', marginTop: 1 },
+  promoBanner: { marginHorizontal: 20, marginTop: 14, borderRadius: 18, overflow: 'hidden', elevation: 6, shadowColor: '#7c3aed', shadowOpacity: 0.25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } },
+  promoBannerGrad: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
+  promoBannerIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
+  promoBannerTitle: { fontSize: 13, fontWeight: '800', color: '#fff' },
+  promoBannerSub: { fontSize: 11, color: 'rgba(255,255,255,0.85)', fontWeight: '600', marginTop: 1 },
 
   quickRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 24, gap: 8 },
   quickBtn: { flex: 1, alignItems: 'center', gap: 8 },
