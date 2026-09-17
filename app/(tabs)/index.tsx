@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { safeDate, safeDateFull, API_URL } from '../../lib/config';
+import { safeDate, safeDateFull, API_URL, apiFetch } from '../../lib/config';
 import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from 'react-i18next';
