@@ -184,12 +184,12 @@ export default function ExploreScreen() {
               {sellPrice > 0 && (
                 <View style={s.pkgSellRow}>
                   <Text style={s.pkgSellLabel}>{t('explore.sale')}: </Text>
-                  <Text style={[s.pkgSellPrice, { color: op.colors[0] }]}>{fmtPrice(sellPrice)} ₺</Text>
+                  <Text style={[s.pkgSellPrice, { color: '#10b981' }]}>{fmtPrice(sellPrice)} ₺</Text>
                 </View>
               )}
             </View>
           </View>
-          <View style={[s.pkgBadge, { backgroundColor: op.colors[0] }]}>
+          <View style={[s.pkgBadge, { backgroundColor: '#ef4444' }]}>
             <Text style={s.pkgBadgeLabelSmall}>{t('explore.purchase')}</Text>
             <Text style={s.pkgBadgePrice}>{fmtPrice(price)}</Text>
             <Text style={s.pkgBadgeCur}>₺</Text>
