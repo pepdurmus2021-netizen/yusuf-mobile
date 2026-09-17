@@ -243,6 +243,21 @@ export default function HomeScreen() {
           )}
         </View>
 
+        {latestAnnouncement && (
+          <TouchableOpacity style={styles.promoBanner} onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.88}>
+            <LinearGradient colors={['#4f46e5', '#7c3aed', '#a855f7']} style={styles.promoBannerGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+              <View style={styles.promoBannerIcon}>
+                <Ionicons name="megaphone" size={18} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.promoBannerTitle} numberOfLines={1}>{latestAnnouncement.title}</Text>
+                <Text style={styles.promoBannerSub} numberOfLines={1}>{latestAnnouncement.message}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.85)" />
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+
         {isDealerParent && (
           <TouchableOpacity style={styles.dealersBanner} onPress={() => router.push('/(tabs)/dealers')} activeOpacity={0.85}>
             <LinearGradient colors={['#f97316', '#ea580c']} style={styles.dealersBannerIcon}>
