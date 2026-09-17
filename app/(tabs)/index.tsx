@@ -76,10 +76,15 @@ export default function HomeScreen() {
         fetchBalanceRequests(token),
         supabase.from('users').select('balance').eq('id', user.id).single(),
         isDealerParent ? fetchAnaBayiStats(token) : Promise.resolve(),
+        apiFetch(`${API_URL}/api/me/announcements`, token),
       ]);
       const userRes = results[2];
       if (userRes.status === 'fulfilled' && (userRes.value as any)?.data) {
         updateUser({ balance: (userRes.value as any).data.balance });
+      }
+      const annRes = results[4];
+      if (annRes.status === 'fulfilled') {
+        setLatestAnnouncement((annRes.value as any)?.data?.[0] ?? null);
       }
     } catch (err) {
       console.error(err);
