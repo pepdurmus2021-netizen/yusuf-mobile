@@ -184,7 +184,7 @@ export default function ExploreScreen() {
               {sellPrice > 0 && (
                 <View style={s.pkgSellRow}>
                   <Text style={s.pkgSellLabel}>{t('explore.sale')}: </Text>
-                  <Text style={[s.pkgSellPrice, { color: op.colors[0] }]}>{sellPrice.toFixed(0)} ₺</Text>
+                  <Text style={[s.pkgSellPrice, { color: op.colors[0] }]}>{fmtPrice(sellPrice)} ₺</Text>
                 </View>
               )}
             </View>
