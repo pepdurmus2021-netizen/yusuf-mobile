@@ -33,6 +33,7 @@ export default function HomeScreen() {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [receiptOrder, setReceiptOrder] = useState<any>(null);
+  const [latestAnnouncement, setLatestAnnouncement] = useState<any>(null);
 
   useEffect(() => {
     AsyncStorage.getItem('isBalanceVisible').then(val => {
