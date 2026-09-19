@@ -532,10 +532,10 @@ const styles = StyleSheet.create({
   promoBannerTitle: { fontSize: 13, fontWeight: '800', color: '#fff' },
   promoBannerSub: { fontSize: 11, color: 'rgba(255,255,255,0.85)', fontWeight: '600', marginTop: 1 },
 
-  quickRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 24, gap: 8 },
-  quickBtn: { flex: 1, alignItems: 'center', gap: 8 },
-  quickIcon: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } },
-  quickLabel: { fontSize: 10, fontWeight: '700', color: '#334155', textAlign: 'center', letterSpacing: 0.1, flexShrink: 1 },
+  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 20, marginTop: 24, gap: 10 },
+  categoryCard: { flexBasis: '47%', flexGrow: 1, borderRadius: 20, padding: 16, gap: 12 },
+  categoryIcon: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center', elevation: 6, shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } },
+  categoryLabel: { fontSize: 13, fontWeight: '800', color: '#1e293b' },
 
   section: { paddingHorizontal: 20, marginTop: 28 },
   sectionTitle: { fontSize: 18, fontWeight: '800', color: '#1e293b', marginBottom: 14 },
