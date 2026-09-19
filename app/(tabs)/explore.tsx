@@ -267,6 +267,10 @@ export default function ExploreScreen() {
   }, [token]));
 
   useFocusEffect(useCallback(() => {
+    if (params.mode === 'game' || params.mode === 'phone') setMarketMode(params.mode);
+  }, [params.mode]));
+
+  useFocusEffect(useCallback(() => {
     const onBack = () => {
       if (selPkg) { setSelPkg(null); setModalOp(null); clearError(); return true; }
       if (opId || detectedOp) { setOpId(null); setDetectedOp(null); setPhone(''); setEligibleIds(null); setEligibleNote(null); setShowAllOverride(false); return true; }
