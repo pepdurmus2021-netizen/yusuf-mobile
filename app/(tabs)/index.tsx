@@ -117,11 +117,11 @@ export default function HomeScreen() {
   const pendingBalance = balanceRequests.filter(r => r.status === 'pending').length;
   const approvedBalance = balanceRequests.filter(r => r.status === 'approved').length;
 
-  const quickActions = [
-    { label: t('home.topUpBalance'), icon: 'logo-usd', colors: ['#6366f1', '#8b5cf6'] as const, route: '/(tabs)/balance' },
-    { label: t('home.placeOrder'), icon: 'storefront', colors: ['#10b981', '#06b6d4'] as const, route: '/(tabs)/explore' },
-    { label: t('home.history'), icon: 'stats-chart', colors: ['#f59e0b', '#f97316'] as const, route: '/(tabs)/orders' },
-    { label: t('home.myAccount'), icon: 'shield-checkmark', colors: ['#ec4899', '#f43f5e'] as const, route: '/(tabs)/profile' },
+  const categoryActions = [
+    { label: t('explore.phoneTopup'), icon: 'call', colors: ['#4f46e5', '#7c3aed'] as const, bg: '#eef2ff', route: '/(tabs)/explore?mode=phone' },
+    { label: t('explore.gameAndDigital'), icon: 'game-controller', colors: ['#ec4899', '#f43f5e'] as const, bg: '#fdf2f8', route: '/(tabs)/explore?mode=game' },
+    { label: t('home.topUpBalance'), icon: 'wallet', colors: ['#10b981', '#06b6d4'] as const, bg: '#ecfdf5', route: '/(tabs)/balance' },
+    { label: t('home.history'), icon: 'stats-chart', colors: ['#f59e0b', '#f97316'] as const, bg: '#fffbeb', route: '/(tabs)/orders' },
   ];
 
   if (loading) {
