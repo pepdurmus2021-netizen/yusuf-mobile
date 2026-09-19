@@ -199,6 +199,10 @@ export default function ExploreScreen() {
     );
   };
 
+  // Ana ekrandaki kategori kartlarından ?mode=phone|game ile gelinirse
+  // ekran açılışında doğru sekmede başlasın diye.
+  const params = useLocalSearchParams<{ mode?: string }>();
+
   // UI state — sadece görsel akış
   const [loading, setLoading]         = useState(true);
   const [opId, setOpId]               = useState<string | null>(null);
