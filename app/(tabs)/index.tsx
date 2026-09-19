@@ -271,14 +271,14 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* HIZLI İŞLEM BUTONLARI */}
-        <View style={styles.quickRow}>
-          {quickActions.map((a, i) => (
-            <TouchableOpacity key={i} style={styles.quickBtn} onPress={() => router.push(a.route as any)}>
-              <LinearGradient colors={a.colors} style={styles.quickIcon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        {/* KATEGORİ GRID'İ */}
+        <View style={styles.categoryGrid}>
+          {categoryActions.map((a, i) => (
+            <TouchableOpacity key={i} style={[styles.categoryCard, { backgroundColor: a.bg }]} onPress={() => router.push(a.route as any)} activeOpacity={0.85}>
+              <LinearGradient colors={a.colors} style={styles.categoryIcon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
                 <Ionicons name={a.icon as any} size={22} color="#fff" />
               </LinearGradient>
-              <Text style={styles.quickLabel}>{a.label}</Text>
+              <Text style={styles.categoryLabel}>{a.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
