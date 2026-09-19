@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView, Keyboard, Platform, Dimensions, BackHandler, useWindowDimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
